@@ -36,6 +36,7 @@ The form shows the estimate before you save. Estimated dates are labeled "est." 
 ## Features
 
 - Add, edit and delete items with category, quantity, unit, expiration date, storage location and notes
+- On phones and tablets, number fields (quantity, household size, savings) open a spinning number dial instead of the keyboard
 - Units are picked from a list of common units for each category, or choose **Other…** to type your own. Units you've typed before are added to that category's list
 - Items that are expired or expire within 60 days are flagged and sorted to the top
 - **Days of water** estimate: 1 gallon per person per day, based on household size (understands gallons, liters, oz, mL and 500 mL bottles)
