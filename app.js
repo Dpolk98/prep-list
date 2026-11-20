@@ -347,6 +347,7 @@ $('supplies').addEventListener('click', (e) => {
   if (!btn) return;
   resetForm();
   $('name').value = btn.dataset.add;
+  suggestType();
   updateExpiresHint();
   $('form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   $('quantity').focus({ preventScroll: true });
@@ -366,7 +367,7 @@ function renderInventory(page) {
 
   const visible = items
     .filter((i) => !st || statusOf(i) === st)
-    .filter((i) => !q || [i.name, i.location, i.notes].join(' ').toLowerCase().includes(q))
+    .filter((i) => !q || [i.name, findType(i.category, i.type)?.name, i.location, i.notes].join(' ').toLowerCase().includes(q))
     .sort((a, b) =>
       order[statusOf(a)] - order[statusOf(b)] ||
       (a.expires || '9999').localeCompare(b.expires || '9999') ||
@@ -376,11 +377,15 @@ function renderInventory(page) {
     const s = statusOf(i);
     const badge = s === 'ok' ? '' :
       `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
+    const type = findType(i.category, i.type);
+    // With a type shown, "(est.)" is enough; older items name their basis.
+    const basis = type ? '' : ` · ${escapeHtml(i.expiresBasis || 'typical shelf life')}`;
     const expiry = i.expiresEstimated
-      ? `${expiryText(i)} <span class="est" title="Estimated from typical shelf life. Edit the item to enter the printed date.">(est. · ${escapeHtml(i.expiresBasis || 'typical shelf life')})</span>`
+      ? `${expiryText(i)} <span class="est" title="Estimated from the item type's typical shelf life. Edit the item to enter the printed date.">(est.${basis})</span>`
       : expiryText(i);
     const meta = [
       `${i.quantity} ${escapeHtml(i.unit)}`.trim(),
+      type && escapeHtml(type.name),
       expiry,
       i.location && `📍 ${escapeHtml(i.location)}`,
       i.notes && escapeHtml(i.notes),
@@ -560,45 +565,78 @@ function parseIsoDate(iso) {
 
 function currentEstimate() {
   return estimateExpiry(
-    { name: $('name').value, unit: $('unit').value, category: $('category').value },
+    { category: $('category').value, type: $('type').value },
     parseIsoDate(editingAddedDate),
   );
 }
 
-// Tells the user what will happen if they leave the expiration date blank.
+// ----- Item type -----
+
+// Once the user picks a type themselves, stop auto-selecting it from the name.
+let typeTouched = false;
+
+function fillTypeOptions() {
+  const types = typesFor($('category').value);
+  const groups = [];
+  for (const t of types) {
+    let g = groups.find((x) => x.name === (t.group || ''));
+    if (!g) groups.push((g = { name: t.group || '', types: [] }));
+    g.types.push(t);
+  }
+  const opt = (t) => `<option value="${t.id}">${escapeHtml(t.name)}</option>`;
+  $('type').innerHTML = '<option value="">Choose a type…</option>' + groups.map((g) => g.name
+    ? `<optgroup label="${escapeHtml(g.name)}">${g.types.map(opt).join('')}</optgroup>`
+    : g.types.map(opt).join('')).join('');
+}
+
+// Pre-selects the most likely type from the name, until the user picks one.
+function suggestType() {
+  if (typeTouched) return;
+  $('type').value = guessType({ name: $('name').value, unit: $('unit').value, category: $('category').value }) || '';
+}
+
+// Tells the user what expiration date the chosen type implies.
 function updateExpiresHint() {
   const hint = $('expires-hint');
   if ($('expires').value) {
     hint.textContent = '';
     return;
   }
-  if (!$('name').value.trim()) {
-    hint.textContent = 'No expiration date? Leave it blank and we’ll estimate one from the item name.';
-    return;
-  }
   const est = currentEstimate();
   if (!est) {
-    hint.textContent = 'No estimate for this item. Leaving the date blank means it doesn’t expire.';
+    hint.textContent = 'Choose a type and we’ll estimate the expiration date if you leave it blank.';
   } else if (est.none) {
-    hint.textContent = 'This item usually doesn’t expire, so no date will be set.';
+    hint.textContent = 'This type usually doesn’t expire, so no date will be set.';
   } else {
     hint.innerHTML =
       `If left blank, we’ll estimate <strong>${formatLongDate(est.date)}</strong> ` +
-      `(${escapeHtml(est.label)}, about ${est.life}).`;
+      `(${escapeHtml(est.label.toLowerCase())}: about ${est.life}).`;
   }
 }
 
-for (const id of ['name', 'unit', 'category', 'expires']) {
-  $(id).addEventListener('input', updateExpiresHint);
+function onFormInput(e) {
+  if (e.target.id === 'category') {
+    fillTypeOptions();
+    typeTouched = false;
+  }
+  if (e.target.id === 'type') typeTouched = Boolean($('type').value);
+  if (['name', 'unit', 'category'].includes(e.target.id)) suggestType();
+  updateExpiresHint();
+}
+
+for (const id of ['name', 'unit', 'category', 'type', 'expires']) {
+  $(id).addEventListener('input', onFormInput);
 }
 
 function resetForm() {
   editingAddedDate = null;
+  typeTouched = false;
   $('item-form').reset();
   $('item-id').value = '';
   $('quantity').value = 1;
   const page = currentPage();
   if (CATEGORIES.includes(page.cat)) $('category').value = page.cat;
+  fillTypeOptions();
   $('form-title').textContent = 'Add an item';
   $('submit-btn').textContent = 'Add item';
   $('cancel-edit').hidden = true;
@@ -611,8 +649,13 @@ function startEdit(item) {
   for (const key of ['name', 'category', 'quantity', 'unit', 'expires', 'location', 'notes']) {
     $(key).value = item[key] ?? '';
   }
+  fillTypeOptions();
+  // Items saved before types existed get a suggested type.
+  typeTouched = Boolean(findType(item.category, item.type));
+  if (typeTouched) $('type').value = item.type;
+  else suggestType();
   // An estimated date is shown as blank, so saving re-estimates it (in case
-  // the name changed) unless the user types in the real printed date.
+  // the type changed) unless the user types in the real printed date.
   if (item.expiresEstimated) $('expires').value = '';
   updateExpiresHint();
   $('form-title').textContent = 'Edit item';
@@ -627,6 +670,7 @@ $('item-form').addEventListener('submit', (e) => {
   const data = {
     name: $('name').value.trim(),
     category: $('category').value,
+    type: $('type').value,
     quantity: Number($('quantity').value) || 0,
     unit: $('unit').value.trim(),
     expires: $('expires').value,
@@ -635,7 +679,7 @@ $('item-form').addEventListener('submit', (e) => {
   };
   if (!data.name) return;
 
-  // No date entered: estimate one from typical shelf life.
+  // No date entered: estimate one from the type's typical shelf life.
   data.expiresEstimated = false;
   data.expiresBasis = '';
   if (!data.expires) {

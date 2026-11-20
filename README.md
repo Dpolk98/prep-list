@@ -26,9 +26,11 @@ The ☰ menu in the top left opens these pages. Each one has its own link, such 
 
 ## Estimated expiration dates
 
-The expiration date is optional. If you leave it blank, the app estimates one from the item's name, unit and category, using typical unopened shelf lives (for example: canned beans about 3 years, canned fruit about 18 months, white rice about 2 years, alkaline batteries about 10 years). Items that don't normally expire, such as salt, honey or a can opener, get no date.
+Every item has a **type** within its category, for example Food → *Canned meat & fish*, *White rice (bagged)* or *Freeze-dried meals*. As you type the name, the app suggests a type; once you pick one yourself, it stays put.
 
-The form shows the estimate before you save. Estimated dates are labeled "est." in the list. Edit the item and enter the printed date to replace the estimate. The rules live in `shelf-life.js`.
+The expiration date is optional. If you leave it blank, the app estimates one from the type's typical unopened shelf life (for example: canned meat about 3 years, canned fruit about 18 months, bagged white rice about 2 years, alkaline batteries about 10 years). Types that don't normally expire, such as salt or a can opener, get no date.
+
+The form shows the estimate before you save. Estimated dates are labeled "est." in the list. Edit the item and enter the printed date to replace the estimate. Types, shelf lives and the name-matching rules live in `shelf-life.js`.
 
 ## Features
 

@@ -167,6 +167,10 @@ h2 { font-size: 1.1rem; margin: 0 0 12px; }
 .grid .wide { grid-column: 1 / -1; }
 label { display: flex; flex-direction: column; font-size: .8rem; color: var(--muted); gap: 4px; min-width: 0; }
 .grid input, .grid select { width: 100%; }
+.grid .type-field { grid-column: span 2; }
+@media (max-width: 640px) {
+  .grid .cat-field, .grid .type-field { grid-column: 1 / -1; }
+}
 
 input, select, button {
   font: inherit;
