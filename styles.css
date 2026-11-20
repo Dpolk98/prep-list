@@ -227,28 +227,46 @@ button.primary { background: var(--accent); color: var(--accent-text); border-co
   border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--surface);
 }
 
-/* ---------- Plan, progress & checklist ---------- */
+/* ---------- Plan, progress & supplies ---------- */
 
-.plan-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
-.mindset { margin: 0 0 12px; color: var(--muted); font-size: .92rem; max-width: 62ch; }
-.plan-progress { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; }
-.plan-progress .num { font-size: 1.6rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.plan-progress .label { font-size: .8rem; color: var(--muted); }
+.mindset { margin: 0 0 4px; color: var(--muted); font-size: .92rem; max-width: 62ch; }
 
 .bar { height: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; margin-bottom: 4px; }
 .bar .fill { height: 100%; width: 0; background: var(--accent); transition: width .3s ease; }
 .bar .fill.complete { background: var(--ok); }
 
-#checklist h3 {
-  font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
-  color: var(--muted); margin: 14px 0 4px;
+.supplies-card { padding: 0; }
+.supplies-card summary {
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px; cursor: pointer; list-style: none;
 }
-#checklist h3:first-child { margin-top: 4px; }
-.checks { list-style: none; margin: 0; padding: 0; }
-.checks li label { flex-direction: row; align-items: flex-start; gap: 10px; padding: 6px 0; color: var(--text); font-size: .92rem; cursor: pointer; }
-.checks input[type=checkbox] { width: 18px; height: 18px; margin: 1px 0 0; padding: 0; accent-color: var(--accent); flex-shrink: 0; }
-.checks li.done span { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--border); }
-.checks .auto { display: block; font-size: .76rem; color: var(--muted); text-decoration: none; }
+.supplies-card summary::-webkit-details-marker { display: none; }
+.supplies-card summary::before {
+  content: ''; width: 8px; height: 8px; flex-shrink: 0;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg); transition: transform .15s ease;
+}
+.supplies-card details[open] summary::before { transform: rotate(45deg); }
+.supplies-title { font-weight: 600; font-size: 1.1rem; flex: 1; }
+.supplies-card summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--radius); }
+.supplies-card details > :not(summary) { margin-left: 16px; margin-right: 16px; }
+.supplies-card details[open] { padding-bottom: 8px; }
+#supplies-intro { margin-top: -4px; margin-bottom: 4px; }
+
+#supplies h3 {
+  font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--muted); margin: 16px 0 4px;
+}
+.supplies { list-style: none; margin: 0; padding: 0; }
+.supplies li {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 0; border-top: 1px solid var(--border);
+}
+.supplies li:first-child { border-top: none; }
+.supply-name { display: block; font-size: .95rem; }
+.supply-note { display: block; font-size: .8rem; color: var(--muted); }
+.add-supply { padding: 4px 12px; font-size: .85rem; flex-shrink: 0; }
+.have { font-size: .78rem; font-weight: 600; color: var(--ok); white-space: nowrap; flex-shrink: 0; }
 
 /* ---------- Overview category grid ---------- */
 
@@ -318,8 +336,6 @@ dialog .hint { margin: 0 0 14px; display: block; }
   .item .controls { grid-row: auto; }
   .filters, .filters > * { width: 100%; }
   .tier-options { grid-template-columns: 1fr; }
-  .plan-head { flex-direction: column; gap: 0; }
-  .plan-progress { flex-direction: row; align-items: baseline; gap: 6px; }
 }
 
 @media (max-width: 420px) {

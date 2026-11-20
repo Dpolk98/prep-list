@@ -56,17 +56,8 @@
       </section>
 
       <section class="card">
-        <div class="plan-head">
-          <div>
-            <h2 id="plan-title"></h2>
-            <p class="mindset" id="plan-mindset"></p>
-          </div>
-          <div class="plan-progress">
-            <span class="num" id="plan-pct">0%</span>
-            <span class="label">ready</span>
-          </div>
-        </div>
-        <div class="bar"><div class="fill" id="plan-bar"></div></div>
+        <h2 id="plan-title"></h2>
+        <p class="mindset" id="plan-mindset"></p>
       </section>
 
       <section class="cat-grid" id="cat-grid" aria-label="Categories"></section>
@@ -88,12 +79,15 @@
         <p class="hint" id="water-panel-hint"></p>
       </section>
 
-      <section class="card" id="checklist-card">
-        <div class="card-head">
-          <h2>Checklist</h2>
-          <span class="count" id="checklist-count"></span>
-        </div>
-        <div id="checklist"></div>
+      <section class="card supplies-card" id="supplies-card">
+        <details id="supplies-details">
+          <summary>
+            <span class="supplies-title" id="supplies-title">What to buy</span>
+            <span class="count" id="supplies-count"></span>
+          </summary>
+          <p class="hint" id="supplies-intro"></p>
+          <div id="supplies"></div>
+        </details>
       </section>
 
       <section class="card" id="inventory-card">

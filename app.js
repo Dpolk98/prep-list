@@ -1,6 +1,7 @@
 // Prep Tracker — emergency supplies inventory.
 // All data is stored in this browser's localStorage; nothing leaves the device.
-// Tier definitions (checklists, mindset, savings notes) live in tiers.js.
+// Tier definitions (suggested supplies, mindset, savings notes) live in tiers.js.
+// Shelf-life estimates live in shelf-life.js.
 
 const STORAGE_KEY = 'prep-tracker:v1';
 const SOON_DAYS = 60;
@@ -26,7 +27,7 @@ function icon(name) {
 }
 
 // ---------- Pages ----------
-// `cat` ties a page to an inventory category and/or checklist category.
+// `cat` ties a page to an inventory category and to its suggested supplies.
 
 const PAGES = [
   { slug: '', name: 'Overview', icon: 'home', blurb: 'Your readiness across every category.' },
@@ -60,7 +61,6 @@ function normalize(data = {}) {
     items: Array.isArray(data.items) ? data.items : [],
     people: data.people ?? 2,
     tier: TIERS.some((t) => t.id === data.tier) ? data.tier : null,
-    checklist: data.checklist && typeof data.checklist === 'object' ? data.checklist : {},
     savings: { ...DEFAULT_SAVINGS, ...(data.savings || {}) },
   };
 }
@@ -164,17 +164,17 @@ function escapeHtml(s) {
   ));
 }
 
-// ---------- Checklist & savings math ----------
+// ---------- Supplies & savings math ----------
 
-// A checklist item is done if the user ticked it, or (for water-storage items)
-// if the inventory already holds enough water.
-function isChecked(item, wd) {
-  if (item.autoWater) return wd >= item.autoWater;
-  return Boolean(state.checklist[item.id]);
+// Suggested supplies for a category, across the current tier and the ones below it.
+function suppliesFor(cat) {
+  return includedTiers().flatMap((t) => t.supplies.filter((s) => s.cat === cat));
 }
 
-function checklistFor(cat) {
-  return includedTiers().flatMap((t) => t.checklist.filter((c) => !cat || c.cat === cat));
+// True if the inventory already has an item with this exact name in this category.
+function inInventory(name, cat) {
+  const n = name.trim().toLowerCase();
+  return state.items.some((i) => i.category === cat && i.name.trim().toLowerCase() === n);
 }
 
 function tierWeeks(tier) {
@@ -240,6 +240,7 @@ window.addEventListener('hashchange', () => {
   closeDrawer({ restoreFocus: false });
   $('search').value = '';
   $('filter-status').value = '';
+  $('supplies-details').open = false;
   resetForm();
   render();
   window.scrollTo(0, 0);
@@ -260,34 +261,26 @@ function renderOverview(wd) {
 
   $('plan-title').textContent = `${tier.name} plan: ${tier.title}`;
   $('plan-mindset').textContent = tier.mindset;
-  const all = checklistFor();
-  const done = all.filter((c) => isChecked(c, wd)).length;
-  const pct = all.length ? Math.round((done / all.length) * 100) : 0;
-  $('plan-pct').textContent = `${pct}%`;
-  $('plan-bar').style.width = `${pct}%`;
 
   // One card per category page, plus savings.
   const cards = PAGES.filter((p) => p.cat).map((p) => {
-    const list = checklistFor(p.cat);
-    const doneHere = list.filter((c) => isChecked(c, wd)).length;
+    const ideas = suppliesFor(p.cat).length;
     const count = state.items.filter((i) => i.category === p.cat).length;
     const a = alertsFor(p.cat);
     const meta = [
       !p.noInventory && `${count} item${count === 1 ? '' : 's'}`,
-      list.length && `${doneHere}/${list.length} checklist`,
+      ideas && `${ideas} idea${ideas === 1 ? '' : 's'}`,
     ].filter(Boolean).join(' · ');
     const badges = [
       a.expired && `<span class="badge expired">${a.expired} expired</span>`,
       a.soon && `<span class="badge soon">${a.soon} expiring</span>`,
     ].filter(Boolean).join('');
-    const p100 = list.length ? Math.round((doneHere / list.length) * 100) : null;
     return `
       <a class="cat-card" href="#/${p.slug}">
         <span class="cat-icon">${icon(p.icon)}</span>
         <span class="cat-name">${escapeHtml(p.name)}</span>
-        <span class="cat-meta">${meta || 'No checklist items'}</span>
+        <span class="cat-meta">${meta}</span>
         ${badges ? `<span class="cat-badges">${badges}</span>` : ''}
-        ${p100 !== null ? `<span class="mini-bar"><span style="width:${p100}%"></span></span>` : ''}
       </a>`;
   });
 
@@ -307,41 +300,58 @@ function renderOverview(wd) {
 
 // ---------- Rendering: category page ----------
 
-function renderChecklist(page, wd) {
+// Reference list of suggested supplies, in a collapsible section.
+function renderSupplies(page) {
   const tier = currentTier();
+  const canAdd = !page.noInventory;
   let total = 0;
-  let done = 0;
 
   // Current tier first, then the foundations it builds on, nearest first.
   const html = [...includedTiers()].reverse().map((t) => {
-    const list = t.checklist.filter((c) => c.cat === page.cat);
+    const list = t.supplies.filter((s) => s.cat === page.cat);
     if (!list.length) return '';
     total += list.length;
     const label = t === tier ? `${t.name} · your tier` : `${t.name} · foundation`;
     return `
       <h3>${escapeHtml(label)}</h3>
-      <ul class="checks">
-        ${list.map((c) => {
-          const checked = isChecked(c, wd);
-          if (checked) done++;
-          const auto = c.autoWater
-            ? `<span class="auto">From inventory: ${formatDays(wd)} of ${c.autoWater} days</span>`
-            : '';
+      <ul class="supplies">
+        ${list.map((s) => {
+          const have = canAdd && inInventory(s.name, page.cat);
+          const action = !canAdd ? ''
+            : have ? '<span class="have">In inventory</span>'
+            : `<button type="button" class="add-supply" data-add="${escapeHtml(s.name)}" aria-label="Add ${escapeHtml(s.name)} to inventory">Add</button>`;
           return `
-            <li class="${checked ? 'done' : ''}">
-              <label>
-                <input type="checkbox" data-check="${c.id}" ${checked ? 'checked' : ''} ${c.autoWater ? 'disabled' : ''}>
-                <span>${escapeHtml(c.text)}${auto}</span>
-              </label>
+            <li>
+              <div>
+                <span class="supply-name">${escapeHtml(s.name)}</span>
+                <span class="supply-note">${escapeHtml(s.note)}</span>
+              </div>
+              ${action}
             </li>`;
         }).join('')}
       </ul>`;
   }).join('');
 
-  $('checklist-card').hidden = total === 0;
-  $('checklist').innerHTML = html;
-  $('checklist-count').textContent = `${done}/${total}`;
+  $('supplies-card').hidden = total === 0;
+  $('supplies-title').textContent = page.noInventory ? 'Things to set up' : 'What to buy';
+  $('supplies-count').textContent = `${total} idea${total === 1 ? '' : 's'}`;
+  $('supplies-intro').textContent = page.noInventory
+    ? `Plans and skills worth having at the ${tier.name} tier.`
+    : `Ideas for your shopping list at the ${tier.name} tier. Tap Add once you have something to log it in your inventory.`;
+  $('supplies').innerHTML = html;
 }
+
+// "Add" on a suggestion fills the add-item form with its name.
+$('supplies').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-add]');
+  if (!btn) return;
+  resetForm();
+  $('name').value = btn.dataset.add;
+  updateExpiresHint();
+  $('form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('quantity').focus({ preventScroll: true });
+  $('quantity').select();
+});
 
 function renderInventory(page) {
   const items = state.items.filter((i) => i.category === page.cat);
@@ -409,7 +419,7 @@ function renderCategory(page, wd) {
       `For ${state.people} ${state.people === 1 ? 'person' : 'people'} (change on Overview). ${waterHint(tier)}`;
   }
 
-  renderChecklist(page, wd);
+  renderSupplies(page);
 
   $('inventory-card').hidden = Boolean(page.noInventory);
   $('form-card').hidden = Boolean(page.noInventory);
@@ -508,16 +518,7 @@ $('tier-dialog').addEventListener('close', () => {
 
 $('change-tier').addEventListener('click', openTierPicker);
 
-// ---------- Checklist & savings inputs ----------
-
-$('checklist').addEventListener('change', (e) => {
-  const id = e.target.dataset.check;
-  if (!id) return;
-  if (e.target.checked) state.checklist[id] = true;
-  else delete state.checklist[id];
-  saveState();
-  render();
-});
+// ---------- Savings inputs ----------
 
 $('savings-current').addEventListener('input', (e) => {
   state.savings.current = Math.max(0, Number(e.target.value) || 0);
