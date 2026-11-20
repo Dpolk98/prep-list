@@ -15,7 +15,6 @@ const ICONS = {
   medkit: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M12 11v6M9 14h6"/>',
   soap: '<path d="M8 11a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z"/><path d="M12 9V5"/><path d="M10 5h5a2 2 0 0 1 2 2"/><path d="M8 15h8"/>',
   zap: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
-  wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
   file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8M16 17H8M10 9H8"/>',
   clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
   package: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
@@ -34,13 +33,12 @@ function icon(name) {
 const PAGES = [
   { slug: '', name: 'Overview', icon: 'home', blurb: 'Your readiness across every category.' },
   { slug: 'water', name: 'Water', cat: 'Water', icon: 'droplet', blurb: 'Stored water, purification and sources.' },
-  { slug: 'food', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking and long-term staples.' },
+  { slug: 'food', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking fuel and long-term staples.' },
   { slug: 'medical', name: 'Medical & First Aid', cat: 'Medical & First Aid', icon: 'medkit', blurb: 'First aid, medications and medical skills.' },
   { slug: 'hygiene', name: 'Toiletries & Hygiene', cat: 'Toiletries & Hygiene', icon: 'soap', blurb: 'Toiletries, cleaning and sanitation.' },
   { slug: 'power', name: 'Light & Power', cat: 'Light & Power', icon: 'zap', blurb: 'Lighting, batteries, charging and generation.' },
-  { slug: 'tools', name: 'Tools & Gear', cat: 'Tools & Gear', icon: 'wrench', blurb: 'Tools, shelter, warmth and go-bags.' },
-  { slug: 'documents', name: 'Documents & Cash', cat: 'Documents & Cash', icon: 'file', blurb: 'Important papers, copies and cash on hand.' },
-  { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Anything that doesn’t fit elsewhere.' },
+  { slug: 'documents', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies and records.' },
+  { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets and anything else.' },
   { slug: 'plans', name: 'Plans & Skills', cat: 'Plans & Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training and community.' },
   { slug: 'savings', name: 'Savings', icon: 'dollar', blurb: 'Your emergency fund goal for this tier.' },
 ];
@@ -63,9 +61,8 @@ const UNITS = {
   'Medical & First Aid': [['boxes'], ['bottles'], ['packs'], ['kits'], ['tablets'], ['doses'], ['rolls'], ['tubes'], ['pairs'], ['pieces']],
   'Toiletries & Hygiene': [['rolls'], ['packs'], ['bottles'], ['boxes'], ['bars'], ['tubes'], ['bags'], ['gallons'], ['pieces']],
   'Light & Power': [['batteries'], ['packs'], ['bulbs'], ['gallons'], ['cans'], ['units'], ['pieces']],
-  'Tools & Gear': [['pieces'], ['sets'], ['kits'], ['pairs'], ['rolls'], ['boxes'], ['units']],
-  'Documents & Cash': [['copies'], ['sets'], ['folders'], ['drives'], ['dollars']],
-  'Other': [['pieces'], ['packs'], ['boxes'], ['sets'], ['units']],
+  'Documents': [['copies'], ['sets'], ['folders'], ['drives']],
+  'Other': [['pieces'], ['packs'], ['boxes'], ['sets'], ['kits'], ['pairs'], ['rolls'], ['units']],
 };
 const OTHER_UNIT = '__other__';
 
@@ -79,9 +76,31 @@ function currentPage() {
 const DEFAULT_SAVINGS = { current: 0, weekly: 500, beyondYears: 2 };
 
 // Fills in any missing fields, so data saved by older versions still loads.
+// Categories that were removed or renamed. Saved data and imported backups
+// are moved over when they load:
+//   Documents & Cash → Documents (cash items go to Other)
+//   Tools & Gear     → Other (stoves and cookware go to Food)
+const OLD_TOOLS_TYPES = {
+  'hand-tools': 'hand-tools', 'tools-other': 'hand-tools', fire: 'hand-tools',
+  shelter: 'shelter', clothing: 'shelter', bags: 'bags', masks: 'masks', extinguisher: 'extinguisher',
+};
+function migrateItem(item) {
+  if (item.category === 'Documents & Cash') {
+    return item.type === 'cash'
+      ? { ...item, category: 'Other', type: 'other-other' }
+      : { ...item, category: 'Documents' };
+  }
+  if (item.category === 'Tools & Gear') {
+    if (item.type === 'cooking') return { ...item, category: 'Food', type: 'food-gear' };
+    const type = OLD_TOOLS_TYPES[item.type] || guessType({ name: item.name, category: 'Other' }) || 'other-other';
+    return { ...item, category: 'Other', type };
+  }
+  return item;
+}
+
 function normalize(data = {}) {
   return {
-    items: Array.isArray(data.items) ? data.items : [],
+    items: Array.isArray(data.items) ? data.items.map(migrateItem) : [],
     people: data.people ?? 2,
     tier: TIERS.some((t) => t.id === data.tier) ? data.tier : null,
     savings: { ...DEFAULT_SAVINGS, ...(data.savings || {}) },
@@ -160,7 +179,8 @@ function toGallons(qty, unit) {
   if (/^(l|liter|litre)s?$/.test(u)) return qty * 0.264172;
   if (/^(oz|fl ?oz|ounce)s?$/.test(u)) return qty / 128;
   if (/^(ml)$/.test(u)) return qty * 0.000264172;
-  if (/^(bottle)s?$/.test(u)) return qty * 0.132; // assumes 16.9 oz (500 mL) bottles
+  if (/^(bottle|box|boxe|can)s?$/.test(u)) return qty * 0.132; // assumes 16.9 oz (500 mL) bottles, boxes or cans
+  if (/^(case)s?$/.test(u)) return qty * 24 * 0.132;  // assumes cases of 24 × 500 mL
   return 0;
 }
 
@@ -644,17 +664,28 @@ function fillTypeOptions() {
     : g.types.map(opt).join('')).join('');
 }
 
-// Fills the Unit list with the category's common units, plus any other units
-// already used for this category, then selects the given unit (or "Other…" with the
-// text box filled in when it isn't in the list).
-function setUnit(unit = '') {
+// "Gallon" and "gallons" count as the same unit.
+const normUnit = (u) => u.trim().toLowerCase().replace(/s$/, '');
+
+// Units for the chosen type (e.g. canned beans: cans, #10 cans, jars). Without
+// a type (older items), falls back to the category's common units.
+function unitsFor(category, typeId) {
+  const type = findType(category, typeId);
+  if (type?.units) return type.units.map((u) => (Array.isArray(u) ? u : [u]));
+  return UNITS[category] || UNITS.Other;
+}
+
+// Fills the Unit list with the type's units, plus any other units already used
+// for this type, then selects the given unit (or "Other…" with the text box
+// filled in when it isn't in the list and keepCustom is set).
+function setUnit(unit = '', { keepCustom = true } = {}) {
   const cat = $('category').value;
-  const defaults = UNITS[cat] || UNITS.Other;
-  // "Gallon" and "gallons" count as the same unit.
-  const norm = (u) => u.trim().toLowerCase().replace(/s$/, '');
+  const typeId = $('type').value;
+  const defaults = unitsFor(cat, typeId);
+  const norm = normUnit;
   const known = new Set(defaults.map(([v]) => norm(v)));
   const used = [...new Set(state.items
-    .filter((i) => i.category === cat && i.unit && !known.has(norm(i.unit)))
+    .filter((i) => i.category === cat && (!typeId || i.type === typeId) && i.unit && !known.has(norm(i.unit)))
     .map((i) => i.unit))].sort();
   const opt = (v, label = v) => `<option value="${escapeHtml(v)}">${escapeHtml(label)}</option>`;
   $('unit-select').innerHTML = '<option value="">Choose a unit…</option>' +
@@ -664,9 +695,29 @@ function setUnit(unit = '') {
 
   const match = [...$('unit-select').options]
     .find((o) => o.value !== OTHER_UNIT && o.value && norm(o.value) === norm(unit));
-  $('unit-select').value = match ? match.value : unit.trim() ? OTHER_UNIT : '';
-  $('unit').value = match ? '' : unit.trim();
+  const custom = !match && keepCustom && unit.trim();
+  $('unit-select').value = match ? match.value : custom ? OTHER_UNIT : '';
+  $('unit').value = custom ? unit.trim() : '';
   $('unit').hidden = $('unit-select').value !== OTHER_UNIT;
+}
+
+// Quantity and Unit stay locked until a type is chosen, so the unit list
+// can match the type. Changing the type swaps in that type's units, keeping
+// the current unit if it's still offered, otherwise picking the most common.
+let unitsForType = null;
+function syncUnitsToType() {
+  const typeId = $('type').value;
+  const locked = !typeId;
+  for (const id of ['quantity', 'unit-select', 'unit']) $(id).disabled = locked;
+  $('quantity').closest('label').classList.toggle('locked', locked);
+  $('unit-select').closest('label').classList.toggle('locked', locked);
+  if (typeId === unitsForType) return;
+  unitsForType = typeId;
+  const current = unitValue();
+  setUnit(current, { keepCustom: false });
+  if (!locked && !unitValue() && $('unit-select').value !== OTHER_UNIT) {
+    $('unit-select').selectedIndex = 1; // the type's most common unit
+  }
 }
 
 function unitValue() {
@@ -677,14 +728,13 @@ $('unit-select').addEventListener('change', () => {
   const other = $('unit-select').value === OTHER_UNIT;
   $('unit').hidden = !other;
   if (other) $('unit').focus();
-  suggestType();
-  updateExpiresHint();
 });
 
 // Pre-selects the most likely type from the name, until the user picks one.
 function suggestType() {
   if (typeTouched) return;
-  $('type').value = guessType({ name: $('name').value, unit: unitValue(), category: $('category').value }) || '';
+  $('type').value = guessType({ name: $('name').value, category: $('category').value }) || '';
+  syncUnitsToType();
 }
 
 // Tells the user what expiration date the chosen type implies.
@@ -696,7 +746,7 @@ function updateExpiresHint() {
   }
   const est = currentEstimate();
   if (!est) {
-    hint.textContent = 'Choose a type and we’ll estimate the expiration date if you leave it blank.';
+    hint.textContent = 'Choose a type first. It sets the units to pick from and the estimated expiration date.';
   } else if (est.none) {
     hint.textContent = 'This type usually doesn’t expire, so no date will be set.';
   } else {
@@ -707,12 +757,15 @@ function updateExpiresHint() {
 }
 
 function onFormInput(e) {
-  if (e.target.id === 'type') typeTouched = Boolean($('type').value);
-  if (['name', 'unit'].includes(e.target.id)) suggestType();
+  if (e.target.id === 'type') {
+    typeTouched = Boolean($('type').value);
+    syncUnitsToType();
+  }
+  if (e.target.id === 'name') suggestType();
   updateExpiresHint();
 }
 
-for (const id of ['name', 'unit', 'type', 'expires']) {
+for (const id of ['name', 'type', 'expires']) {
   $(id).addEventListener('input', onFormInput);
 }
 
@@ -726,7 +779,8 @@ function resetForm() {
   const page = currentPage();
   $('category').value = CATEGORIES.includes(page.cat) ? page.cat : '';
   fillTypeOptions();
-  setUnit('');
+  unitsForType = null;
+  syncUnitsToType();
   $('form-title').textContent = page.cat ? `Add to ${page.cat}` : 'Add an item';
   $('submit-btn').textContent = 'Add item';
   $('cancel-edit').hidden = true;
@@ -740,11 +794,14 @@ function startEdit(item) {
     $(key).value = item[key] ?? '';
   }
   fillTypeOptions();
-  setUnit(item.unit || '');
   // Items saved before types existed get a suggested type.
   typeTouched = Boolean(findType(item.category, item.type));
   if (typeTouched) $('type').value = item.type;
   else suggestType();
+  // Show the item's own unit, even if it isn't one of the type's usual units.
+  setUnit(item.unit || '');
+  unitsForType = $('type').value;
+  syncUnitsToType();
   // An estimated date is shown as blank, so saving re-estimates it (in case
   // the type changed) unless the user types in the real printed date.
   if (item.expiresEstimated) $('expires').value = '';

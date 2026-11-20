@@ -48,21 +48,16 @@ const TIERS = [
       { cat: 'Light & Power', name: 'NOAA weather radio', note: 'Hand-crank or battery powered' },
       { cat: 'Light & Power', name: 'Power bank', note: 'Keep it charged; enough for a few phone charges' },
 
-      { cat: 'Tools & Gear', name: 'Multitool', note: 'Knife, pliers and screwdrivers in one' },
-      { cat: 'Tools & Gear', name: 'Duct tape', note: 'Quick repairs of almost anything' },
-      { cat: 'Tools & Gear', name: 'Whistle', note: 'To signal for help' },
-      { cat: 'Tools & Gear', name: 'N95 masks', note: 'For smoke, dust and debris' },
-      { cat: 'Tools & Gear', name: 'Go-bag', note: 'A backpack packed in case you have to leave' },
-
-      { cat: 'Documents & Cash', name: 'Waterproof document pouch', note: 'Keeps copies dry and together' },
-      { cat: 'Documents & Cash', name: 'Copies of IDs and insurance', note: 'Plus prescriptions and pet records' },
-      { cat: 'Documents & Cash', name: 'Cash in small bills', note: 'Card readers and ATMs fail in outages' },
-      { cat: 'Documents & Cash', name: 'Printed contact list', note: 'Your phone may be dead' },
+      { cat: 'Documents', name: 'Waterproof document pouch', note: 'Keeps copies dry and together' },
+      { cat: 'Documents', name: 'Copies of IDs and insurance', note: 'Plus prescriptions and pet records' },
+      { cat: 'Documents', name: 'Printed contact list', note: 'Your phone may be dead' },
 
       { cat: 'Plans & Skills', name: 'Family meeting place', note: 'One near home and one outside your neighborhood' },
       { cat: 'Plans & Skills', name: 'Out-of-area contact', note: 'Long-distance calls often go through when local ones don’t' },
       { cat: 'Plans & Skills', name: 'Utility shut-offs', note: 'Know how to turn off water, gas and electricity' },
 
+      { cat: 'Other', name: 'Multitool and duct tape', note: 'Quick repairs of almost anything' },
+      { cat: 'Other', name: 'Go-bag', note: 'Packed in case you have to leave, with a whistle and N95 masks' },
       { cat: 'Other', name: 'Pet food and supplies', note: 'A week of food, water and any medications' },
       { cat: 'Other', name: 'Books, cards and games', note: 'Entertainment without power' },
       { cat: 'Other', name: 'Baby supplies', note: 'Formula, bottles and diapers if needed' },
@@ -89,7 +84,8 @@ const TIERS = [
       { cat: 'Food', name: 'Cooking oil', note: 'Fat and calories; rotate yearly' },
       { cat: 'Food', name: 'Powdered milk', note: 'For cooking, cereal and kids' },
       { cat: 'Food', name: 'Salt, spices and bouillon', note: 'Makes plain staples worth eating' },
-      { cat: 'Food', name: 'Camp stove and fuel', note: 'Cook outdoors only, never indoors' },
+      { cat: 'Food', name: 'Camp stove', note: 'Cook outdoors only, never indoors' },
+      { cat: 'Food', name: 'Stove fuel', note: 'A 1 lb propane canister cooks for about 1–2 hours' },
       { cat: 'Food', name: 'Cast-iron pot or pan', note: 'Works on a stove, grill or fire' },
 
       { cat: 'Medical & First Aid', name: '30-day prescription supply', note: 'Ask your doctor or insurer about a refill buffer' },
@@ -110,21 +106,16 @@ const TIERS = [
       { cat: 'Light & Power', name: 'Fuel with stabilizer', note: 'Stored safely, away from the house' },
       { cat: 'Light & Power', name: 'Lanterns', note: 'Light a whole room, not just a spot' },
 
-      { cat: 'Tools & Gear', name: 'Sleeping bags', note: 'Rated for your coldest season' },
-      { cat: 'Tools & Gear', name: 'Wool blankets', note: 'Stay warm even when damp' },
-      { cat: 'Tools & Gear', name: 'Battery-powered fan', note: 'For summer outages' },
-      { cat: 'Tools & Gear', name: 'Utility shut-off wrench', note: 'For the gas meter and water main' },
-      { cat: 'Tools & Gear', name: 'Work gloves', note: 'For cleanup and debris' },
-      { cat: 'Tools & Gear', name: 'Fire extinguisher', note: 'ABC rated, one per floor' },
-
-      { cat: 'Documents & Cash', name: 'Larger cash reserve', note: 'Enough for a few weeks of essentials' },
-      { cat: 'Documents & Cash', name: 'Encrypted USB drive', note: 'Scans of important documents and photos' },
-      { cat: 'Documents & Cash', name: 'Paper maps', note: 'Your area and evacuation routes' },
+      { cat: 'Documents', name: 'Encrypted USB drive', note: 'Scans of important documents and photos' },
+      { cat: 'Documents', name: 'Paper maps', note: 'Your area and evacuation routes' },
 
       { cat: 'Plans & Skills', name: 'Communication plan', note: 'How to reach each other without cell service' },
       { cat: 'Plans & Skills', name: 'First aid and CPR class', note: 'At least one person in the household' },
       { cat: 'Plans & Skills', name: 'Rotation schedule', note: 'Eat and replace stored food and water before it expires' },
 
+      { cat: 'Other', name: 'Bedding for any season', note: 'Sleeping bags and wool blankets, plus a battery fan for summer' },
+      { cat: 'Other', name: 'Shut-off wrench and work gloves', note: 'For the gas meter, water main and cleanup' },
+      { cat: 'Other', name: 'Fire extinguisher', note: 'ABC rated, one per floor' },
       { cat: 'Other', name: 'A month of pet supplies', note: 'Food, litter and medications' },
       { cat: 'Other', name: 'Rodent-proof storage bins', note: 'Protect stored food from pests' },
       { cat: 'Other', name: 'Sewing kit', note: 'Mend clothes and gear' },
@@ -154,6 +145,7 @@ const TIERS = [
       { cat: 'Food', name: 'Pressure canner and jars', note: 'Preserve what you grow' },
       { cat: 'Food', name: 'Food dehydrator', note: 'Dry fruit, vegetables and jerky' },
       { cat: 'Food', name: 'Hand-crank grain mill', note: 'Turn stored wheat into flour' },
+      { cat: 'Food', name: 'Bulk cooking fuel', note: 'Refillable propane tanks, plus charcoal for a grill' },
 
       { cat: 'Medical & First Aid', name: 'Trauma kit', note: 'Tourniquet, pressure bandage, chest seal' },
       { cat: 'Medical & First Aid', name: 'Dental first aid kit', note: 'Temporary fillings and pain relief' },
@@ -170,20 +162,17 @@ const TIERS = [
       { cat: 'Light & Power', name: 'Charge controller and inverter', note: 'Connects panels, batteries and appliances' },
       { cat: 'Light & Power', name: 'Rechargeable batteries and solar charger', note: 'Replaces disposable batteries' },
 
-      { cat: 'Tools & Gear', name: 'Wood stove', note: 'Heat and cooking; professionally installed' },
-      { cat: 'Tools & Gear', name: 'Axe, bow saw and splitting maul', note: 'Process your own firewood' },
-      { cat: 'Tools & Gear', name: 'Hand tool set', note: 'Hammer, hand saws, wrenches, drills that need no power' },
-      { cat: 'Tools & Gear', name: 'Repair supplies', note: 'Fasteners, wire, lumber and tarps' },
-      { cat: 'Tools & Gear', name: 'Garden tools', note: 'Shovel, hoe, rake and wheelbarrow' },
-
-      { cat: 'Documents & Cash', name: 'Reference library', note: 'Gardening, repair, food preservation guides' },
-      { cat: 'Documents & Cash', name: 'Property and ownership records', note: 'Deeds, titles and insurance policies' },
+      { cat: 'Documents', name: 'Reference library', note: 'Gardening, repair, food preservation guides' },
+      { cat: 'Documents', name: 'Property and ownership records', note: 'Deeds, titles and insurance policies' },
 
       { cat: 'Plans & Skills', name: 'Mutual aid group', note: 'Neighbors who share resources and skills' },
       { cat: 'Plans & Skills', name: 'A producing garden', note: 'Start small and expand each season' },
       { cat: 'Plans & Skills', name: 'Canning and preservation skills', note: 'Practice before you need it' },
       { cat: 'Plans & Skills', name: 'Wilderness first aid course', note: 'For care when help is far away' },
 
+      { cat: 'Other', name: 'Hand and garden tools', note: 'Hammer, saws, wrenches, shovel and rake, none needing power' },
+      { cat: 'Other', name: 'Wood stove and firewood tools', note: 'Heat and cooking, plus an axe, saw and maul' },
+      { cat: 'Other', name: 'Repair supplies', note: 'Fasteners, wire, lumber and tarps' },
       { cat: 'Other', name: 'Year of pet food', note: 'Or a plan to feed pets from what you produce' },
       { cat: 'Other', name: 'Spare clothing and shoes', note: 'Including the next size up for kids' },
     ],
@@ -218,15 +207,13 @@ const TIERS = [
       { cat: 'Light & Power', name: 'Second power source', note: 'Wind or micro-hydro alongside solar' },
       { cat: 'Light & Power', name: 'Spare power components', note: 'Inverter, charge controller, fuses and wiring' },
 
-      { cat: 'Tools & Gear', name: 'Workshop setup', note: 'Bench, vise and a full set of hand tools' },
-      { cat: 'Tools & Gear', name: 'Treadle sewing machine and fabric', note: 'Make and repair clothing without power' },
-      { cat: 'Tools & Gear', name: 'Spare parts for critical equipment', note: 'Pumps, stoves and vehicles' },
-
-      { cat: 'Documents & Cash', name: 'Skills and inventory records', note: 'Who knows what, and what the group has' },
+      { cat: 'Documents', name: 'Skills and inventory records', note: 'Who knows what, and what the group has' },
 
       { cat: 'Plans & Skills', name: 'A tradeable skill', note: 'Repair, medicine, carpentry or food production' },
       { cat: 'Plans & Skills', name: 'Community roles and plans', note: 'Shared responsibilities within your network' },
 
+      { cat: 'Other', name: 'Workshop and spare parts', note: 'A bench, vise and spares for pumps, stoves and vehicles' },
+      { cat: 'Other', name: 'Treadle sewing machine', note: 'Plus fabric, to make and mend clothes without power' },
       { cat: 'Other', name: 'Livestock feed and fencing', note: 'For animals you raise' },
     ],
   },

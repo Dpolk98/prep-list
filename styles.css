@@ -194,6 +194,9 @@ button.primary { background: var(--accent); color: var(--accent-text); border-co
 
 .actions { display: flex; gap: 8px; margin-top: 12px; }
 .optional { font-weight: 400; opacity: .8; }
+/* Quantity and Unit wait for a type to be chosen */
+label.locked { opacity: .5; }
+input:disabled, select:disabled { cursor: not-allowed; }
 .expires-hint { margin: 10px 0 0; min-height: 1.2em; }
 .expires-hint strong { color: var(--text); font-weight: 600; }
 .est { font-style: italic; }
