@@ -1,5 +1,6 @@
 // Prep Tracker — emergency supplies inventory.
 // All data is stored in this browser's localStorage; nothing leaves the device.
+// Tier definitions (checklists, mindset, savings notes) live in tiers.js.
 
 const STORAGE_KEY = 'prep-tracker:v1';
 const SOON_DAYS = 60;
@@ -17,17 +18,27 @@ const CATEGORIES = [
 
 // ---------- State ----------
 
+const DEFAULT_SAVINGS = { current: 0, weekly: 500, beyondYears: 2 };
+
+// Fills in any missing fields, so data saved by older versions still loads.
+function normalize(data = {}) {
+  return {
+    items: Array.isArray(data.items) ? data.items : [],
+    people: data.people ?? 2,
+    tier: TIERS.some((t) => t.id === data.tier) ? data.tier : null,
+    checklist: data.checklist && typeof data.checklist === 'object' ? data.checklist : {},
+    savings: { ...DEFAULT_SAVINGS, ...(data.savings || {}) },
+  };
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const data = JSON.parse(raw);
-      return { items: data.items ?? [], people: data.people ?? 2 };
-    }
+    if (raw) return normalize(JSON.parse(raw));
   } catch (err) {
     console.warn('Could not read saved data:', err);
   }
-  return { items: [], people: 2 };
+  return normalize();
 }
 
 function saveState() {
@@ -40,12 +51,21 @@ function saveState() {
 
 const state = loadState();
 
+// Which earlier-tier sections the user has expanded (kept across re-renders).
+const openTiers = new Set();
+
 // ---------- Helpers ----------
 
 const $ = (id) => document.getElementById(id);
 
+const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
 function newId() {
   return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+}
+
+function currentTier() {
+  return TIERS.find((t) => t.id === state.tier) || TIERS[0];
 }
 
 // Days from today until an ISO date (YYYY-MM-DD). Negative = in the past.
@@ -92,22 +112,137 @@ function waterDays() {
   return gallons / Math.max(1, state.people);
 }
 
+function formatDays(d) {
+  return d >= 10 ? String(Math.floor(d)) : d.toFixed(1).replace(/\.0$/, '');
+}
+
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
 }
 
+// ---------- Tiers & checklist ----------
+
+// A checklist item is done if the user ticked it, or (for water-storage items)
+// if the inventory already holds enough water.
+function isChecked(item, wd) {
+  if (item.autoWater) return wd >= item.autoWater;
+  return Boolean(state.checklist[item.id]);
+}
+
+function tierWeeks(tier) {
+  const days = tier.days ?? state.savings.beyondYears * 365;
+  return days / 7;
+}
+
+function savingsGoal(tier) {
+  return Math.round(tierWeeks(tier) * (Number(state.savings.weekly) || 0));
+}
+
+function renderTierChecklist(tier, wd, isCurrent) {
+  const done = tier.checklist.filter((c) => isChecked(c, wd)).length;
+  const groups = {};
+  for (const c of tier.checklist) (groups[c.cat] ||= []).push(c);
+
+  const body = Object.entries(groups).map(([cat, list]) => `
+    <h3>${escapeHtml(cat)}</h3>
+    <ul class="checks">
+      ${list.map((c) => {
+        const checked = isChecked(c, wd);
+        const auto = c.autoWater
+          ? `<span class="auto">From inventory: ${formatDays(wd)} of ${c.autoWater} days</span>`
+          : '';
+        return `
+          <li class="${checked ? 'done' : ''}">
+            <label>
+              <input type="checkbox" data-check="${c.id}" ${checked ? 'checked' : ''} ${c.autoWater ? 'disabled' : ''}>
+              <span>${escapeHtml(c.text)}${auto}</span>
+            </label>
+          </li>`;
+      }).join('')}
+    </ul>`).join('');
+
+  const open = isCurrent || openTiers.has(tier.id);
+  const label = isCurrent ? tier.title : `Foundation: ${tier.name} · ${tier.title}`;
+  return `
+    <details class="tier-block ${isCurrent ? 'current' : ''}" data-tier="${tier.id}" ${open ? 'open' : ''}>
+      <summary><span>${escapeHtml(label)}</span><span class="count">${done}/${tier.checklist.length}</span></summary>
+      ${body}
+    </details>`;
+}
+
+function renderPlan(wd) {
+  const tier = currentTier();
+  const idx = TIERS.indexOf(tier);
+  const included = TIERS.slice(0, idx + 1);
+
+  $('tier-name').textContent = state.tier ? tier.name : '—';
+  $('plan-title').textContent = `${tier.name} plan: ${tier.title}`;
+  $('plan-mindset').textContent = tier.mindset;
+
+  const all = included.flatMap((t) => t.checklist);
+  const done = all.filter((c) => isChecked(c, wd)).length;
+  const pct = all.length ? Math.round((done / all.length) * 100) : 0;
+  $('plan-pct').textContent = `${pct}%`;
+  $('plan-bar').style.width = `${pct}%`;
+
+  // Current tier first, then the foundations it builds on, nearest first.
+  $('checklists').innerHTML = [...included].reverse()
+    .map((t) => renderTierChecklist(t, wd, t === tier))
+    .join('');
+
+  // Water summary
+  $('stat-water-goal').textContent = ` / ${tier.waterGoalDays}`;
+  $('water-hint').textContent = tier.waterGoalDays < 30 || tier.id === 'month'
+    ? `Water goal: 1 gallon per person per day for ${tier.waterGoalDays} days.`
+    : 'Keep 30 days stored. Past that, rely on a water source you can filter and purify.';
+}
+
+function renderSavings() {
+  const tier = currentTier();
+  const goal = savingsGoal(tier);
+  const current = Number(state.savings.current) || 0;
+  const pct = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0;
+
+  $('savings-note').textContent = tier.savingsNote;
+  $('savings-current-display').textContent = money.format(current);
+  $('savings-goal').textContent = money.format(goal);
+  $('savings-bar').style.width = `${pct}%`;
+  $('savings-bar').classList.toggle('complete', goal > 0 && current >= goal);
+
+  const weeks = tierWeeks(tier);
+  const weeksText = weeks === 1 ? '1 week' : `${weeks.toFixed(1).replace(/\.0$/, '')} weeks`;
+  const span = tier.days === null
+    ? `${state.savings.beyondYears} year${state.savings.beyondYears === 1 ? '' : 's'} (${weeksText})`
+    : weeksText;
+  const remaining = Math.max(0, goal - current);
+  $('savings-math').textContent =
+    `${span} × ${money.format(Number(state.savings.weekly) || 0)}/week. ` +
+    (remaining > 0 ? `${money.format(remaining)} to go.` : 'Goal reached.');
+
+  // Don't overwrite a field while the user is typing in it.
+  const fields = { 'savings-current': current, 'savings-weekly': state.savings.weekly, 'beyond-years': state.savings.beyondYears };
+  for (const [id, val] of Object.entries(fields)) {
+    if (document.activeElement !== $(id)) $(id).value = val;
+  }
+  $('beyond-years-wrap').hidden = tier.days !== null;
+}
+
 // ---------- Rendering ----------
 
 function render() {
+  const wd = waterDays();
+
   // Summary
   $('stat-items').textContent = state.items.length;
   $('stat-soon').textContent = state.items.filter((i) => statusOf(i) === 'soon').length;
   $('stat-expired').textContent = state.items.filter((i) => statusOf(i) === 'expired').length;
-  const wd = waterDays();
-  $('stat-water').textContent = wd >= 10 ? Math.floor(wd) : wd.toFixed(1).replace(/\.0$/, '');
+  $('stat-water').textContent = formatDays(wd);
   $('people').value = state.people;
+
+  renderPlan(wd);
+  renderSavings();
 
   // Suggestions for unit and location fields
   const uniq = (key) => [...new Set(state.items.map((i) => i[key]).filter(Boolean))].sort();
@@ -157,6 +292,84 @@ function render() {
     ? 'No items match your filters.'
     : 'No items yet. Add your first supply above.';
 }
+
+// ---------- Tier picker ----------
+
+function openTierPicker() {
+  const dialog = $('tier-dialog');
+  $('tier-options').innerHTML = TIERS.map((t) => {
+    const goal = t.days === null
+      ? `${money.format(savingsGoal(t))} for ${state.savings.beyondYears} yrs`
+      : money.format(savingsGoal(t));
+    return `
+      <button value="${t.id}" class="tier-option ${t.id === state.tier ? 'selected' : ''}">
+        <strong>${t.name}</strong>
+        <span class="tier-title">${t.title}</span>
+        <span class="tier-goal">Savings goal ${goal}</span>
+      </button>`;
+  }).join('');
+  // On first use there is no current tier to keep, so a choice is required.
+  $('tier-dialog-actions').hidden = !state.tier;
+  dialog.returnValue = '';
+  dialog.showModal();
+}
+
+$('tier-dialog').addEventListener('cancel', (e) => {
+  if (!state.tier) e.preventDefault();
+});
+
+$('tier-dialog').addEventListener('close', () => {
+  const choice = $('tier-dialog').returnValue;
+  if (TIERS.some((t) => t.id === choice)) {
+    state.tier = choice;
+  } else if (!state.tier) {
+    state.tier = TIERS[0].id; // dismissed on first use: start at the first tier
+  }
+  saveState();
+  render();
+});
+
+$('change-tier').addEventListener('click', openTierPicker);
+
+// ---------- Checklist & savings inputs ----------
+
+$('checklists').addEventListener('change', (e) => {
+  const id = e.target.dataset.check;
+  if (!id) return;
+  if (e.target.checked) state.checklist[id] = true;
+  else delete state.checklist[id];
+  saveState();
+  render();
+});
+
+// <details> "toggle" doesn't bubble, so listen in the capture phase.
+$('checklists').addEventListener('toggle', (e) => {
+  const block = e.target.closest('.tier-block');
+  if (!block || block.classList.contains('current')) return;
+  if (block.open) openTiers.add(block.dataset.tier);
+  else openTiers.delete(block.dataset.tier);
+}, true);
+
+$('savings-current').addEventListener('input', (e) => {
+  state.savings.current = Math.max(0, Number(e.target.value) || 0);
+  saveState();
+  renderSavings();
+});
+
+$('savings-weekly').addEventListener('input', (e) => {
+  state.savings.weekly = Math.max(0, Number(e.target.value) || 0);
+  saveState();
+  renderSavings();
+});
+
+$('beyond-years').addEventListener('input', (e) => {
+  const years = Math.round(Number(e.target.value));
+  if (years >= 1) {
+    state.savings.beyondYears = Math.min(50, years);
+    saveState();
+    renderSavings();
+  }
+});
 
 // ---------- Form ----------
 
@@ -259,8 +472,10 @@ $('import-file').addEventListener('change', async (e) => {
     const data = JSON.parse(await file.text());
     if (!Array.isArray(data.items)) throw new Error('No items list found');
     if (!confirm(`Replace your current ${state.items.length} items with ${data.items.length} from the backup?`)) return;
-    state.items = data.items.map((i) => ({ ...i, id: i.id || newId() }));
-    state.people = data.people || state.people;
+    const imported = normalize(data);
+    imported.items = imported.items.map((i) => ({ ...i, id: i.id || newId() }));
+    imported.tier = imported.tier || state.tier;
+    Object.assign(state, imported);
     saveState();
     render();
   } catch (err) {
@@ -275,3 +490,4 @@ $('import-file').addEventListener('change', async (e) => {
 $('category').innerHTML = CATEGORIES.map((c) => `<option>${c}</option>`).join('');
 $('filter-category').innerHTML += CATEGORIES.map((c) => `<option>${c}</option>`).join('');
 render();
+if (!state.tier) openTierPicker();

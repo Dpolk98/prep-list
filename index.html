@@ -8,8 +8,14 @@
 </head>
 <body>
   <header class="top">
-    <h1>Prep Tracker</h1>
-    <p class="sub">Your emergency supplies, at a glance.</p>
+    <div>
+      <h1>Prep Tracker</h1>
+      <p class="sub">Your emergency supplies, at a glance.</p>
+    </div>
+    <div class="tier-bar">
+      <span>Prepping for <strong id="tier-name">—</strong></span>
+      <button id="change-tier">Change</button>
+    </div>
   </header>
 
   <main>
@@ -18,14 +24,53 @@
       <div class="stat"><span class="num" id="stat-items">0</span><span class="label">Items</span></div>
       <div class="stat warn"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 days</span></div>
       <div class="stat bad"><span class="num" id="stat-expired">0</span><span class="label">Expired</span></div>
-      <div class="stat"><span class="num" id="stat-water">0</span><span class="label">Days of water</span></div>
+      <div class="stat"><span class="num"><span id="stat-water">0</span><span class="goal" id="stat-water-goal"></span></span><span class="label">Days of water stored</span></div>
     </section>
 
     <section class="household">
       <label>People in household
         <input type="number" id="people" min="1" value="2">
       </label>
-      <span class="hint">Water goal: 1 gallon per person per day, at least 3 days (14 is better).</span>
+      <span class="hint" id="water-hint"></span>
+    </section>
+
+    <!-- Tier plan -->
+    <section class="card" id="plan">
+      <div class="plan-head">
+        <div>
+          <h2 id="plan-title"></h2>
+          <p class="mindset" id="plan-mindset"></p>
+        </div>
+        <div class="plan-progress">
+          <span class="num" id="plan-pct">0%</span>
+          <span class="label">ready</span>
+        </div>
+      </div>
+      <div class="bar"><div class="fill" id="plan-bar"></div></div>
+      <div id="checklists"></div>
+    </section>
+
+    <!-- Savings -->
+    <section class="card" id="savings">
+      <h2>Savings</h2>
+      <p class="mindset" id="savings-note"></p>
+      <div class="savings-goal">
+        <span class="num" id="savings-current-display">$0</span>
+        <span class="of">of <strong id="savings-goal">$0</strong> goal</span>
+      </div>
+      <div class="bar"><div class="fill" id="savings-bar"></div></div>
+      <p class="hint" id="savings-math"></p>
+      <div class="grid savings-inputs">
+        <label>Saved so far ($)
+          <input type="number" id="savings-current" min="0" step="50" inputmode="decimal">
+        </label>
+        <label>Baseline per week ($)
+          <input type="number" id="savings-weekly" min="0" step="50" inputmode="decimal">
+        </label>
+        <label id="beyond-years-wrap">Years to cover
+          <input type="number" id="beyond-years" min="1" max="50" step="1">
+        </label>
+      </div>
     </section>
 
     <!-- Add / edit form -->
@@ -92,6 +137,19 @@
     </section>
   </main>
 
+  <!-- Tier picker: shown on first use and from the "Change" button -->
+  <dialog id="tier-dialog" aria-labelledby="tier-dialog-title">
+    <form method="dialog">
+      <h2 id="tier-dialog-title">How long are you preparing for?</h2>
+      <p class="hint">Each tier builds on the ones before it. You can change this any time.</p>
+      <div class="tier-options" id="tier-options"></div>
+      <div class="actions" id="tier-dialog-actions">
+        <button value="" id="tier-cancel">Keep current</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="tiers.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -2,6 +2,19 @@
 
 A small web app for tracking emergency supplies: food, water, toiletries, first aid, gear and more.
 
+## Prep tiers
+
+On first use you choose how long you're preparing for. You can change it any time from the header.
+
+| Tier | Focus | Savings goal (at $500/week) |
+| --- | --- | --- |
+| 1 Week | Shelter in place: stored supplies that need no power or running water | $500 |
+| 1 Month | Extended disruption: cook without power, purify water, handle sanitation | $2,143 |
+| 1 Year | Long-term self-reliance: renewable water, bulk staples, generated power, skills | $26,071 |
+| Beyond | Sustainable living: production, skills and community | $500/week × years you choose |
+
+Each tier builds on the ones below it: its checklist is shown alongside the earlier tiers' checklists as "foundations". Water-storage items tick themselves when your inventory holds enough water. The weekly savings baseline can be changed. Tier content lives in `tiers.js`.
+
 ## Features
 
 - Add, edit and delete items with category, quantity, unit, expiration date, storage location and notes
