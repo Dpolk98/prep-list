@@ -169,7 +169,7 @@ label { display: flex; flex-direction: column; font-size: .8rem; color: var(--mu
 .grid input, .grid select { width: 100%; }
 .grid .type-field { grid-column: span 2; }
 @media (max-width: 640px) {
-  .grid .cat-field, .grid .type-field { grid-column: 1 / -1; }
+  .grid .type-field { grid-column: 1 / -1; }
 }
 
 input, select, button {

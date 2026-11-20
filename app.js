@@ -615,16 +615,12 @@ function updateExpiresHint() {
 }
 
 function onFormInput(e) {
-  if (e.target.id === 'category') {
-    fillTypeOptions();
-    typeTouched = false;
-  }
   if (e.target.id === 'type') typeTouched = Boolean($('type').value);
-  if (['name', 'unit', 'category'].includes(e.target.id)) suggestType();
+  if (['name', 'unit'].includes(e.target.id)) suggestType();
   updateExpiresHint();
 }
 
-for (const id of ['name', 'unit', 'category', 'type', 'expires']) {
+for (const id of ['name', 'unit', 'type', 'expires']) {
   $(id).addEventListener('input', onFormInput);
 }
 
@@ -634,10 +630,11 @@ function resetForm() {
   $('item-form').reset();
   $('item-id').value = '';
   $('quantity').value = 1;
+  // The form only adds items to the category of the page it's on.
   const page = currentPage();
-  if (CATEGORIES.includes(page.cat)) $('category').value = page.cat;
+  $('category').value = CATEGORIES.includes(page.cat) ? page.cat : '';
   fillTypeOptions();
-  $('form-title').textContent = 'Add an item';
+  $('form-title').textContent = page.cat ? `Add to ${page.cat}` : 'Add an item';
   $('submit-btn').textContent = 'Add item';
   $('cancel-edit').hidden = true;
   updateExpiresHint();
@@ -646,7 +643,7 @@ function resetForm() {
 function startEdit(item) {
   $('item-id').value = item.id;
   editingAddedDate = item.added || null;
-  for (const key of ['name', 'category', 'quantity', 'unit', 'expires', 'location', 'notes']) {
+  for (const key of ['name', 'quantity', 'unit', 'expires', 'location', 'notes']) {
     $(key).value = item[key] ?? '';
   }
   fillTypeOptions();
@@ -667,9 +664,12 @@ function startEdit(item) {
 
 $('item-form').addEventListener('submit', (e) => {
   e.preventDefault();
+  // Always file the item under this page's category.
+  const category = currentPage().cat;
+  if (!CATEGORIES.includes(category)) return;
   const data = {
     name: $('name').value.trim(),
-    category: $('category').value,
+    category,
     type: $('type').value,
     quantity: Number($('quantity').value) || 0,
     unit: $('unit').value.trim(),
@@ -771,7 +771,6 @@ $('import-file').addEventListener('change', async (e) => {
 
 // ---------- Init ----------
 
-$('category').innerHTML = CATEGORIES.map((c) => `<option>${c}</option>`).join('');
 resetForm();
 render();
 if (!state.tier) openTierPicker();

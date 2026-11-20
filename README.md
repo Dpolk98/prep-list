@@ -20,7 +20,7 @@ Each tier builds on the ones below it. Every category page has a collapsible **W
 The ☰ menu in the top left opens these pages. Each one has its own link, such as `#/water`.
 
 - **Overview**: summary stats, household size, your tier's focus, and a card for each category
-- **Category pages**: Water, Food, Medical & First Aid, Toiletries & Hygiene, Light & Power, Tools & Gear, Documents & Cash, Other. Each page shows a collapsible list of suggested supplies (for your tier and the tiers below it), its inventory, and an add-item form with the category already selected.
+- **Category pages**: Water, Food, Medical & First Aid, Toiletries & Hygiene, Light & Power, Tools & Gear, Documents & Cash, Other. Each page shows a collapsible list of suggested supplies (for your tier and the tiers below it), its inventory, and an add-item form. Items can only be added from their own category page, so the form only offers that category's types.
 - **Plans & Skills**: a list of things to set up (plans, training, community)
 - **Savings**: progress toward the tier's savings goal
 
