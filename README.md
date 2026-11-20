@@ -21,6 +21,7 @@ The ☰ menu in the top left opens these pages. Each one has its own link, such 
 
 - **Overview**: summary stats, household size, your tier's focus, and a card for each category
 - **Category pages**: Water, Food, Medical & First Aid, Toiletries & Hygiene, Light & Power, Tools & Gear, Documents & Cash, Other. Each page shows a collapsible list of suggested supplies (for your tier and the tiers below it), its inventory, and an add-item form. Items can only be added from their own category page, so the form only offers that category's types.
+- **Expired** and **Expiring soon**: tap those tiles on the Overview to see the matching items from every category, grouped by category. Editing an item there opens it on its category page
 - **Plans & Skills**: a list of things to set up (plans, training, community)
 - **Savings**: progress toward the tier's savings goal
 
@@ -35,6 +36,7 @@ The form shows the estimate before you save. Estimated dates are labeled "est." 
 ## Features
 
 - Add, edit and delete items with category, quantity, unit, expiration date, storage location and notes
+- Units are picked from a list of common units for each category, or choose **Other…** to type your own. Units you've typed before are added to that category's list
 - Items that are expired or expire within 60 days are flagged and sorted to the top
 - **Days of water** estimate: 1 gallon per person per day, based on household size (understands gallons, liters, oz, mL and 500 mL bottles)
 - Search, plus filters by category and status

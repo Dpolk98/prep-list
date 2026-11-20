@@ -19,6 +19,8 @@ const ICONS = {
   file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8M16 17H8M10 9H8"/>',
   clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
   package: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   dollar: '<circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>',
 };
 
@@ -44,11 +46,32 @@ const PAGES = [
 ];
 
 // Inventory categories, in menu order.
+// Pages reached from the overview's Expired / Expiring tiles (not in the menu).
+// Each lists items with that status across every category.
+const STATUS_PAGES = [
+  { slug: 'expired', name: 'Expired', status: 'expired', icon: 'alert', blurb: 'Items past their expiration date. Use, replace or throw them out.' },
+  { slug: 'expiring', name: 'Expiring soon', status: 'soon', icon: 'clock', blurb: 'Items that expire within the next 60 days. Use these first.' },
+];
+
 const CATEGORIES = PAGES.filter((p) => p.cat && !p.noInventory).map((p) => p.cat);
+
+// Common units offered in each category's Unit list. Water units are ones
+// the days-of-water estimate knows how to convert to gallons.
+const UNITS = {
+  'Water': [['gallons'], ['liters'], ['bottles', 'bottles (16.9 oz / 500 mL)'], ['fl oz'], ['mL']],
+  'Food': [['cans'], ['#10 cans'], ['jars'], ['boxes'], ['bags'], ['buckets'], ['lbs'], ['oz'], ['packets'], ['pouches'], ['meals'], ['servings'], ['bottles']],
+  'Medical & First Aid': [['boxes'], ['bottles'], ['packs'], ['kits'], ['tablets'], ['doses'], ['rolls'], ['tubes'], ['pairs'], ['pieces']],
+  'Toiletries & Hygiene': [['rolls'], ['packs'], ['bottles'], ['boxes'], ['bars'], ['tubes'], ['bags'], ['gallons'], ['pieces']],
+  'Light & Power': [['batteries'], ['packs'], ['bulbs'], ['gallons'], ['cans'], ['units'], ['pieces']],
+  'Tools & Gear': [['pieces'], ['sets'], ['kits'], ['pairs'], ['rolls'], ['boxes'], ['units']],
+  'Documents & Cash': [['copies'], ['sets'], ['folders'], ['drives'], ['dollars']],
+  'Other': [['pieces'], ['packs'], ['boxes'], ['sets'], ['units']],
+};
+const OTHER_UNIT = '__other__';
 
 function currentPage() {
   const slug = location.hash.replace(/^#\/?/, '');
-  return PAGES.find((p) => p.slug === slug) || PAGES[0];
+  return PAGES.find((p) => p.slug === slug) || STATUS_PAGES.find((p) => p.slug === slug) || PAGES[0];
 }
 
 // ---------- State ----------
@@ -236,6 +259,10 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeDrawer();
 });
 
+// Set when "Edit" is tapped on the Expired / Expiring pages; the item opens
+// in its category page's form once the page changes.
+let pendingEditId = null;
+
 window.addEventListener('hashchange', () => {
   closeDrawer({ restoreFocus: false });
   $('search').value = '';
@@ -244,6 +271,10 @@ window.addEventListener('hashchange', () => {
   resetForm();
   render();
   window.scrollTo(0, 0);
+  // "Edit" on the Expired / Expiring pages opens the item on its category page.
+  const pending = state.items.find((i) => i.id === pendingEditId);
+  pendingEditId = null;
+  if (pending && currentPage().cat === pending.category) startEdit(pending);
 });
 
 // ---------- Rendering: Overview ----------
@@ -354,54 +385,77 @@ $('supplies').addEventListener('click', (e) => {
   $('quantity').select();
 });
 
+// One inventory row. Used on category pages and the Expired / Expiring pages.
+function itemRow(i) {
+  const s = statusOf(i);
+  const badge = s === 'ok' ? '' :
+    `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
+  const type = findType(i.category, i.type);
+  // With a type shown, "(est.)" is enough; older items name their basis.
+  const basis = type ? '' : ` · ${escapeHtml(i.expiresBasis || 'typical shelf life')}`;
+  const expiry = i.expiresEstimated
+    ? `${expiryText(i)} <span class="est" title="Estimated from the item type's typical shelf life. Edit the item to enter the printed date.">(est.${basis})</span>`
+    : expiryText(i);
+  const meta = [
+    `${i.quantity} ${escapeHtml(i.unit)}`.trim(),
+    type && escapeHtml(type.name),
+    expiry,
+    i.location && `📍 ${escapeHtml(i.location)}`,
+    i.notes && escapeHtml(i.notes),
+  ].filter(Boolean).join(' · ');
+  return `
+    <li class="item" data-id="${i.id}">
+      <div class="title">${escapeHtml(i.name)}${badge}</div>
+      <div class="controls">
+        <button class="qty-btn" data-act="dec" aria-label="Use one">−</button>
+        <button class="qty-btn" data-act="inc" aria-label="Add one">+</button>
+        <button data-act="edit">Edit</button>
+        <button data-act="del">Delete</button>
+      </div>
+      <div class="meta">${meta}</div>
+    </li>`;
+}
+
+const STATUS_ORDER = { expired: 0, soon: 1, ok: 2 };
+function byExpiry(a, b) {
+return STATUS_ORDER[statusOf(a)] - STATUS_ORDER[statusOf(b)] ||
+  (a.expires || '9999').localeCompare(b.expires || '9999') ||
+  a.name.localeCompare(b.name);
+}
+
+// Expired / Expiring soon: matching items from every category, grouped by category.
+function renderStatus(page) {
+  const items = state.items.filter((i) => statusOf(i) === page.status).sort(byExpiry);
+  $('status-list').innerHTML = PAGES.filter((p) => CATEGORIES.includes(p.cat)).map((p) => {
+    const group = items.filter((i) => i.category === p.cat);
+    if (!group.length) return '';
+    return `
+      <section class="card status-group">
+        <h2><a href="#/${p.slug}">${icon(p.icon)}<span>${escapeHtml(p.name)}</span></a><span class="count">${group.length}</span></h2>
+        <ul class="items">${group.map(itemRow).join('')}</ul>
+      </section>`;
+  }).join('');
+  $('status-empty').hidden = items.length > 0;
+  $('status-empty').textContent = page.status === 'expired'
+    ? 'Nothing has expired. Nice work.'
+    : 'Nothing expires in the next 60 days.';
+}
+
 function renderInventory(page) {
   const items = state.items.filter((i) => i.category === page.cat);
 
   const uniq = (key) => [...new Set(state.items.map((i) => i[key]).filter(Boolean))].sort();
-  $('unit-list').innerHTML = uniq('unit').map((u) => `<option value="${escapeHtml(u)}">`).join('');
   $('location-list').innerHTML = uniq('location').map((l) => `<option value="${escapeHtml(l)}">`).join('');
 
   const q = $('search').value.trim().toLowerCase();
   const st = $('filter-status').value;
-  const order = { expired: 0, soon: 1, ok: 2 };
 
   const visible = items
     .filter((i) => !st || statusOf(i) === st)
     .filter((i) => !q || [i.name, findType(i.category, i.type)?.name, i.location, i.notes].join(' ').toLowerCase().includes(q))
-    .sort((a, b) =>
-      order[statusOf(a)] - order[statusOf(b)] ||
-      (a.expires || '9999').localeCompare(b.expires || '9999') ||
-      a.name.localeCompare(b.name));
+    .sort(byExpiry);
 
-  $('items').innerHTML = visible.map((i) => {
-    const s = statusOf(i);
-    const badge = s === 'ok' ? '' :
-      `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
-    const type = findType(i.category, i.type);
-    // With a type shown, "(est.)" is enough; older items name their basis.
-    const basis = type ? '' : ` · ${escapeHtml(i.expiresBasis || 'typical shelf life')}`;
-    const expiry = i.expiresEstimated
-      ? `${expiryText(i)} <span class="est" title="Estimated from the item type's typical shelf life. Edit the item to enter the printed date.">(est.${basis})</span>`
-      : expiryText(i);
-    const meta = [
-      `${i.quantity} ${escapeHtml(i.unit)}`.trim(),
-      type && escapeHtml(type.name),
-      expiry,
-      i.location && `📍 ${escapeHtml(i.location)}`,
-      i.notes && escapeHtml(i.notes),
-    ].filter(Boolean).join(' · ');
-    return `
-      <li class="item" data-id="${i.id}">
-        <div class="title">${escapeHtml(i.name)}${badge}</div>
-        <div class="controls">
-          <button class="qty-btn" data-act="dec" aria-label="Use one">−</button>
-          <button class="qty-btn" data-act="inc" aria-label="Add one">+</button>
-          <button data-act="edit">Edit</button>
-          <button data-act="del">Delete</button>
-        </div>
-        <div class="meta">${meta}</div>
-      </li>`;
-  }).join('');
+  $('items').innerHTML = visible.map((i) => itemRow(i)).join('');
 
   $('empty').hidden = visible.length > 0;
   $('empty').textContent = items.length
@@ -477,12 +531,13 @@ function render() {
 
   renderNav(page);
 
-  const view = page.slug === '' ? 'overview' : page.slug === 'savings' ? 'savings' : 'category';
-  for (const v of ['overview', 'category', 'savings']) $(`view-${v}`).hidden = v !== view;
+  const view = page.slug === '' ? 'overview' : page.slug === 'savings' ? 'savings' : page.status ? 'status' : 'category';
+  for (const v of ['overview', 'category', 'savings', 'status']) $(`view-${v}`).hidden = v !== view;
 
   if (view === 'overview') renderOverview(wd);
   if (view === 'category') renderCategory(page, wd);
   if (view === 'savings') renderSavings();
+  if (view === 'status') renderStatus(page);
 }
 
 // ---------- Tier picker ----------
@@ -589,10 +644,47 @@ function fillTypeOptions() {
     : g.types.map(opt).join('')).join('');
 }
 
+// Fills the Unit list with the category's common units, plus any other units
+// already used for this category, then selects the given unit (or "Other…" with the
+// text box filled in when it isn't in the list).
+function setUnit(unit = '') {
+  const cat = $('category').value;
+  const defaults = UNITS[cat] || UNITS.Other;
+  // "Gallon" and "gallons" count as the same unit.
+  const norm = (u) => u.trim().toLowerCase().replace(/s$/, '');
+  const known = new Set(defaults.map(([v]) => norm(v)));
+  const used = [...new Set(state.items
+    .filter((i) => i.category === cat && i.unit && !known.has(norm(i.unit)))
+    .map((i) => i.unit))].sort();
+  const opt = (v, label = v) => `<option value="${escapeHtml(v)}">${escapeHtml(label)}</option>`;
+  $('unit-select').innerHTML = '<option value="">Choose a unit…</option>' +
+    defaults.map(([v, label]) => opt(v, label)).join('') +
+    used.map((v) => opt(v)).join('') +
+    `<option value="${OTHER_UNIT}">Other…</option>`;
+
+  const match = [...$('unit-select').options]
+    .find((o) => o.value !== OTHER_UNIT && o.value && norm(o.value) === norm(unit));
+  $('unit-select').value = match ? match.value : unit.trim() ? OTHER_UNIT : '';
+  $('unit').value = match ? '' : unit.trim();
+  $('unit').hidden = $('unit-select').value !== OTHER_UNIT;
+}
+
+function unitValue() {
+  return $('unit-select').value === OTHER_UNIT ? $('unit').value.trim() : $('unit-select').value;
+}
+
+$('unit-select').addEventListener('change', () => {
+  const other = $('unit-select').value === OTHER_UNIT;
+  $('unit').hidden = !other;
+  if (other) $('unit').focus();
+  suggestType();
+  updateExpiresHint();
+});
+
 // Pre-selects the most likely type from the name, until the user picks one.
 function suggestType() {
   if (typeTouched) return;
-  $('type').value = guessType({ name: $('name').value, unit: $('unit').value, category: $('category').value }) || '';
+  $('type').value = guessType({ name: $('name').value, unit: unitValue(), category: $('category').value }) || '';
 }
 
 // Tells the user what expiration date the chosen type implies.
@@ -634,6 +726,7 @@ function resetForm() {
   const page = currentPage();
   $('category').value = CATEGORIES.includes(page.cat) ? page.cat : '';
   fillTypeOptions();
+  setUnit('');
   $('form-title').textContent = page.cat ? `Add to ${page.cat}` : 'Add an item';
   $('submit-btn').textContent = 'Add item';
   $('cancel-edit').hidden = true;
@@ -643,10 +736,11 @@ function resetForm() {
 function startEdit(item) {
   $('item-id').value = item.id;
   editingAddedDate = item.added || null;
-  for (const key of ['name', 'quantity', 'unit', 'expires', 'location', 'notes']) {
+  for (const key of ['name', 'quantity', 'expires', 'location', 'notes']) {
     $(key).value = item[key] ?? '';
   }
   fillTypeOptions();
+  setUnit(item.unit || '');
   // Items saved before types existed get a suggested type.
   typeTouched = Boolean(findType(item.category, item.type));
   if (typeTouched) $('type').value = item.type;
@@ -672,7 +766,7 @@ $('item-form').addEventListener('submit', (e) => {
     category,
     type: $('type').value,
     quantity: Number($('quantity').value) || 0,
-    unit: $('unit').value.trim(),
+    unit: unitValue(),
     expires: $('expires').value,
     location: $('location').value.trim(),
     notes: $('notes').value.trim(),
@@ -706,7 +800,7 @@ $('cancel-edit').addEventListener('click', resetForm);
 
 // ---------- List actions (event delegation) ----------
 
-$('items').addEventListener('click', (e) => {
+function onItemAction(e) {
   const btn = e.target.closest('button[data-act]');
   if (!btn) return;
   const id = btn.closest('.item').dataset.id;
@@ -716,7 +810,12 @@ $('items').addEventListener('click', (e) => {
   switch (btn.dataset.act) {
     case 'inc': item.quantity = (Number(item.quantity) || 0) + 1; break;
     case 'dec': item.quantity = Math.max(0, (Number(item.quantity) || 0) - 1); break;
-    case 'edit': startEdit(item); return;
+    case 'edit': {
+      const home = PAGES.find((p) => p.cat === item.category);
+      if (currentPage() === home) startEdit(item);
+      else if (home) { pendingEditId = item.id; location.hash = `#/${home.slug}`; }
+      return;
+    }
     case 'del':
       if (!confirm(`Delete "${item.name}"?`)) return;
       state.items = state.items.filter((i) => i.id !== id);
@@ -724,7 +823,10 @@ $('items').addEventListener('click', (e) => {
   }
   saveState();
   render();
-});
+}
+
+$('items').addEventListener('click', onItemAction);
+$('status-list').addEventListener('click', onItemAction);
 
 // ---------- Filters & household ----------
 

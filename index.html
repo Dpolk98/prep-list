@@ -43,8 +43,8 @@
     <div id="view-overview" class="view">
       <section class="summary" aria-label="Summary">
         <div class="stat"><span class="num" id="stat-items">0</span><span class="label">Items</span></div>
-        <div class="stat warn"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 days</span></div>
-        <div class="stat bad"><span class="num" id="stat-expired">0</span><span class="label">Expired</span></div>
+        <a class="stat warn stat-link" href="#/expiring"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 days</span></a>
+        <a class="stat bad stat-link" href="#/expired"><span class="num" id="stat-expired">0</span><span class="label">Expired</span></a>
         <div class="stat"><span class="num"><span id="stat-water">0</span><span class="goal" id="stat-water-goal"></span></span><span class="label">Days of water stored</span></div>
       </section>
 
@@ -123,7 +123,8 @@
               <input id="quantity" type="number" min="0" step="any" value="1" required>
             </label>
             <label>Unit
-              <input id="unit" placeholder="cans, gallons, rolls…" list="unit-list">
+              <select id="unit-select"></select>
+              <input id="unit" placeholder="Type your own unit" aria-label="Custom unit" hidden>
             </label>
             <label>Expires <span class="optional">(optional)</span>
               <input id="expires" type="date" aria-describedby="expires-hint">
@@ -141,9 +142,15 @@
             <button type="button" id="cancel-edit" hidden>Cancel</button>
           </div>
         </form>
-        <datalist id="unit-list"></datalist>
         <datalist id="location-list"></datalist>
       </section>
+    </div>
+
+    <!-- ===== Expired / Expiring soon (all categories) ===== -->
+    <div id="view-status" class="view" hidden>
+      <a href="#/" class="back-link">← Back to overview</a>
+      <div id="status-list"></div>
+      <p id="status-empty" class="card empty"></p>
     </div>
 
     <!-- ===== Savings ===== -->
