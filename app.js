@@ -366,9 +366,12 @@ function renderInventory(page) {
     const s = statusOf(i);
     const badge = s === 'ok' ? '' :
       `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
+    const expiry = i.expiresEstimated
+      ? `${expiryText(i)} <span class="est" title="Estimated from typical shelf life. Edit the item to enter the printed date.">(est. · ${escapeHtml(i.expiresBasis || 'typical shelf life')})</span>`
+      : expiryText(i);
     const meta = [
       `${i.quantity} ${escapeHtml(i.unit)}`.trim(),
-      expiryText(i),
+      expiry,
       i.location && `📍 ${escapeHtml(i.location)}`,
       i.notes && escapeHtml(i.notes),
     ].filter(Boolean).join(' · ');
@@ -539,7 +542,57 @@ $('beyond-years').addEventListener('input', (e) => {
 
 // ---------- Form ----------
 
+// The date an item was added, used as the starting point for shelf-life
+// estimates. For a new item that's today; when editing, it's the original date.
+let editingAddedDate = null;
+
+function formatLongDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function parseIsoDate(iso) {
+  if (!iso) return new Date();
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function currentEstimate() {
+  return estimateExpiry(
+    { name: $('name').value, unit: $('unit').value, category: $('category').value },
+    parseIsoDate(editingAddedDate),
+  );
+}
+
+// Tells the user what will happen if they leave the expiration date blank.
+function updateExpiresHint() {
+  const hint = $('expires-hint');
+  if ($('expires').value) {
+    hint.textContent = '';
+    return;
+  }
+  if (!$('name').value.trim()) {
+    hint.textContent = 'No expiration date? Leave it blank and we’ll estimate one from the item name.';
+    return;
+  }
+  const est = currentEstimate();
+  if (!est) {
+    hint.textContent = 'No estimate for this item. Leaving the date blank means it doesn’t expire.';
+  } else if (est.none) {
+    hint.textContent = 'This item usually doesn’t expire, so no date will be set.';
+  } else {
+    hint.innerHTML =
+      `If left blank, we’ll estimate <strong>${formatLongDate(est.date)}</strong> ` +
+      `(${escapeHtml(est.label)}, about ${est.life}).`;
+  }
+}
+
+for (const id of ['name', 'unit', 'category', 'expires']) {
+  $(id).addEventListener('input', updateExpiresHint);
+}
+
 function resetForm() {
+  editingAddedDate = null;
   $('item-form').reset();
   $('item-id').value = '';
   $('quantity').value = 1;
@@ -548,13 +601,19 @@ function resetForm() {
   $('form-title').textContent = 'Add an item';
   $('submit-btn').textContent = 'Add item';
   $('cancel-edit').hidden = true;
+  updateExpiresHint();
 }
 
 function startEdit(item) {
   $('item-id').value = item.id;
+  editingAddedDate = item.added || null;
   for (const key of ['name', 'category', 'quantity', 'unit', 'expires', 'location', 'notes']) {
     $(key).value = item[key] ?? '';
   }
+  // An estimated date is shown as blank, so saving re-estimates it (in case
+  // the name changed) unless the user types in the real printed date.
+  if (item.expiresEstimated) $('expires').value = '';
+  updateExpiresHint();
   $('form-title').textContent = 'Edit item';
   $('submit-btn').textContent = 'Save changes';
   $('cancel-edit').hidden = false;
@@ -575,11 +634,23 @@ $('item-form').addEventListener('submit', (e) => {
   };
   if (!data.name) return;
 
+  // No date entered: estimate one from typical shelf life.
+  data.expiresEstimated = false;
+  data.expiresBasis = '';
+  if (!data.expires) {
+    const est = currentEstimate();
+    if (est && est.date) {
+      data.expires = est.date;
+      data.expiresEstimated = true;
+      data.expiresBasis = est.label;
+    }
+  }
+
   const id = $('item-id').value;
   if (id) {
     Object.assign(state.items.find((i) => i.id === id), data);
   } else {
-    state.items.push({ id: newId(), added: new Date().toISOString().slice(0, 10), ...data });
+    state.items.push({ id: newId(), added: toIsoDate(new Date()), ...data });
   }
   saveState();
   resetForm();
@@ -628,7 +699,7 @@ $('export-btn').addEventListener('click', () => {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `prep-tracker-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `prep-tracker-backup-${toIsoDate(new Date())}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
 });

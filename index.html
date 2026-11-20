@@ -130,8 +130,8 @@
             <label>Unit
               <input id="unit" placeholder="cans, gallons, rolls…" list="unit-list">
             </label>
-            <label>Expires
-              <input id="expires" type="date">
+            <label>Expires <span class="optional">(optional)</span>
+              <input id="expires" type="date" aria-describedby="expires-hint">
             </label>
             <label>Location
               <input id="location" placeholder="Garage shelf, go-bag…" list="location-list">
@@ -140,6 +140,7 @@
               <input id="notes" placeholder="Optional">
             </label>
           </div>
+          <p class="hint expires-hint" id="expires-hint" aria-live="polite"></p>
           <div class="actions">
             <button type="submit" class="primary" id="submit-btn">Add item</button>
             <button type="button" id="cancel-edit" hidden>Cancel</button>
@@ -188,6 +189,7 @@
   </dialog>
 
   <script src="tiers.js"></script>
+  <script src="shelf-life.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

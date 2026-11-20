@@ -24,6 +24,12 @@ The ☰ menu in the top left opens these pages. Each one has its own link, such 
 - **Plans & Skills**: checklist only
 - **Savings**: progress toward the tier's savings goal
 
+## Estimated expiration dates
+
+The expiration date is optional. If you leave it blank, the app estimates one from the item's name, unit and category, using typical unopened shelf lives (for example: canned beans about 3 years, canned fruit about 18 months, white rice about 2 years, alkaline batteries about 10 years). Items that don't normally expire, such as salt, honey or a can opener, get no date.
+
+The form shows the estimate before you save. Estimated dates are labeled "est." in the list. Edit the item and enter the printed date to replace the estimate. The rules live in `shelf-life.js`.
+
 ## Features
 
 - Add, edit and delete items with category, quantity, unit, expiration date, storage location and notes
