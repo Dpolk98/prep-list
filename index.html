@@ -8,133 +8,171 @@
 </head>
 <body>
   <header class="top">
-    <div>
-      <h1>Prep Tracker</h1>
-      <p class="sub">Your emergency supplies, at a glance.</p>
-    </div>
+    <button id="menu-btn" class="icon-btn" aria-label="Open menu" aria-controls="drawer" aria-expanded="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    </button>
+    <a href="#/" class="brand">Prep Tracker</a>
     <div class="tier-bar">
-      <span>Prepping for <strong id="tier-name">—</strong></span>
+      <span><span class="tier-label">Prepping for </span><strong id="tier-name">—</strong></span>
       <button id="change-tier">Change</button>
     </div>
   </header>
 
+  <!-- Slide-out navigation -->
+  <div id="scrim" class="scrim" hidden></div>
+  <nav id="drawer" class="drawer" aria-label="Sections" inert>
+    <div class="drawer-head">
+      <span>Prep Tracker</span>
+      <button id="menu-close" class="icon-btn" aria-label="Close menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <ul id="nav-list"></ul>
+  </nav>
+
   <main>
-    <!-- Readiness summary -->
-    <section class="summary" aria-label="Summary">
-      <div class="stat"><span class="num" id="stat-items">0</span><span class="label">Items</span></div>
-      <div class="stat warn"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 days</span></div>
-      <div class="stat bad"><span class="num" id="stat-expired">0</span><span class="label">Expired</span></div>
-      <div class="stat"><span class="num"><span id="stat-water">0</span><span class="goal" id="stat-water-goal"></span></span><span class="label">Days of water stored</span></div>
-    </section>
-
-    <section class="household">
-      <label>People in household
-        <input type="number" id="people" min="1" value="2">
-      </label>
-      <span class="hint" id="water-hint"></span>
-    </section>
-
-    <!-- Tier plan -->
-    <section class="card" id="plan">
-      <div class="plan-head">
-        <div>
-          <h2 id="plan-title"></h2>
-          <p class="mindset" id="plan-mindset"></p>
-        </div>
-        <div class="plan-progress">
-          <span class="num" id="plan-pct">0%</span>
-          <span class="label">ready</span>
-        </div>
+    <div class="page-head">
+      <span class="page-icon" id="page-icon"></span>
+      <div>
+        <h1 id="page-title">Overview</h1>
+        <p class="sub" id="page-sub"></p>
       </div>
-      <div class="bar"><div class="fill" id="plan-bar"></div></div>
-      <div id="checklists"></div>
-    </section>
+    </div>
 
-    <!-- Savings -->
-    <section class="card" id="savings">
-      <h2>Savings</h2>
-      <p class="mindset" id="savings-note"></p>
-      <div class="savings-goal">
-        <span class="num" id="savings-current-display">$0</span>
-        <span class="of">of <strong id="savings-goal">$0</strong> goal</span>
-      </div>
-      <div class="bar"><div class="fill" id="savings-bar"></div></div>
-      <p class="hint" id="savings-math"></p>
-      <div class="grid savings-inputs">
-        <label>Saved so far ($)
-          <input type="number" id="savings-current" min="0" step="50" inputmode="decimal">
+    <!-- ===== Overview ===== -->
+    <div id="view-overview" class="view">
+      <section class="summary" aria-label="Summary">
+        <div class="stat"><span class="num" id="stat-items">0</span><span class="label">Items</span></div>
+        <div class="stat warn"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 days</span></div>
+        <div class="stat bad"><span class="num" id="stat-expired">0</span><span class="label">Expired</span></div>
+        <div class="stat"><span class="num"><span id="stat-water">0</span><span class="goal" id="stat-water-goal"></span></span><span class="label">Days of water stored</span></div>
+      </section>
+
+      <section class="household">
+        <label>People in household
+          <input type="number" id="people" min="1" value="2">
         </label>
-        <label>Baseline per week ($)
-          <input type="number" id="savings-weekly" min="0" step="50" inputmode="decimal">
+        <span class="hint" id="water-hint"></span>
+      </section>
+
+      <section class="card">
+        <div class="plan-head">
+          <div>
+            <h2 id="plan-title"></h2>
+            <p class="mindset" id="plan-mindset"></p>
+          </div>
+          <div class="plan-progress">
+            <span class="num" id="plan-pct">0%</span>
+            <span class="label">ready</span>
+          </div>
+        </div>
+        <div class="bar"><div class="fill" id="plan-bar"></div></div>
+      </section>
+
+      <section class="cat-grid" id="cat-grid" aria-label="Categories"></section>
+
+      <section class="data-tools">
+        <button id="export-btn">Export backup</button>
+        <label class="file-btn">Import backup
+          <input type="file" id="import-file" accept="application/json" hidden>
         </label>
-        <label id="beyond-years-wrap">Years to cover
-          <input type="number" id="beyond-years" min="1" max="50" step="1">
-        </label>
-      </div>
-    </section>
+      </section>
+    </div>
 
-    <!-- Add / edit form -->
-    <section class="card">
-      <h2 id="form-title">Add an item</h2>
-      <form id="item-form" autocomplete="off">
-        <input type="hidden" id="item-id">
-        <div class="grid">
-          <label class="wide">Name
-            <input id="name" required placeholder="e.g. Canned black beans">
+    <!-- ===== Category page (Food, Water, …) ===== -->
+    <div id="view-category" class="view" hidden>
+      <section class="card water-panel" id="water-panel" hidden>
+        <div class="water-big"><span id="water-days">0</span><span class="goal" id="water-goal"></span></div>
+        <span class="label">days of drinking water stored</span>
+        <div class="bar"><div class="fill" id="water-bar"></div></div>
+        <p class="hint" id="water-panel-hint"></p>
+      </section>
+
+      <section class="card" id="checklist-card">
+        <div class="card-head">
+          <h2>Checklist</h2>
+          <span class="count" id="checklist-count"></span>
+        </div>
+        <div id="checklist"></div>
+      </section>
+
+      <section class="card" id="inventory-card">
+        <div class="list-head">
+          <h2>Inventory</h2>
+          <div class="filters">
+            <input id="search" type="search" placeholder="Search…">
+            <select id="filter-status">
+              <option value="">Any status</option>
+              <option value="expired">Expired</option>
+              <option value="soon">Expiring soon</option>
+              <option value="ok">OK</option>
+            </select>
+          </div>
+        </div>
+        <ul id="items" class="items"></ul>
+        <p id="empty" class="empty"></p>
+      </section>
+
+      <section class="card" id="form-card">
+        <h2 id="form-title">Add an item</h2>
+        <form id="item-form" autocomplete="off">
+          <input type="hidden" id="item-id">
+          <div class="grid">
+            <label class="wide">Name
+              <input id="name" required placeholder="e.g. Canned black beans">
+            </label>
+            <label>Category
+              <select id="category"></select>
+            </label>
+            <label>Quantity
+              <input id="quantity" type="number" min="0" step="any" value="1" required>
+            </label>
+            <label>Unit
+              <input id="unit" placeholder="cans, gallons, rolls…" list="unit-list">
+            </label>
+            <label>Expires
+              <input id="expires" type="date">
+            </label>
+            <label>Location
+              <input id="location" placeholder="Garage shelf, go-bag…" list="location-list">
+            </label>
+            <label class="wide">Notes
+              <input id="notes" placeholder="Optional">
+            </label>
+          </div>
+          <div class="actions">
+            <button type="submit" class="primary" id="submit-btn">Add item</button>
+            <button type="button" id="cancel-edit" hidden>Cancel</button>
+          </div>
+        </form>
+        <datalist id="unit-list"></datalist>
+        <datalist id="location-list"></datalist>
+      </section>
+    </div>
+
+    <!-- ===== Savings ===== -->
+    <div id="view-savings" class="view" hidden>
+      <section class="card" id="savings">
+        <p class="mindset" id="savings-note"></p>
+        <div class="savings-goal">
+          <span class="num" id="savings-current-display">$0</span>
+          <span class="of">of <strong id="savings-goal">$0</strong> goal</span>
+        </div>
+        <div class="bar"><div class="fill" id="savings-bar"></div></div>
+        <p class="hint" id="savings-math"></p>
+        <div class="grid savings-inputs">
+          <label>Saved so far ($)
+            <input type="number" id="savings-current" min="0" step="50" inputmode="decimal">
           </label>
-          <label>Category
-            <select id="category"></select>
+          <label>Baseline per week ($)
+            <input type="number" id="savings-weekly" min="0" step="50" inputmode="decimal">
           </label>
-          <label>Quantity
-            <input id="quantity" type="number" min="0" step="any" value="1" required>
-          </label>
-          <label>Unit
-            <input id="unit" placeholder="cans, gallons, rolls…" list="unit-list">
-          </label>
-          <label>Expires
-            <input id="expires" type="date">
-          </label>
-          <label>Location
-            <input id="location" placeholder="Garage shelf, go-bag…" list="location-list">
-          </label>
-          <label class="wide">Notes
-            <input id="notes" placeholder="Optional">
+          <label id="beyond-years-wrap">Years to cover
+            <input type="number" id="beyond-years" min="1" max="50" step="1">
           </label>
         </div>
-        <div class="actions">
-          <button type="submit" class="primary" id="submit-btn">Add item</button>
-          <button type="button" id="cancel-edit" hidden>Cancel</button>
-        </div>
-      </form>
-      <datalist id="unit-list"></datalist>
-      <datalist id="location-list"></datalist>
-    </section>
-
-    <!-- Inventory -->
-    <section class="card">
-      <div class="list-head">
-        <h2>Inventory</h2>
-        <div class="filters">
-          <input id="search" type="search" placeholder="Search…">
-          <select id="filter-category"><option value="">All categories</option></select>
-          <select id="filter-status">
-            <option value="">Any status</option>
-            <option value="expired">Expired</option>
-            <option value="soon">Expiring soon</option>
-            <option value="ok">OK</option>
-          </select>
-        </div>
-      </div>
-      <ul id="items" class="items"></ul>
-      <p id="empty" class="empty">No items yet. Add your first supply above.</p>
-    </section>
-
-    <section class="data-tools">
-      <button id="export-btn">Export backup</button>
-      <label class="file-btn">Import backup
-        <input type="file" id="import-file" accept="application/json" hidden>
-      </label>
-    </section>
+      </section>
+    </div>
   </main>
 
   <!-- Tier picker: shown on first use and from the "Change" button -->

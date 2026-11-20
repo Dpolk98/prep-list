@@ -5,16 +5,50 @@
 const STORAGE_KEY = 'prep-tracker:v1';
 const SOON_DAYS = 60;
 
-const CATEGORIES = [
-  'Food',
-  'Water',
-  'Medical & First Aid',
-  'Toiletries & Hygiene',
-  'Tools & Gear',
-  'Light & Power',
-  'Documents & Cash',
-  'Other',
+// ---------- Icons (Lucide-style, 24×24 stroke paths) ----------
+
+const ICONS = {
+  home: '<path d="M3 10a2 2 0 0 1 .7-1.5l7-6a2 2 0 0 1 2.6 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/>',
+  droplet: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+  utensils: '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+  medkit: '<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M12 11v6M9 14h6"/>',
+  soap: '<path d="M8 11a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v9a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1z"/><path d="M12 9V5"/><path d="M10 5h5a2 2 0 0 1 2 2"/><path d="M8 15h8"/>',
+  zap: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+  wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8M16 17H8M10 9H8"/>',
+  clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+  package: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  dollar: '<circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>',
+};
+
+function icon(name) {
+  return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
+}
+
+// ---------- Pages ----------
+// `cat` ties a page to an inventory category and/or checklist category.
+
+const PAGES = [
+  { slug: '', name: 'Overview', icon: 'home', blurb: 'Your readiness across every category.' },
+  { slug: 'water', name: 'Water', cat: 'Water', icon: 'droplet', blurb: 'Stored water, purification and sources.' },
+  { slug: 'food', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking and long-term staples.' },
+  { slug: 'medical', name: 'Medical & First Aid', cat: 'Medical & First Aid', icon: 'medkit', blurb: 'First aid, medications and medical skills.' },
+  { slug: 'hygiene', name: 'Toiletries & Hygiene', cat: 'Toiletries & Hygiene', icon: 'soap', blurb: 'Toiletries, cleaning and sanitation.' },
+  { slug: 'power', name: 'Light & Power', cat: 'Light & Power', icon: 'zap', blurb: 'Lighting, batteries, charging and generation.' },
+  { slug: 'tools', name: 'Tools & Gear', cat: 'Tools & Gear', icon: 'wrench', blurb: 'Tools, shelter, warmth and go-bags.' },
+  { slug: 'documents', name: 'Documents & Cash', cat: 'Documents & Cash', icon: 'file', blurb: 'Important papers, copies and cash on hand.' },
+  { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Anything that doesn’t fit elsewhere.' },
+  { slug: 'plans', name: 'Plans & Skills', cat: 'Plans & Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training and community.' },
+  { slug: 'savings', name: 'Savings', icon: 'dollar', blurb: 'Your emergency fund goal for this tier.' },
 ];
+
+// Inventory categories, in menu order.
+const CATEGORIES = PAGES.filter((p) => p.cat && !p.noInventory).map((p) => p.cat);
+
+function currentPage() {
+  const slug = location.hash.replace(/^#\/?/, '');
+  return PAGES.find((p) => p.slug === slug) || PAGES[0];
+}
 
 // ---------- State ----------
 
@@ -51,9 +85,6 @@ function saveState() {
 
 const state = loadState();
 
-// Which earlier-tier sections the user has expanded (kept across re-renders).
-const openTiers = new Set();
-
 // ---------- Helpers ----------
 
 const $ = (id) => document.getElementById(id);
@@ -66,6 +97,11 @@ function newId() {
 
 function currentTier() {
   return TIERS.find((t) => t.id === state.tier) || TIERS[0];
+}
+
+// The current tier plus every tier below it.
+function includedTiers() {
+  return TIERS.slice(0, TIERS.indexOf(currentTier()) + 1);
 }
 
 // Days from today until an ISO date (YYYY-MM-DD). Negative = in the past.
@@ -116,19 +152,29 @@ function formatDays(d) {
   return d >= 10 ? String(Math.floor(d)) : d.toFixed(1).replace(/\.0$/, '');
 }
 
+function waterHint(tier) {
+  return tier.waterGoalDays < 30 || tier.id === 'month'
+    ? `Goal: 1 gallon per person per day for ${tier.waterGoalDays} days.`
+    : 'Keep 30 days stored. Past that, rely on a water source you can filter and purify.';
+}
+
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
 }
 
-// ---------- Tiers & checklist ----------
+// ---------- Checklist & savings math ----------
 
 // A checklist item is done if the user ticked it, or (for water-storage items)
 // if the inventory already holds enough water.
 function isChecked(item, wd) {
   if (item.autoWater) return wd >= item.autoWater;
   return Boolean(state.checklist[item.id]);
+}
+
+function checklistFor(cat) {
+  return includedTiers().flatMap((t) => t.checklist.filter((c) => !cat || c.cat === cat));
 }
 
 function tierWeeks(tier) {
@@ -140,64 +186,234 @@ function savingsGoal(tier) {
   return Math.round(tierWeeks(tier) * (Number(state.savings.weekly) || 0));
 }
 
-function renderTierChecklist(tier, wd, isCurrent) {
-  const done = tier.checklist.filter((c) => isChecked(c, wd)).length;
-  const groups = {};
-  for (const c of tier.checklist) (groups[c.cat] ||= []).push(c);
-
-  const body = Object.entries(groups).map(([cat, list]) => `
-    <h3>${escapeHtml(cat)}</h3>
-    <ul class="checks">
-      ${list.map((c) => {
-        const checked = isChecked(c, wd);
-        const auto = c.autoWater
-          ? `<span class="auto">From inventory: ${formatDays(wd)} of ${c.autoWater} days</span>`
-          : '';
-        return `
-          <li class="${checked ? 'done' : ''}">
-            <label>
-              <input type="checkbox" data-check="${c.id}" ${checked ? 'checked' : ''} ${c.autoWater ? 'disabled' : ''}>
-              <span>${escapeHtml(c.text)}${auto}</span>
-            </label>
-          </li>`;
-      }).join('')}
-    </ul>`).join('');
-
-  const open = isCurrent || openTiers.has(tier.id);
-  const label = isCurrent ? tier.title : `Foundation: ${tier.name} · ${tier.title}`;
-  return `
-    <details class="tier-block ${isCurrent ? 'current' : ''}" data-tier="${tier.id}" ${open ? 'open' : ''}>
-      <summary><span>${escapeHtml(label)}</span><span class="count">${done}/${tier.checklist.length}</span></summary>
-      ${body}
-    </details>`;
+function alertsFor(cat) {
+  const items = state.items.filter((i) => i.category === cat);
+  return {
+    expired: items.filter((i) => statusOf(i) === 'expired').length,
+    soon: items.filter((i) => statusOf(i) === 'soon').length,
+  };
 }
 
-function renderPlan(wd) {
-  const tier = currentTier();
-  const idx = TIERS.indexOf(tier);
-  const included = TIERS.slice(0, idx + 1);
+// ---------- Navigation ----------
 
-  $('tier-name').textContent = state.tier ? tier.name : '—';
+function renderNav(page) {
+  $('nav-list').innerHTML = PAGES.map((p) => {
+    const a = p.cat ? alertsFor(p.cat) : { expired: 0, soon: 0 };
+    const n = a.expired + a.soon;
+    const alert = n
+      ? `<span class="nav-alert ${a.expired ? 'bad' : 'warn'}" title="${a.expired} expired, ${a.soon} expiring soon">${n}</span>`
+      : '';
+    return `
+      <li class="${p.slug === 'plans' || p.slug === 'savings' ? 'sep' : ''}">
+        <a class="nav-link" href="#/${p.slug}" ${p === page ? 'aria-current="page"' : ''}>
+          ${icon(p.icon)}<span>${escapeHtml(p.name)}</span>${alert}
+        </a>
+      </li>`;
+  }).join('');
+}
+
+function openDrawer() {
+  $('drawer').inert = false;
+  $('drawer').classList.add('open');
+  $('scrim').hidden = false;
+  $('menu-btn').setAttribute('aria-expanded', 'true');
+  ($('drawer').querySelector('[aria-current]') || $('menu-close')).focus();
+}
+
+function closeDrawer({ restoreFocus = true } = {}) {
+  if (!$('drawer').classList.contains('open')) return;
+  $('drawer').classList.remove('open');
+  $('drawer').inert = true;
+  $('scrim').hidden = true;
+  $('menu-btn').setAttribute('aria-expanded', 'false');
+  if (restoreFocus) $('menu-btn').focus();
+}
+
+$('menu-btn').addEventListener('click', openDrawer);
+$('menu-close').addEventListener('click', () => closeDrawer());
+$('scrim').addEventListener('click', () => closeDrawer());
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDrawer();
+});
+
+window.addEventListener('hashchange', () => {
+  closeDrawer({ restoreFocus: false });
+  $('search').value = '';
+  $('filter-status').value = '';
+  resetForm();
+  render();
+  window.scrollTo(0, 0);
+});
+
+// ---------- Rendering: Overview ----------
+
+function renderOverview(wd) {
+  const tier = currentTier();
+
+  $('stat-items').textContent = state.items.length;
+  $('stat-soon').textContent = state.items.filter((i) => statusOf(i) === 'soon').length;
+  $('stat-expired').textContent = state.items.filter((i) => statusOf(i) === 'expired').length;
+  $('stat-water').textContent = formatDays(wd);
+  $('stat-water-goal').textContent = ` / ${tier.waterGoalDays}`;
+  $('water-hint').textContent = `Water ${waterHint(tier).toLowerCase()}`;
+  if (document.activeElement !== $('people')) $('people').value = state.people;
+
   $('plan-title').textContent = `${tier.name} plan: ${tier.title}`;
   $('plan-mindset').textContent = tier.mindset;
-
-  const all = included.flatMap((t) => t.checklist);
+  const all = checklistFor();
   const done = all.filter((c) => isChecked(c, wd)).length;
   const pct = all.length ? Math.round((done / all.length) * 100) : 0;
   $('plan-pct').textContent = `${pct}%`;
   $('plan-bar').style.width = `${pct}%`;
 
-  // Current tier first, then the foundations it builds on, nearest first.
-  $('checklists').innerHTML = [...included].reverse()
-    .map((t) => renderTierChecklist(t, wd, t === tier))
-    .join('');
+  // One card per category page, plus savings.
+  const cards = PAGES.filter((p) => p.cat).map((p) => {
+    const list = checklistFor(p.cat);
+    const doneHere = list.filter((c) => isChecked(c, wd)).length;
+    const count = state.items.filter((i) => i.category === p.cat).length;
+    const a = alertsFor(p.cat);
+    const meta = [
+      !p.noInventory && `${count} item${count === 1 ? '' : 's'}`,
+      list.length && `${doneHere}/${list.length} checklist`,
+    ].filter(Boolean).join(' · ');
+    const badges = [
+      a.expired && `<span class="badge expired">${a.expired} expired</span>`,
+      a.soon && `<span class="badge soon">${a.soon} expiring</span>`,
+    ].filter(Boolean).join('');
+    const p100 = list.length ? Math.round((doneHere / list.length) * 100) : null;
+    return `
+      <a class="cat-card" href="#/${p.slug}">
+        <span class="cat-icon">${icon(p.icon)}</span>
+        <span class="cat-name">${escapeHtml(p.name)}</span>
+        <span class="cat-meta">${meta || 'No checklist items'}</span>
+        ${badges ? `<span class="cat-badges">${badges}</span>` : ''}
+        ${p100 !== null ? `<span class="mini-bar"><span style="width:${p100}%"></span></span>` : ''}
+      </a>`;
+  });
 
-  // Water summary
-  $('stat-water-goal').textContent = ` / ${tier.waterGoalDays}`;
-  $('water-hint').textContent = tier.waterGoalDays < 30 || tier.id === 'month'
-    ? `Water goal: 1 gallon per person per day for ${tier.waterGoalDays} days.`
-    : 'Keep 30 days stored. Past that, rely on a water source you can filter and purify.';
+  const goal = savingsGoal(tier);
+  const saved = Number(state.savings.current) || 0;
+  const sp = goal ? Math.min(100, Math.round((saved / goal) * 100)) : 0;
+  cards.push(`
+    <a class="cat-card" href="#/savings">
+      <span class="cat-icon">${icon('dollar')}</span>
+      <span class="cat-name">Savings</span>
+      <span class="cat-meta">${money.format(saved)} of ${money.format(goal)}</span>
+      <span class="mini-bar"><span style="width:${sp}%"></span></span>
+    </a>`);
+
+  $('cat-grid').innerHTML = cards.join('');
 }
+
+// ---------- Rendering: category page ----------
+
+function renderChecklist(page, wd) {
+  const tier = currentTier();
+  let total = 0;
+  let done = 0;
+
+  // Current tier first, then the foundations it builds on, nearest first.
+  const html = [...includedTiers()].reverse().map((t) => {
+    const list = t.checklist.filter((c) => c.cat === page.cat);
+    if (!list.length) return '';
+    total += list.length;
+    const label = t === tier ? `${t.name} · your tier` : `${t.name} · foundation`;
+    return `
+      <h3>${escapeHtml(label)}</h3>
+      <ul class="checks">
+        ${list.map((c) => {
+          const checked = isChecked(c, wd);
+          if (checked) done++;
+          const auto = c.autoWater
+            ? `<span class="auto">From inventory: ${formatDays(wd)} of ${c.autoWater} days</span>`
+            : '';
+          return `
+            <li class="${checked ? 'done' : ''}">
+              <label>
+                <input type="checkbox" data-check="${c.id}" ${checked ? 'checked' : ''} ${c.autoWater ? 'disabled' : ''}>
+                <span>${escapeHtml(c.text)}${auto}</span>
+              </label>
+            </li>`;
+        }).join('')}
+      </ul>`;
+  }).join('');
+
+  $('checklist-card').hidden = total === 0;
+  $('checklist').innerHTML = html;
+  $('checklist-count').textContent = `${done}/${total}`;
+}
+
+function renderInventory(page) {
+  const items = state.items.filter((i) => i.category === page.cat);
+
+  const uniq = (key) => [...new Set(state.items.map((i) => i[key]).filter(Boolean))].sort();
+  $('unit-list').innerHTML = uniq('unit').map((u) => `<option value="${escapeHtml(u)}">`).join('');
+  $('location-list').innerHTML = uniq('location').map((l) => `<option value="${escapeHtml(l)}">`).join('');
+
+  const q = $('search').value.trim().toLowerCase();
+  const st = $('filter-status').value;
+  const order = { expired: 0, soon: 1, ok: 2 };
+
+  const visible = items
+    .filter((i) => !st || statusOf(i) === st)
+    .filter((i) => !q || [i.name, i.location, i.notes].join(' ').toLowerCase().includes(q))
+    .sort((a, b) =>
+      order[statusOf(a)] - order[statusOf(b)] ||
+      (a.expires || '9999').localeCompare(b.expires || '9999') ||
+      a.name.localeCompare(b.name));
+
+  $('items').innerHTML = visible.map((i) => {
+    const s = statusOf(i);
+    const badge = s === 'ok' ? '' :
+      `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
+    const meta = [
+      `${i.quantity} ${escapeHtml(i.unit)}`.trim(),
+      expiryText(i),
+      i.location && `📍 ${escapeHtml(i.location)}`,
+      i.notes && escapeHtml(i.notes),
+    ].filter(Boolean).join(' · ');
+    return `
+      <li class="item" data-id="${i.id}">
+        <div class="title">${escapeHtml(i.name)}${badge}</div>
+        <div class="controls">
+          <button class="qty-btn" data-act="dec" aria-label="Use one">−</button>
+          <button class="qty-btn" data-act="inc" aria-label="Add one">+</button>
+          <button data-act="edit">Edit</button>
+          <button data-act="del">Delete</button>
+        </div>
+        <div class="meta">${meta}</div>
+      </li>`;
+  }).join('');
+
+  $('empty').hidden = visible.length > 0;
+  $('empty').textContent = items.length
+    ? 'No items match your filters.'
+    : `No ${page.name.toLowerCase()} items yet. Add one below.`;
+}
+
+function renderCategory(page, wd) {
+  const tier = currentTier();
+
+  // Water gets a headline "days stored" panel.
+  $('water-panel').hidden = page.slug !== 'water';
+  if (page.slug === 'water') {
+    const pct = Math.min(100, Math.round((wd / tier.waterGoalDays) * 100));
+    $('water-days').textContent = formatDays(wd);
+    $('water-goal').textContent = ` / ${tier.waterGoalDays}`;
+    $('water-bar').style.width = `${pct}%`;
+    $('water-bar').classList.toggle('complete', pct >= 100);
+    $('water-panel-hint').textContent =
+      `For ${state.people} ${state.people === 1 ? 'person' : 'people'} (change on Overview). ${waterHint(tier)}`;
+  }
+
+  renderChecklist(page, wd);
+
+  $('inventory-card').hidden = Boolean(page.noInventory);
+  $('form-card').hidden = Boolean(page.noInventory);
+  if (!page.noInventory) renderInventory(page);
+}
+
+// ---------- Rendering: savings ----------
 
 function renderSavings() {
   const tier = currentTier();
@@ -218,7 +434,7 @@ function renderSavings() {
     : weeksText;
   const remaining = Math.max(0, goal - current);
   $('savings-math').textContent =
-    `${span} × ${money.format(Number(state.savings.weekly) || 0)}/week. ` +
+    `${tier.name} tier: ${span} × ${money.format(Number(state.savings.weekly) || 0)}/week. ` +
     (remaining > 0 ? `${money.format(remaining)} to go.` : 'Goal reached.');
 
   // Don't overwrite a field while the user is typing in it.
@@ -229,68 +445,26 @@ function renderSavings() {
   $('beyond-years-wrap').hidden = tier.days !== null;
 }
 
-// ---------- Rendering ----------
+// ---------- Rendering: page shell ----------
 
 function render() {
+  const page = currentPage();
   const wd = waterDays();
 
-  // Summary
-  $('stat-items').textContent = state.items.length;
-  $('stat-soon').textContent = state.items.filter((i) => statusOf(i) === 'soon').length;
-  $('stat-expired').textContent = state.items.filter((i) => statusOf(i) === 'expired').length;
-  $('stat-water').textContent = formatDays(wd);
-  $('people').value = state.people;
+  document.title = page.slug ? `${page.name} · Prep Tracker` : 'Prep Tracker';
+  $('page-icon').innerHTML = icon(page.icon);
+  $('page-title').textContent = page.name;
+  $('page-sub').textContent = page.blurb;
+  $('tier-name').textContent = state.tier ? currentTier().name : '—';
 
-  renderPlan(wd);
-  renderSavings();
+  renderNav(page);
 
-  // Suggestions for unit and location fields
-  const uniq = (key) => [...new Set(state.items.map((i) => i[key]).filter(Boolean))].sort();
-  $('unit-list').innerHTML = uniq('unit').map((u) => `<option value="${escapeHtml(u)}">`).join('');
-  $('location-list').innerHTML = uniq('location').map((l) => `<option value="${escapeHtml(l)}">`).join('');
+  const view = page.slug === '' ? 'overview' : page.slug === 'savings' ? 'savings' : 'category';
+  for (const v of ['overview', 'category', 'savings']) $(`view-${v}`).hidden = v !== view;
 
-  // Filtered list, most urgent first
-  const q = $('search').value.trim().toLowerCase();
-  const cat = $('filter-category').value;
-  const st = $('filter-status').value;
-  const order = { expired: 0, soon: 1, ok: 2 };
-
-  const visible = state.items
-    .filter((i) => !cat || i.category === cat)
-    .filter((i) => !st || statusOf(i) === st)
-    .filter((i) => !q || [i.name, i.location, i.notes, i.category].join(' ').toLowerCase().includes(q))
-    .sort((a, b) =>
-      order[statusOf(a)] - order[statusOf(b)] ||
-      (a.expires || '9999').localeCompare(b.expires || '9999') ||
-      a.name.localeCompare(b.name));
-
-  $('items').innerHTML = visible.map((i) => {
-    const s = statusOf(i);
-    const badge = s === 'ok' ? '' :
-      `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
-    const meta = [
-      `${i.quantity} ${escapeHtml(i.unit)}`.trim(),
-      expiryText(i),
-      i.location && `📍 ${escapeHtml(i.location)}`,
-      i.notes && escapeHtml(i.notes),
-    ].filter(Boolean).join(' · ');
-    return `
-      <li class="item" data-id="${i.id}">
-        <div class="title">${escapeHtml(i.name)}<span class="badge cat">${escapeHtml(i.category)}</span>${badge}</div>
-        <div class="controls">
-          <button class="qty-btn" data-act="dec" aria-label="Use one">−</button>
-          <button class="qty-btn" data-act="inc" aria-label="Add one">+</button>
-          <button data-act="edit">Edit</button>
-          <button data-act="del">Delete</button>
-        </div>
-        <div class="meta">${meta}</div>
-      </li>`;
-  }).join('');
-
-  $('empty').hidden = visible.length > 0;
-  $('empty').textContent = state.items.length
-    ? 'No items match your filters.'
-    : 'No items yet. Add your first supply above.';
+  if (view === 'overview') renderOverview(wd);
+  if (view === 'category') renderCategory(page, wd);
+  if (view === 'savings') renderSavings();
 }
 
 // ---------- Tier picker ----------
@@ -333,7 +507,7 @@ $('change-tier').addEventListener('click', openTierPicker);
 
 // ---------- Checklist & savings inputs ----------
 
-$('checklists').addEventListener('change', (e) => {
+$('checklist').addEventListener('change', (e) => {
   const id = e.target.dataset.check;
   if (!id) return;
   if (e.target.checked) state.checklist[id] = true;
@@ -341,14 +515,6 @@ $('checklists').addEventListener('change', (e) => {
   saveState();
   render();
 });
-
-// <details> "toggle" doesn't bubble, so listen in the capture phase.
-$('checklists').addEventListener('toggle', (e) => {
-  const block = e.target.closest('.tier-block');
-  if (!block || block.classList.contains('current')) return;
-  if (block.open) openTiers.add(block.dataset.tier);
-  else openTiers.delete(block.dataset.tier);
-}, true);
 
 $('savings-current').addEventListener('input', (e) => {
   state.savings.current = Math.max(0, Number(e.target.value) || 0);
@@ -377,6 +543,8 @@ function resetForm() {
   $('item-form').reset();
   $('item-id').value = '';
   $('quantity').value = 1;
+  const page = currentPage();
+  if (CATEGORIES.includes(page.cat)) $('category').value = page.cat;
   $('form-title').textContent = 'Add an item';
   $('submit-btn').textContent = 'Add item';
   $('cancel-edit').hidden = true;
@@ -390,8 +558,8 @@ function startEdit(item) {
   $('form-title').textContent = 'Edit item';
   $('submit-btn').textContent = 'Save changes';
   $('cancel-edit').hidden = false;
-  $('item-form').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  $('name').focus();
+  $('form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $('name').focus({ preventScroll: true });
 }
 
 $('item-form').addEventListener('submit', (e) => {
@@ -444,7 +612,7 @@ $('items').addEventListener('click', (e) => {
 
 // ---------- Filters & household ----------
 
-for (const id of ['search', 'filter-category', 'filter-status']) {
+for (const id of ['search', 'filter-status']) {
   $(id).addEventListener('input', render);
 }
 
@@ -488,6 +656,6 @@ $('import-file').addEventListener('change', async (e) => {
 // ---------- Init ----------
 
 $('category').innerHTML = CATEGORIES.map((c) => `<option>${c}</option>`).join('');
-$('filter-category').innerHTML += CATEGORIES.map((c) => `<option>${c}</option>`).join('');
+resetForm();
 render();
 if (!state.tier) openTierPicker();

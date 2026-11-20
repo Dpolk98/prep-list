@@ -15,6 +15,15 @@ On first use you choose how long you're preparing for. You can change it any tim
 
 Each tier builds on the ones below it: its checklist is shown alongside the earlier tiers' checklists as "foundations". Water-storage items tick themselves when your inventory holds enough water. The weekly savings baseline can be changed. Tier content lives in `tiers.js`.
 
+## Pages
+
+The ☰ menu in the top left opens these pages. Each one has its own link, such as `#/water`.
+
+- **Overview**: summary stats, household size, overall readiness, and a card for each category
+- **Category pages**: Water, Food, Medical & First Aid, Toiletries & Hygiene, Light & Power, Tools & Gear, Documents & Cash, Other. Each page shows that category's checklist (for your tier and the tiers below it), its inventory, and an add-item form with the category already selected.
+- **Plans & Skills**: checklist only
+- **Savings**: progress toward the tier's savings goal
+
 ## Features
 
 - Add, edit and delete items with category, quantity, unit, expiration date, storage location and notes
