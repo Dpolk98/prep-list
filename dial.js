@@ -95,7 +95,8 @@
     return best;
   }
 
-  const selectedIndex = (col) =>
+  // While a flick is still spinning, the row it will stop on counts as selected.
+  const selectedIndex = (col) => col.target ??
     Math.max(0, Math.min(col.values.length - 1, Math.round(col.el.scrollTop / ROW)));
 
   const currentValue = () => active.field.join(active.cols.map((c) => c.values[selectedIndex(c)]));
@@ -146,16 +147,98 @@
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => paint(col));
     }, { passive: true });
-    // Tap a row to spin to it.
-    el.addEventListener('click', (e) => {
-      const item = e.target.closest('.dial-item');
-      if (item) el.scrollTo({ top: Number(item.dataset.i) * ROW, behavior: 'smooth' });
+
+    // The wheel moves itself instead of using the browser's scrolling: only
+    // vertical finger movement counts, and a flick keeps spinning and slows
+    // down gradually before settling on a row.
+    const maxTop = (col.values.length - 1) * ROW;
+    let drag = null;   // { y, top, moved, samples: [{ t, y }] }
+    let spin = 0;      // animation frame id while spinning
+
+    function stopSpin() {
+      cancelAnimationFrame(spin);
+      spin = 0;
+      col.target = null;
+    }
+
+    // Eases from the current position to row `index`.
+    function spinTo(index, duration) {
+      stopSpin();
+      index = Math.max(0, Math.min(col.values.length - 1, index));
+      col.target = index;
+      const from = el.scrollTop;
+      const to = index * ROW;
+      if (from === to) { col.target = null; return; }
+      const start = performance.now();
+      const step = (now) => {
+        const p = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - p, 4); // fast start, long gentle stop
+        el.scrollTop = from + (to - from) * eased;
+        if (p < 1) spin = requestAnimationFrame(step);
+        else { spin = 0; col.target = null; }
+      };
+      spin = requestAnimationFrame(step);
+    }
+    col.spinTo = spinTo;
+
+    el.addEventListener('pointerdown', (e) => {
+      stopSpin();
+      try { el.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ }
+      drag = { y: e.clientY, top: el.scrollTop, moved: 0, samples: [{ t: e.timeStamp, y: e.clientY }] };
     });
+    el.addEventListener('pointermove', (e) => {
+      if (!drag) return;
+      const dy = e.clientY - drag.y;
+      drag.moved = Math.max(drag.moved, Math.abs(dy));
+      let top = drag.top - dy;
+      // Past either end, resist like a rubber band.
+      if (top < 0) top /= 3;
+      else if (top > maxTop) top = maxTop + (top - maxTop) / 3;
+      el.scrollTop = top;
+      drag.samples.push({ t: e.timeStamp, y: e.clientY });
+      if (drag.samples.length > 6) drag.samples.shift();
+    });
+    const release = (e) => {
+      if (!drag) return;
+      const d = drag;
+      drag = null;
+      if (d.moved < 6) {
+        // A tap: spin to the row that was tapped.
+        const rect = el.getBoundingClientRect();
+        const offset = Math.round((e.clientY - (rect.top + rect.height / 2)) / ROW);
+        spinTo(selectedIndex(col) + offset, 300);
+        return;
+      }
+      // Finger speed over the last ~100 ms, in px per ms (positive = flick up).
+      // If the finger paused before lifting, there's no momentum.
+      const recent = d.samples.filter((s) => e.timeStamp - s.t < 100);
+      const first = recent[0];
+      const dt = first ? e.timeStamp - first.t : 0;
+      const velocity = dt > 0 ? (first.y - e.clientY) / dt : 0;
+      // Momentum: carry on in the flick's direction, further the faster it was.
+      const travel = velocity * 420;
+      const index = Math.round((el.scrollTop + travel) / ROW);
+      const distance = Math.abs(index * ROW - el.scrollTop);
+      spinTo(index, Math.min(2200, 320 + Math.sqrt(distance) * 50));
+    };
+    el.addEventListener('pointerup', release);
+    el.addEventListener('pointercancel', release);
+
+    // Mouse wheel / trackpad (for tablets with one attached).
+    let wheelTimer = 0;
+    el.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      stopSpin();
+      el.scrollTop = Math.max(0, Math.min(maxTop, el.scrollTop + e.deltaY));
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => spinTo(selectedIndex(col), 200), 120);
+    }, { passive: false });
+
     el.addEventListener('keydown', (e) => {
       const step = { ArrowUp: -1, ArrowDown: 1, PageUp: -10, PageDown: 10 }[e.key];
       if (!step) return;
       e.preventDefault();
-      el.scrollTo({ top: (selectedIndex(col) + step) * ROW, behavior: 'smooth' });
+      spinTo((col.target ?? selectedIndex(col)) + step, 220);
     });
     return { wrap, col };
   }
