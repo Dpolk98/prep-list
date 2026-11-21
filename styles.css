@@ -199,7 +199,7 @@ label.locked { opacity: .5; }
 input:disabled, select:disabled { cursor: not-allowed; }
 .expires-hint { margin: 10px 0 0; min-height: 1.2em; }
 .expires-hint strong { color: var(--text); font-weight: 600; }
-.est { font-style: italic; }
+.est { font-style: italic; color: var(--muted); }
 
 /* ---------- Inventory list ---------- */
 
@@ -208,19 +208,70 @@ input:disabled, select:disabled { cursor: not-allowed; }
 .filters { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .items { list-style: none; margin: 0; padding: 0; }
-.item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4px 12px;
-  padding: 12px 0;
-  border-top: 1px solid var(--border);
-}
+.item { padding: 12px 0; border-top: 1px solid var(--border); }
 .item:first-child { border-top: none; }
-.item .title { font-weight: 600; }
-.item .meta { font-size: .85rem; color: var(--muted); }
-.item .controls { display: flex; gap: 6px; align-items: center; grid-row: span 2; }
-.item .controls button { padding: 4px 10px; font-size: .85rem; }
-.qty-btn { width: 32px; }
+.item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.item .title { font-weight: 600; padding-top: 4px; min-width: 0; overflow-wrap: anywhere; }
+/* Quantity, type, expiration, location and notes, one per row */
+.facts {
+  display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px;
+  margin: 6px 0 0; font-size: .85rem;
+}
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+/* Collapsible groups (one per type, or per Food section) */
+.group-tools { display: flex; justify-content: flex-end; margin: -2px 0 4px; }
+.link-btn {
+  border: none; background: none; padding: 4px 0; font-size: .85rem;
+  color: var(--accent); font-weight: 600;
+}
+.link-btn:hover { text-decoration: underline; }
+.item-group { border-top: 1px solid var(--border); }
+.item-group:first-child { border-top: none; }
+.item-group > summary {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 0; cursor: pointer; list-style: none;
+}
+.item-group > summary::-webkit-details-marker { display: none; }
+.item-group > summary::before {
+  content: ''; width: 8px; height: 8px; flex-shrink: 0; margin: 0 2px;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg); transition: transform .15s ease;
+}
+.item-group[open] > summary::before { transform: translateY(-3px) rotate(45deg); }
+.item-group > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+.group-name { font-weight: 600; flex: 1; min-width: 0; }
+.group-meta { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4px 6px; }
+.group-meta .badge { margin: 0; }
+.group-count { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+/* Items inside a group sit slightly in from the group's heading */
+.item-group .items { padding: 0 0 4px 16px; }
+.item-group .item:first-child { border-top: 1px solid var(--border); }
+
+/* "⋯" actions menu, to the right of the item name */
+.item-menu { position: relative; flex-shrink: 0; }
+.menu-btn {
+  display: grid; place-items: center; width: 36px; height: 32px; padding: 0;
+  border-color: transparent; background: transparent; color: var(--muted);
+}
+.menu-btn:hover, .menu-btn[aria-expanded="true"] { background: var(--bg); border-color: var(--border); color: var(--text); }
+.menu-btn svg { width: 20px; height: 20px; }
+.menu {
+  position: absolute; right: 0; top: calc(100% + 4px); z-index: 20;
+  display: flex; flex-direction: column; min-width: 170px; padding: 4px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgb(0 0 0 / .18);
+}
+.menu[hidden] { display: none; }
+.menu button {
+  display: flex; align-items: center; gap: 10px; text-align: left;
+  border: none; background: transparent; padding: 9px 10px; border-radius: 6px;
+}
+.menu button:hover { background: var(--bg); }
+.menu button.danger { color: var(--bad); }
+.menu-sym { width: 14px; text-align: center; font-weight: 600; color: var(--muted); }
+.menu button:not(:has(.menu-sym))::before { content: ''; width: 14px; }
 
 .badge {
   display: inline-block; font-size: .72rem; font-weight: 600;
@@ -263,7 +314,7 @@ input:disabled, select:disabled { cursor: not-allowed; }
 .supplies-card details[open] { padding-bottom: 8px; }
 #supplies-intro { margin-top: -4px; margin-bottom: 4px; }
 
-#supplies h3 {
+#supplies h3, #plans-list h3 {
   font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
   color: var(--muted); margin: 16px 0 4px;
 }
@@ -276,6 +327,9 @@ input:disabled, select:disabled { cursor: not-allowed; }
 .supply-name { display: block; font-size: .95rem; }
 .supply-note { display: block; font-size: .8rem; color: var(--muted); }
 .add-supply { padding: 4px 12px; font-size: .85rem; flex-shrink: 0; }
+.plans-card h2 { margin-bottom: 4px; }
+.plans-card #plans-intro { margin: 0 0 4px; }
+#plans-list h3:first-child { margin-top: 12px; }
 .have { font-size: .78rem; font-weight: 600; color: var(--ok); white-space: nowrap; flex-shrink: 0; }
 
 /* ---------- Overview category grid ---------- */
@@ -314,6 +368,12 @@ input:disabled, select:disabled { cursor: not-allowed; }
 #savings .hint { margin-bottom: 12px; }
 .savings-inputs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
+.savings-why p { margin: 0 0 12px; max-width: 62ch; }
+.savings-why h3 { font-size: 1rem; margin: 16px 0 8px; }
+.reasons { margin: 0; padding-left: 20px; max-width: 62ch; }
+.reasons li { margin-bottom: 8px; }
+.reasons li::marker { color: var(--accent); }
+
 /* ---------- Tier picker dialog ---------- */
 
 dialog {
@@ -342,8 +402,6 @@ dialog .hint { margin: 0 0 14px; display: block; }
 @media (max-width: 640px) {
   .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .grid, .savings-inputs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .item { grid-template-columns: 1fr; }
-  .item .controls { grid-row: auto; }
   .filters, .filters > * { width: 100%; }
   .tier-options { grid-template-columns: 1fr; }
 }

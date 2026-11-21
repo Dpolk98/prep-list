@@ -90,6 +90,13 @@
         </details>
       </section>
 
+      <!-- Plans & Skills: the same suggestions, always shown (no inventory) -->
+      <section class="card plans-card" id="plans-card" hidden>
+        <h2>Things to set up</h2>
+        <p class="hint" id="plans-intro"></p>
+        <div id="plans-list"></div>
+      </section>
+
       <section class="card" id="inventory-card">
         <div class="list-head">
           <h2>Inventory</h2>
@@ -103,7 +110,10 @@
             </select>
           </div>
         </div>
-        <ul id="items" class="items"></ul>
+        <div class="group-tools" id="group-tools" hidden>
+          <button type="button" class="link-btn" id="toggle-groups">Expand all</button>
+        </div>
+        <div id="items"></div>
         <p id="empty" class="empty"></p>
       </section>
 
@@ -174,6 +184,23 @@
             <input type="number" id="beyond-years" min="1" max="50" step="1">
           </label>
         </div>
+      </section>
+
+      <section class="card savings-why">
+        <h2>Why savings matter most</h2>
+        <p>Stored supplies get you through the first days of a disruption. The longer it lasts, the more your savings matter. Most long disruptions are financial ones: a job loss, an illness, rising prices or a slow local economy. Money is what carries a household through them.</p>
+        <ul class="reasons">
+          <li><strong>It fits any situation.</strong> Supplies cover the needs you planned for. Money also covers the ones you didn’t: a hotel during an evacuation, a car repair, a replacement for something that broke.</li>
+          <li><strong>It doesn’t expire.</strong> Savings don’t need rotating, storage space or a cool, dry shelf.</li>
+          <li><strong>It keeps working after the stores reopen.</strong> Most disruptions end with shelves restocked but bills still due. Savings cover the weeks or months it takes to get back on your feet.</li>
+          <li><strong>It gives you time.</strong> With a cushion, you can make decisions calmly instead of in a hurry.</li>
+        </ul>
+        <h3>Building it steadily</h3>
+        <ul class="reasons">
+          <li>Small, regular amounts add up. A steady weekly habit matters more than a big start.</li>
+          <li>Keep some cash at home in small bills for when card readers are down, and the rest somewhere safe that you can reach within a day.</li>
+          <li>Grow savings and supplies together, and avoid going into debt for supplies. Debt is its own emergency.</li>
+        </ul>
       </section>
     </div>
   </main>

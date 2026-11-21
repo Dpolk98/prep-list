@@ -20,6 +20,7 @@ const ICONS = {
   package: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
   alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+  dots: '<circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/>',
   dollar: '<circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>',
 };
 
@@ -32,6 +33,7 @@ function icon(name) {
 
 const PAGES = [
   { slug: '', name: 'Overview', icon: 'home', blurb: 'Your readiness across every category.' },
+  { slug: 'savings', name: 'Savings', icon: 'dollar', blurb: 'Your emergency fund: the most flexible part of being prepared.' },
   { slug: 'water', name: 'Water', cat: 'Water', icon: 'droplet', blurb: 'Stored water, purification and sources.' },
   { slug: 'food', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking fuel and long-term staples.' },
   { slug: 'medical', name: 'Medical & First Aid', cat: 'Medical & First Aid', icon: 'medkit', blurb: 'First aid, medications and medical skills.' },
@@ -40,7 +42,6 @@ const PAGES = [
   { slug: 'documents', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies and records.' },
   { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets and anything else.' },
   { slug: 'plans', name: 'Plans & Skills', cat: 'Plans & Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training and community.' },
-  { slug: 'savings', name: 'Savings', icon: 'dollar', blurb: 'Your emergency fund goal for this tier.' },
 ];
 
 // Inventory categories, in menu order.
@@ -174,12 +175,14 @@ function formatSpan(days) {
   return count(days, 'day');
 }
 
-function expiryText(item) {
+// The Expires row of an item: its label and text.
+function expiryParts(item) {
   const days = daysUntil(item.expires);
-  if (days === null) return 'No expiration';
-  if (days < 0) return `Expired ${formatSpan(-days)} ago`;
-  if (days === 0) return 'Expires today';
-  return `Expires in ${formatSpan(days)} (${item.expires})`;
+  if (days === null) return { label: 'Expires', text: 'No date' };
+  const date = formatLongDate(item.expires);
+  if (days < 0) return { label: 'Expired', text: `${formatSpan(-days)} ago (${date})` };
+  if (days === 0) return { label: 'Expires', text: `Today (${date})` };
+  return { label: 'Expires', text: `In ${formatSpan(days)} (${date})` };
 }
 
 // Converts a water item's quantity to gallons, based on its unit.
@@ -257,7 +260,7 @@ function renderNav(page) {
       ? `<span class="nav-alert ${a.expired ? 'bad' : 'warn'}" title="${a.expired} expired, ${a.soon} expiring soon">${n}</span>`
       : '';
     return `
-      <li class="${p.slug === 'plans' || p.slug === 'savings' ? 'sep' : ''}">
+      <li class="${p.slug === 'water' || p.slug === 'plans' ? 'sep' : ''}">
         <a class="nav-link" href="#/${p.slug}" ${p === page ? 'aria-current="page"' : ''}>
           ${icon(p.icon)}<span>${escapeHtml(p.name)}</span>${alert}
         </a>
@@ -323,7 +326,7 @@ function renderOverview(wd) {
   $('plan-title').textContent = `${tier.name} plan: ${tier.title}`;
   $('plan-mindset').textContent = tier.mindset;
 
-  // One card per category page, plus savings.
+  // Savings first, then one card per category page.
   const cards = PAGES.filter((p) => p.cat).map((p) => {
     const count = state.items.filter((i) => i.category === p.cat).length;
     const a = alertsFor(p.cat);
@@ -346,7 +349,7 @@ function renderOverview(wd) {
   const goal = savingsGoal(tier);
   const saved = Number(state.savings.current) || 0;
   const sp = goal ? Math.min(100, Math.round((saved / goal) * 100)) : 0;
-  cards.push(`
+  cards.unshift(`
     <a class="cat-card" href="#/savings">
       <span class="cat-icon">${icon('dollar')}</span>
       <span class="cat-name">Savings</span>
@@ -359,7 +362,8 @@ function renderOverview(wd) {
 
 // ---------- Rendering: category page ----------
 
-// Reference list of suggested supplies, in a collapsible section.
+// Reference list of suggested supplies. Category pages show it in a
+// collapsible section; Plans & Skills (no inventory) shows it in a plain card.
 function renderSupplies(page) {
   const tier = currentTier();
   const canAdd = !page.noInventory;
@@ -391,13 +395,19 @@ function renderSupplies(page) {
       </ul>`;
   }).join('');
 
-  $('supplies-card').hidden = total === 0;
-  $('supplies-title').textContent = page.noInventory ? 'Things to set up' : 'What to buy';
+  $('plans-card').hidden = !page.noInventory || total === 0;
+  $('supplies-card').hidden = Boolean(page.noInventory) || total === 0;
+  if (page.noInventory) {
+    $('plans-intro').textContent = `Plans and skills worth having at the ${tier.name} tier.`;
+    $('plans-list').innerHTML = html;
+    $('supplies').innerHTML = '';
+    return;
+  }
   $('supplies-count').textContent = `${total} idea${total === 1 ? '' : 's'}`;
-  $('supplies-intro').textContent = page.noInventory
-    ? `Plans and skills worth having at the ${tier.name} tier.`
-    : `Ideas for your shopping list at the ${tier.name} tier. Tap Add once you have something to log it in your inventory.`;
+  $('supplies-intro').textContent =
+    `Ideas for your shopping list at the ${tier.name} tier. Tap Add once you have something to log it in your inventory.`;
   $('supplies').innerHTML = html;
+  $('plans-list').innerHTML = '';
 }
 
 // "Add" on a suggestion fills the add-item form with its name.
@@ -413,34 +423,47 @@ $('supplies').addEventListener('click', (e) => {
   $('quantity').select();
 });
 
+// The item whose actions menu is open. Kept across re-renders so "Use one"
+// and "Add one" can be tapped repeatedly without reopening the menu.
+let openMenuId = null;
+
 // One inventory row. Used on category pages and the Expired / Expiring pages.
 function itemRow(i) {
   const s = statusOf(i);
   const badge = s === 'ok' ? '' :
     `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
   const type = findType(i.category, i.type);
+  const open = i.id === openMenuId;
   // With a type shown, "(est.)" is enough; older items name their basis.
   const basis = type ? '' : ` · ${escapeHtml(i.expiresBasis || 'typical shelf life')}`;
+  const exp = expiryParts(i);
   const expiry = i.expiresEstimated
-    ? `${expiryText(i)} <span class="est" title="Estimated from the item type's typical shelf life. Edit the item to enter the printed date.">(est.${basis})</span>`
-    : expiryText(i);
-  const meta = [
-    `${i.quantity} ${escapeHtml(i.unit)}`.trim(),
-    type && escapeHtml(type.name),
-    expiry,
-    i.location && `📍 ${escapeHtml(i.location)}`,
-    i.notes && escapeHtml(i.notes),
-  ].filter(Boolean).join(' · ');
+    ? `${exp.text} <span class="est" title="Estimated from the item type's typical shelf life. Edit the item to enter the printed date.">est.${basis}</span>`
+    : exp.text;
+  // One labelled row per detail; empty ones are left out.
+  const facts = [
+    ['Quantity', `${i.quantity} ${escapeHtml(i.unit)}`.trim()],
+    type && ['Type', escapeHtml(type.name)],
+    [exp.label, expiry],
+    i.location && ['Location', escapeHtml(i.location)],
+    i.notes && ['Notes', escapeHtml(i.notes)],
+  ].filter(Boolean).map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join('');
   return `
     <li class="item" data-id="${i.id}">
-      <div class="title">${escapeHtml(i.name)}${badge}</div>
-      <div class="controls">
-        <button class="qty-btn" data-act="dec" aria-label="Use one">−</button>
-        <button class="qty-btn" data-act="inc" aria-label="Add one">+</button>
-        <button data-act="edit">Edit</button>
-        <button data-act="del">Delete</button>
+      <div class="item-head">
+        <div class="title">${escapeHtml(i.name)}${badge}</div>
+        <div class="item-menu">
+          <button type="button" class="menu-btn" data-act="menu" aria-expanded="${open}"
+            aria-controls="menu-${i.id}" aria-label="Actions for ${escapeHtml(i.name)}">${icon('dots')}</button>
+          <div class="menu" id="menu-${i.id}" ${open ? '' : 'hidden'}>
+            <button type="button" data-act="dec"><span class="menu-sym" aria-hidden="true">−</span>Use one</button>
+            <button type="button" data-act="inc"><span class="menu-sym" aria-hidden="true">+</span>Add one</button>
+            <button type="button" data-act="edit">Edit</button>
+            <button type="button" data-act="del" class="danger">Delete</button>
+          </div>
+        </div>
       </div>
-      <div class="meta">${meta}</div>
+      <dl class="facts">${facts}</dl>
     </li>`;
 }
 
@@ -469,6 +492,45 @@ function renderStatus(page) {
     : 'Nothing expires in the next 60 days.';
 }
 
+// ---------- Inventory groups ----------
+// Once a category holds more than 3 types of item, its inventory is split
+// into collapsible groups: one per type, or for Food, one per section of the
+// Type list (Canned & jarred, Dry staples, …), since Food has ~40 types.
+
+const GROUP_AFTER_TYPES = 3;
+const GROUP_BY_SECTION = new Set(['Food']);
+const NO_TYPE = '__none__';
+
+// Which group an item belongs to, and that group's place in the Type list.
+function groupOf(item) {
+  const types = typesFor(item.category);
+  const type = findType(item.category, item.type);
+  if (!type) return { key: NO_TYPE, name: 'No type', order: Infinity };
+  if (GROUP_BY_SECTION.has(item.category) && type.group) {
+    return { key: `section:${type.group}`, name: type.group, order: types.findIndex((t) => t.group === type.group) };
+  }
+  return { key: type.id, name: type.name, order: types.indexOf(type) };
+}
+
+// Open/closed groups the user chose, per category, remembered in this browser.
+const GROUPS_KEY = 'prep-tracker:open-groups';
+let groupChoices = {};
+try { groupChoices = JSON.parse(localStorage.getItem(GROUPS_KEY)) || {}; } catch { /* no storage */ }
+
+function setGroupOpen(cat, key, open) {
+  (groupChoices[cat] ||= {})[key] = open;
+  try { localStorage.setItem(GROUPS_KEY, JSON.stringify(groupChoices)); } catch { /* no storage */ }
+}
+
+// Groups the user hasn't opened or closed start open only if they hold
+// something expired or expiring soon.
+function isGroupOpen(cat, group) {
+  const choice = groupChoices[cat]?.[group.key];
+  return choice ?? group.urgency < STATUS_ORDER.ok;
+}
+
+const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+
 function renderInventory(page) {
   const items = state.items.filter((i) => i.category === page.cat);
 
@@ -477,13 +539,63 @@ function renderInventory(page) {
 
   const q = $('search').value.trim().toLowerCase();
   const st = $('filter-status').value;
+  const filtering = Boolean(q || st);
 
-  const visible = items
-    .filter((i) => !st || statusOf(i) === st)
-    .filter((i) => !q || [i.name, findType(i.category, i.type)?.name, i.location, i.notes].join(' ').toLowerCase().includes(q))
-    .sort(byExpiry);
+  const matches = (i) => (!st || statusOf(i) === st) &&
+    (!q || [i.name, findType(i.category, i.type)?.name, i.location, i.notes].join(' ').toLowerCase().includes(q));
+  const visible = items.filter(matches).sort(byExpiry);
 
-  $('items').innerHTML = visible.map((i) => itemRow(i)).join('');
+  // Grouping depends on everything in the category, not just what the
+  // filters show, so the list doesn't change shape while you search.
+  const typeCount = new Set(items.map((i) => i.type || NO_TYPE)).size;
+  const groups = new Map();
+  if (typeCount > GROUP_AFTER_TYPES) {
+    for (const i of items) {
+      const g = groupOf(i);
+      if (!groups.has(g.key)) groups.set(g.key, { ...g, all: [], shown: [], urgency: STATUS_ORDER.ok });
+      const group = groups.get(g.key);
+      group.all.push(i);
+      group.urgency = Math.min(group.urgency, STATUS_ORDER[statusOf(i)]);
+    }
+    for (const i of visible) groups.get(groupOf(i).key).shown.push(i);
+  }
+
+  if (groups.size < 2) {
+    $('group-tools').hidden = true;
+    $('items').innerHTML = visible.length ? `<ul class="items">${visible.map(itemRow).join('')}</ul>` : '';
+  } else {
+    // Groups needing attention first, then in Type-list order.
+    const list = [...groups.values()]
+      .filter((g) => g.shown.length)
+      .sort((a, b) => a.urgency - b.urgency || a.order - b.order || a.name.localeCompare(b.name));
+
+    $('items').innerHTML = list.map((g) => {
+      const expired = g.all.filter((i) => statusOf(i) === 'expired').length;
+      const soon = g.all.filter((i) => statusOf(i) === 'soon').length;
+      const badges = [
+        expired && `<span class="badge expired">${expired} expired</span>`,
+        soon && `<span class="badge soon">${soon} expiring</span>`,
+      ].filter(Boolean).join('');
+      const count = filtering && g.shown.length < g.all.length
+        ? `${g.shown.length} of ${plural(g.all.length, 'item')}`
+        : plural(g.all.length, 'item');
+      // While searching or filtering, every group with a match is open.
+      const open = filtering || isGroupOpen(page.cat, g);
+      return `
+        <details class="item-group" data-group="${escapeHtml(g.key)}" ${open ? 'open' : ''}>
+          <summary>
+            <span class="group-name">${escapeHtml(g.name)}</span>
+            <span class="group-meta">${badges}<span class="group-count">${count}</span></span>
+          </summary>
+          <ul class="items">${g.shown.map(itemRow).join('')}</ul>
+        </details>`;
+    }).join('');
+
+    const allOpen = list.every((g) => isGroupOpen(page.cat, g));
+    $('group-tools').hidden = filtering;
+    $('toggle-groups').textContent = allOpen ? 'Collapse all' : 'Expand all';
+    $('toggle-groups').dataset.open = String(!allOpen);
+  }
 
   $('empty').hidden = visible.length > 0;
   $('empty').textContent = items.length
@@ -856,6 +968,8 @@ $('item-form').addEventListener('submit', (e) => {
   } else {
     state.items.push({ id: newId(), added: toIsoDate(new Date()), ...data });
   }
+  // Open the item's group so you can see where it went.
+  setGroupOpen(category, groupOf(data).key, true);
   saveState();
   resetForm();
   render();
@@ -865,14 +979,41 @@ $('cancel-edit').addEventListener('click', resetForm);
 
 // ---------- List actions (event delegation) ----------
 
+function closeItemMenu({ focus = false } = {}) {
+  if (!openMenuId) return;
+  const row = document.querySelector(`.item[data-id="${openMenuId}"]`);
+  openMenuId = null;
+  if (!row) return;
+  row.querySelector('.menu').hidden = true;
+  const btn = row.querySelector('.menu-btn');
+  btn.setAttribute('aria-expanded', 'false');
+  if (focus) btn.focus();
+}
+
 function onItemAction(e) {
   const btn = e.target.closest('button[data-act]');
   if (!btn) return;
   const id = btn.closest('.item').dataset.id;
   const item = state.items.find((i) => i.id === id);
   if (!item) return;
+  const act = btn.dataset.act;
 
-  switch (btn.dataset.act) {
+  if (act === 'menu') {
+    const wasOpen = openMenuId === id;
+    closeItemMenu();
+    if (!wasOpen) {
+      openMenuId = id;
+      btn.setAttribute('aria-expanded', 'true');
+      const menu = btn.nextElementSibling;
+      menu.hidden = false;
+      menu.querySelector('button').focus();
+    }
+    return;
+  }
+  // Everything but Use one / Add one closes the menu.
+  if (act !== 'inc' && act !== 'dec') closeItemMenu();
+
+  switch (act) {
     case 'inc': item.quantity = (Number(item.quantity) || 0) + 1; break;
     case 'dec': item.quantity = Math.max(0, (Number(item.quantity) || 0) - 1); break;
     case 'edit': {
@@ -888,10 +1029,47 @@ function onItemAction(e) {
   }
   saveState();
   render();
+  // The list was rebuilt; keep focus on the button that was tapped.
+  document.querySelector(`.item[data-id="${id}"] [data-act="${act}"]`)?.focus();
 }
 
 $('items').addEventListener('click', onItemAction);
+// Tapping anywhere outside an open menu, or pressing Escape, closes it.
+document.addEventListener('click', (e) => {
+  if (openMenuId && !e.target.closest('.item-menu')) closeItemMenu();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && openMenuId) closeItemMenu({ focus: true });
+});
 $('status-list').addEventListener('click', onItemAction);
+
+// Opening or closing a group is remembered (but not while searching, when
+// every matching group is shown open).
+$('items').addEventListener('click', (e) => {
+  const summary = e.target.closest('.item-group > summary');
+  if (!summary || $('search').value.trim() || $('filter-status').value) return;
+  const details = summary.parentElement;
+  // The click runs before the browser toggles the group, so it's about to flip.
+  setGroupOpen(currentPage().cat, details.dataset.group, !details.open);
+  renderToggleLabel();
+});
+
+function renderToggleLabel() {
+  const all = [...document.querySelectorAll('#items .item-group')];
+  // Read after the browser has toggled the group.
+  requestAnimationFrame(() => {
+    const allOpen = all.every((d) => d.open);
+    $('toggle-groups').textContent = allOpen ? 'Collapse all' : 'Expand all';
+    $('toggle-groups').dataset.open = String(!allOpen);
+  });
+}
+
+$('toggle-groups').addEventListener('click', () => {
+  const open = $('toggle-groups').dataset.open === 'true';
+  const cat = currentPage().cat;
+  for (const d of document.querySelectorAll('#items .item-group')) setGroupOpen(cat, d.dataset.group, open);
+  render();
+});
 
 // ---------- Filters & household ----------
 
