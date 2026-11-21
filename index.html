@@ -113,13 +113,13 @@
               <select id="type" required></select>
             </label>
             <label>Quantity
-              <input id="quantity" type="number" min="0" step="any" value="1" required>
+              <input id="quantity" type="number" min="0" step="any" value="1" inputmode="decimal" required>
             </label>
             <label>Unit
               <select id="unit-select"></select>
               <input id="unit" placeholder="Type your own unit" aria-label="Custom unit" hidden>
             </label>
-            <label>Expires <span class="optional">(optional)</span>
+            <label><span>Expires <span class="optional">(optional)</span></span>
               <input id="expires" type="date" aria-describedby="expires-hint">
             </label>
             <label>Location
@@ -152,7 +152,7 @@
         <h2>Household</h2>
         <div class="household">
           <label>People in household
-            <input type="number" id="people" min="1" value="2">
+            <input type="number" id="people" min="1" step="1" value="2" inputmode="numeric" pattern="[0-9]*">
           </label>
         </div>
         <p class="hint settings-hint">Used to work out how many days your stored water will last.</p>
@@ -201,10 +201,10 @@
             <input type="number" id="savings-current" min="0" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0">
           </label>
           <label>Baseline per week ($)
-            <input type="number" id="savings-weekly" min="0" step="50" inputmode="decimal">
+            <input type="number" id="savings-weekly" min="0" step="1" inputmode="numeric" pattern="[0-9]*">
           </label>
           <label id="beyond-years-wrap">Years to cover
-            <input type="number" id="beyond-years" min="1" max="50" step="1">
+            <input type="number" id="beyond-years" min="1" max="50" step="1" inputmode="numeric" pattern="[0-9]*">
           </label>
         </div>
       </section>
@@ -243,6 +243,5 @@
   <script src="tiers.js"></script>
   <script src="shelf-life.js"></script>
   <script src="app.js"></script>
-  <script src="dial.js"></script>
 </body>
 </html>
