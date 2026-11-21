@@ -164,12 +164,22 @@ function statusOf(item) {
   return 'ok';
 }
 
+// A number of days as a short, rounded span: days up to 2 months,
+// then months up to 2 years, then years ("45 days", "5 months", "3 years").
+const DAYS_PER_MONTH = 365.25 / 12;
+function formatSpan(days) {
+  const count = (n, unit) => `${n} ${unit}${n === 1 ? '' : 's'}`;
+  if (days > 730) return count(Math.round(days / 365.25), 'year');
+  if (days > 60) return count(Math.round(days / DAYS_PER_MONTH), 'month');
+  return count(days, 'day');
+}
+
 function expiryText(item) {
   const days = daysUntil(item.expires);
   if (days === null) return 'No expiration';
-  if (days < 0) return `Expired ${-days} day${days === -1 ? '' : 's'} ago`;
+  if (days < 0) return `Expired ${formatSpan(-days)} ago`;
   if (days === 0) return 'Expires today';
-  return `Expires in ${days} day${days === 1 ? '' : 's'} (${item.expires})`;
+  return `Expires in ${formatSpan(days)} (${item.expires})`;
 }
 
 // Converts a water item's quantity to gallons, based on its unit.
@@ -315,13 +325,11 @@ function renderOverview(wd) {
 
   // One card per category page, plus savings.
   const cards = PAGES.filter((p) => p.cat).map((p) => {
-    const ideas = suppliesFor(p.cat).length;
     const count = state.items.filter((i) => i.category === p.cat).length;
     const a = alertsFor(p.cat);
-    const meta = [
-      !p.noInventory && `${count} item${count === 1 ? '' : 's'}`,
-      ideas && `${ideas} idea${ideas === 1 ? '' : 's'}`,
-    ].filter(Boolean).join(' · ');
+    // Inventory pages show how many items you have; Plans & Skills has no
+    // inventory, so it shows its description instead.
+    const meta = p.noInventory ? escapeHtml(p.blurb) : `${count} item${count === 1 ? '' : 's'}`;
     const badges = [
       a.expired && `<span class="badge expired">${a.expired} expired</span>`,
       a.soon && `<span class="badge soon">${a.soon} expiring</span>`,
