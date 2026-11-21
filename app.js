@@ -35,14 +35,14 @@ function icon(name) {
 const PAGES = [
   { slug: '', name: 'Overview', icon: 'home', blurb: 'Your readiness across every category.' },
   { slug: 'savings', name: 'Savings', icon: 'dollar', blurb: 'Your emergency fund: the most flexible part of being prepared.' },
-  { slug: 'water', name: 'Water', cat: 'Water', icon: 'droplet', blurb: 'Stored water, purification and sources.' },
-  { slug: 'food', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking fuel and long-term staples.' },
-  { slug: 'medical', name: 'Medical & First Aid', cat: 'Medical & First Aid', icon: 'medkit', blurb: 'First aid, medications and medical skills.' },
-  { slug: 'hygiene', name: 'Toiletries & Hygiene', cat: 'Toiletries & Hygiene', icon: 'soap', blurb: 'Toiletries, cleaning and sanitation.' },
-  { slug: 'power', name: 'Light & Power', cat: 'Light & Power', icon: 'zap', blurb: 'Lighting, batteries, charging and generation.' },
-  { slug: 'documents', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies and records.' },
-  { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets and anything else.' },
-  { slug: 'plans', name: 'Plans & Skills', cat: 'Plans & Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training and community.' },
+  { slug: 'water', name: 'Water', cat: 'Water', icon: 'droplet', blurb: 'Stored water, purification, and sources.' },
+  { slug: 'food', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking fuel, and long-term staples.' },
+  { slug: 'medical', name: 'Medical and First Aid', cat: 'Medical and First Aid', icon: 'medkit', blurb: 'First aid, medications, and medical skills.' },
+  { slug: 'hygiene', name: 'Toiletries and Hygiene', cat: 'Toiletries and Hygiene', icon: 'soap', blurb: 'Toiletries, cleaning, and sanitation.' },
+  { slug: 'power', name: 'Light and Power', cat: 'Light and Power', icon: 'zap', blurb: 'Lighting, batteries, charging, and generation.' },
+  { slug: 'documents', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies, and records.' },
+  { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets, and anything else.' },
+  { slug: 'plans', name: 'Plans and Skills', cat: 'Plans and Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training, and community.' },
   { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, and backups.' },
 ];
 
@@ -50,7 +50,7 @@ const PAGES = [
 // Pages reached from the overview's Expired / Expiring tiles (not in the menu).
 // Each lists items with that status across every category.
 const STATUS_PAGES = [
-  { slug: 'expired', name: 'Expired', status: 'expired', icon: 'alert', blurb: 'Items past their expiration date. Use, replace or throw them out.' },
+  { slug: 'expired', name: 'Expired', status: 'expired', icon: 'alert', blurb: 'Items past their expiration date. Use, replace, or throw them out.' },
   { slug: 'expiring', name: 'Expiring soon', status: 'soon', icon: 'clock', blurb: 'Items that expire within the next 60 days. Use these first.' },
 ];
 
@@ -61,9 +61,9 @@ const CATEGORIES = PAGES.filter((p) => p.cat && !p.noInventory).map((p) => p.cat
 const UNITS = {
   'Water': [['gallons'], ['liters'], ['bottles', 'bottles (16.9 oz / 500 mL)'], ['fl oz'], ['mL']],
   'Food': [['cans'], ['#10 cans'], ['jars'], ['boxes'], ['bags'], ['buckets'], ['lbs'], ['oz'], ['packets'], ['pouches'], ['meals'], ['servings'], ['bottles']],
-  'Medical & First Aid': [['boxes'], ['bottles'], ['packs'], ['kits'], ['tablets'], ['doses'], ['rolls'], ['tubes'], ['pairs'], ['pieces']],
-  'Toiletries & Hygiene': [['rolls'], ['packs'], ['bottles'], ['boxes'], ['bars'], ['tubes'], ['bags'], ['gallons'], ['pieces']],
-  'Light & Power': [['batteries'], ['packs'], ['bulbs'], ['gallons'], ['cans'], ['units'], ['pieces']],
+  'Medical and First Aid': [['boxes'], ['bottles'], ['packs'], ['kits'], ['tablets'], ['doses'], ['rolls'], ['tubes'], ['pairs'], ['pieces']],
+  'Toiletries and Hygiene': [['rolls'], ['packs'], ['bottles'], ['boxes'], ['bars'], ['tubes'], ['bags'], ['gallons'], ['pieces']],
+  'Light and Power': [['batteries'], ['packs'], ['bulbs'], ['gallons'], ['cans'], ['units'], ['pieces']],
   'Documents': [['copies'], ['sets'], ['folders'], ['drives']],
   'Other': [['pieces'], ['packs'], ['boxes'], ['sets'], ['kits'], ['pairs'], ['rolls'], ['units']],
 };
@@ -83,6 +83,9 @@ const DEFAULT_SAVINGS = { current: 0, weekly: 500, beyondYears: 2 };
 // are moved over when they load:
 //   Documents & Cash → Documents (cash items go to Other)
 //   Tools & Gear     → Other (stoves and cookware go to Food)
+// Names that used "&" now spell out "and" (Medical & First Aid → Medical and
+// First Aid, and so on); `spellOutAnd` handles those.
+const spellOutAnd = (s) => (typeof s === 'string' ? s.replaceAll(' & ', ' and ') : s);
 const OLD_TOOLS_TYPES = {
   'hand-tools': 'hand-tools', 'tools-other': 'hand-tools', fire: 'hand-tools',
   shelter: 'shelter', clothing: 'shelter', bags: 'bags', masks: 'masks', extinguisher: 'extinguisher',
@@ -98,7 +101,7 @@ function migrateItem(item) {
     const type = OLD_TOOLS_TYPES[item.type] || guessType({ name: item.name, category: 'Other' }) || 'other-other';
     return { ...item, category: 'Other', type };
   }
-  return item;
+  return { ...item, category: spellOutAnd(item.category) };
 }
 
 function normalize(data = {}) {
@@ -194,7 +197,7 @@ function toGallons(qty, unit) {
   if (/^(l|liter|litre)s?$/.test(u)) return qty * 0.264172;
   if (/^(oz|fl ?oz|ounce)s?$/.test(u)) return qty / 128;
   if (/^(ml)$/.test(u)) return qty * 0.000264172;
-  if (/^(bottle|box|boxe|can)s?$/.test(u)) return qty * 0.132; // assumes 16.9 oz (500 mL) bottles, boxes or cans
+  if (/^(bottle|box|boxe|can)s?$/.test(u)) return qty * 0.132; // assumes 16.9 oz (500 mL) bottles, boxes, or cans
   if (/^(case)s?$/.test(u)) return qty * 24 * 0.132;  // assumes cases of 24 × 500 mL
   return 0;
 }
@@ -222,17 +225,20 @@ function escapeHtml(s) {
   ));
 }
 
-// ---------- Supplies & savings math ----------
+// ---------- Supplies and savings math ----------
 
 // Suggested supplies for a category, across the current tier and the ones below it.
 function suppliesFor(cat) {
   return includedTiers().flatMap((t) => t.supplies.filter((s) => s.cat === cat));
 }
 
-// True if the inventory already has an item with this exact name in this category.
+// True if the inventory already has an item with this name in this category.
+// Commas are ignored and "&" counts as "and", so "Rice, pasta and oats" (an
+// older suggestion name) still matches "Rice, pasta, and oats".
 function inInventory(name, cat) {
-  const n = name.trim().toLowerCase();
-  return state.items.some((i) => i.category === cat && i.name.trim().toLowerCase() === n);
+  const key = (s) => spellOutAnd(s).replace(/,/g, '').trim().toLowerCase();
+  const n = key(name);
+  return state.items.some((i) => i.category === cat && key(i.name) === n);
 }
 
 function tierWeeks(tier) {
@@ -329,7 +335,7 @@ function renderOverview(wd) {
   const cards = PAGES.filter((p) => p.cat).map((p) => {
     const count = state.items.filter((i) => i.category === p.cat).length;
     const a = alertsFor(p.cat);
-    // Inventory pages show how many items you have; Plans & Skills has no
+    // Inventory pages show how many items you have; Plans and Skills has no
     // inventory, so it shows its description instead.
     const meta = p.noInventory ? escapeHtml(p.blurb) : `${count} item${count === 1 ? '' : 's'}`;
     const badges = [
@@ -362,7 +368,7 @@ function renderOverview(wd) {
 // ---------- Rendering: category page ----------
 
 // Reference list of suggested supplies. Category pages show it in a
-// collapsible section; Plans & Skills (no inventory) shows it in a plain card.
+// collapsible section; Plans and Skills (no inventory) shows it in a plain card.
 function renderSupplies(page) {
   const tier = currentTier();
   const canAdd = !page.noInventory;
@@ -494,7 +500,7 @@ function renderStatus(page) {
 // ---------- Inventory groups ----------
 // Once a category holds more than 3 types of item, its inventory is split
 // into collapsible groups: one per type, or for Food, one per section of the
-// Type list (Canned & jarred, Dry staples, …), since Food has ~40 types.
+// Type list (Canned and jarred, Dry staples, …), since Food has ~40 types.
 
 const GROUP_AFTER_TYPES = 3;
 const GROUP_BY_SECTION = new Set(['Food']);
@@ -515,6 +521,11 @@ function groupOf(item) {
 const GROUPS_KEY = 'prep-tracker:open-groups';
 let groupChoices = {};
 try { groupChoices = JSON.parse(localStorage.getItem(GROUPS_KEY)) || {}; } catch { /* no storage */ }
+// Choices saved before names spelled out "and" (e.g. "Canned & jarred").
+groupChoices = Object.fromEntries(Object.entries(groupChoices).map(([cat, groups]) => [
+  spellOutAnd(cat),
+  Object.fromEntries(Object.entries(groups || {}).map(([key, open]) => [spellOutAnd(key), open])),
+]));
 
 function setGroupOpen(cat, key, open) {
   (groupChoices[cat] ||= {})[key] = open;
@@ -1093,7 +1104,7 @@ $('toggle-groups').addEventListener('click', () => {
   render();
 });
 
-// ---------- Filters & household ----------
+// ---------- Filters and household ----------
 
 for (const id of ['search', 'filter-status']) {
   $(id).addEventListener('input', render);
