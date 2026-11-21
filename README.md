@@ -24,7 +24,7 @@ The ☰ menu in the top left opens these pages. Each one has its own link, such 
 - **Category pages**: Water, Food (including stove fuel and cookware), Medical and First Aid, Toiletries and Hygiene, Light and Power, Documents, Other (tools, shelter and bedding, go-bags, masks, fire extinguishers, pets, baby supplies, and books and games). Each page shows a collapsible list of suggested supplies (for your tier and the tiers below it), its inventory, and an add-item form. Items can only be added from their own category page, so the form only offers that category's types.
 - **Expired** and **Expiring soon**: tap those tiles on the Overview to see the matching items from every category, grouped by category. Editing an item there opens it on its category page
 - **Plans and Skills**: an always-open list of things to set up (plans, training, community)
-- **Settings**: household size, how long you're preparing for (your tier), and exporting or importing a backup
+- **Settings**: household size, how long you're preparing for (your tier), and exporting or importing a backup, plus an About section with a link to support the app on Ko-fi
 
 ## Estimated expiration dates
 
