@@ -18,6 +18,7 @@ const ICONS = {
   file: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8M16 17H8M10 9H8"/>',
   clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
   package: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
   alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
   sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
@@ -54,6 +55,9 @@ const STATUS_PAGES = [
   { slug: 'expiring', name: 'Expiring soon', status: 'soon', icon: 'clock', blurb: 'Items that expire within the next 60 days. Use these first.' },
 ];
 
+// The welcome guide: shown to new users, and linked from Settings (not in the menu).
+const WELCOME_PAGE = { slug: 'welcome', name: 'Welcome', icon: 'info', blurb: 'A quick look at how Prep Tracker works.' };
+
 const CATEGORIES = PAGES.filter((p) => p.cat && !p.noInventory).map((p) => p.cat);
 
 // Common units offered in each category's Unit list. Water units are ones
@@ -71,7 +75,8 @@ const OTHER_UNIT = '__other__';
 
 function currentPage() {
   const slug = location.hash.replace(/^#\/?/, '');
-  return PAGES.find((p) => p.slug === slug) || STATUS_PAGES.find((p) => p.slug === slug) || PAGES[0];
+  return PAGES.find((p) => p.slug === slug) || STATUS_PAGES.find((p) => p.slug === slug)
+    || (slug === WELCOME_PAGE.slug ? WELCOME_PAGE : PAGES[0]);
 }
 
 // ---------- State ----------
@@ -113,9 +118,14 @@ function normalize(data = {}) {
   };
 }
 
+// False when this browser had nothing saved, which is when the welcome
+// popup appears.
+let hadSavedData = false;
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
+    hadSavedData = Boolean(raw);
     if (raw) return normalize(JSON.parse(raw));
   } catch (err) {
     console.warn('Could not read saved data:', err);
@@ -316,6 +326,8 @@ window.addEventListener('hashchange', () => {
   const pending = state.items.find((i) => i.id === pendingEditId);
   pendingEditId = null;
   if (pending && currentPage().cat === pending.category) startEdit(pending);
+  // A new user who leaves the welcome guide through the menu still needs a tier.
+  askForTierIfNeeded();
 });
 
 // ---------- Rendering: Overview ----------
@@ -681,9 +693,9 @@ function render() {
   renderNav(page);
 
   const view = page.slug === '' ? 'overview'
-    : page.slug === 'savings' || page.slug === 'settings' ? page.slug
+    : ['savings', 'settings', 'welcome'].includes(page.slug) ? page.slug
     : page.status ? 'status' : 'category';
-  for (const v of ['overview', 'category', 'savings', 'settings', 'status']) $(`view-${v}`).hidden = v !== view;
+  for (const v of ['overview', 'category', 'savings', 'settings', 'status', 'welcome']) $(`view-${v}`).hidden = v !== view;
 
   if (view === 'overview') renderOverview(wd);
   if (view === 'category') renderCategory(page, wd);
@@ -1128,28 +1140,92 @@ $('export-btn').addEventListener('click', () => {
   URL.revokeObjectURL(a.href);
 });
 
-$('import-file').addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+// Replaces everything with a backup file. Returns true if it was imported.
+// With nothing to replace yet (a returning user's first visit), it doesn't
+// ask to confirm.
+async function importBackup(file) {
   try {
     const data = JSON.parse(await file.text());
     if (!Array.isArray(data.items)) throw new Error('No items list found');
-    if (!confirm(`Replace your current ${state.items.length} items with ${data.items.length} from the backup?`)) return;
+    if (state.items.length &&
+        !confirm(`Replace your current ${state.items.length} items with ${data.items.length} from the backup?`)) return false;
     const imported = normalize(data);
     imported.items = imported.items.map((i) => ({ ...i, id: i.id || newId() }));
     imported.tier = imported.tier || state.tier;
     Object.assign(state, imported);
     saveState();
     render();
+    return true;
   } catch (err) {
     alert(`That file couldn't be imported: ${err.message}`);
-  } finally {
-    e.target.value = '';
+    return false;
   }
+}
+
+$('import-file').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (file) await importBackup(file);
+  e.target.value = '';
+});
+
+// ---------- Welcome (first visit) ----------
+
+// The tier picker opens whenever there's no tier yet, except on the welcome
+// guide, which ends with its own "Get started" button.
+function askForTierIfNeeded() {
+  if (state.tier || currentPage() === WELCOME_PAGE) return;
+  if ($('welcome-dialog').open || $('tier-dialog').open) return;
+  openTierPicker();
+}
+
+function openWelcome() {
+  $('welcome-ask').hidden = false;
+  $('welcome-back').hidden = true;
+  $('welcome-dialog').showModal();
+}
+
+// Saving right away means the popup only appears once, even if the page is
+// reloaded before a tier is chosen.
+function closeWelcome() {
+  saveState();
+  $('welcome-dialog').close();
+}
+
+// The popup needs an answer, so Escape doesn't close it.
+$('welcome-dialog').addEventListener('cancel', (e) => e.preventDefault());
+
+$('welcome-new').addEventListener('click', () => {
+  closeWelcome();
+  location.hash = '#/welcome';
+});
+
+$('welcome-returning').addEventListener('click', () => {
+  $('welcome-ask').hidden = true;
+  $('welcome-back').hidden = false;
+  $('welcome-fresh').focus();
+});
+
+$('welcome-import').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file || !(await importBackup(file))) return;
+  closeWelcome();
+  askForTierIfNeeded(); // older backups may not have a tier
+});
+
+$('welcome-fresh').addEventListener('click', () => {
+  closeWelcome();
+  askForTierIfNeeded();
+});
+
+$('welcome-start').addEventListener('click', () => {
+  location.hash = '#/';
+  askForTierIfNeeded();
 });
 
 // ---------- Init ----------
 
 resetForm();
 render();
-if (!state.tier) openTierPicker();
+if (!hadSavedData) openWelcome();
+else askForTierIfNeeded();

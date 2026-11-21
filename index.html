@@ -180,10 +180,36 @@
         <h2>About the app</h2>
         <p class="settings-text">Prep Tracker was developed with the help of AI. It’s free to use, has no ads, and keeps your data on your device.</p>
         <p class="settings-text">If you find it useful and would like to support it, you can leave a tip on Ko-fi. It’s completely optional.</p>
+        <p class="settings-text"><a href="#/welcome">Read the welcome guide again</a></p>
         <div class="data-tools">
           <a class="file-btn link-button" id="kofi-link" href="https://ko-fi.com/danielpolk" target="_blank" rel="noopener">Support on Ko-fi ↗</a>
         </div>
       </section>
+    </div>
+
+    <!-- ===== Welcome guide (new users, and from Settings) ===== -->
+    <div id="view-welcome" class="view" hidden>
+      <section class="card welcome-tour">
+        <h2>What Prep Tracker does</h2>
+        <ul class="reasons">
+          <li><strong>Keeps track of your supplies.</strong> Water, Food, Medical, and the other categories each have their own page in the ☰ menu. Add what you have, with how much, where it’s stored, and when it expires.</li>
+          <li><strong>Watches expiration dates for you.</strong> Leave the date blank and the app estimates one from the type of item. The Overview shows anything expired or expiring within 60 days, so you can use it and replace it in time.</li>
+          <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them.</li>
+          <li><strong>Helps you build savings.</strong> The Savings page tracks your progress toward an emergency fund sized to your goal.</li>
+          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan.</li>
+        </ul>
+      </section>
+
+      <section class="card backup-note" aria-labelledby="backup-note-title">
+        <h2 id="backup-note-title">Important: export your data regularly</h2>
+        <p>Prep Tracker stores everything <strong>only in this browser, on this device</strong>. Nothing is saved online.</p>
+        <p>If your browser data is cleared, your browser is reset or reinstalled, or you move to a new phone or computer, <strong>everything you’ve entered will be gone unless you have a backup.</strong></p>
+        <p>To keep it safe, open <a href="#/settings">Settings</a> and tap <strong>Export backup</strong> every so often, for example once a month or after adding a batch of items. Keep the file somewhere you won’t lose it, such as your email, cloud storage, or another computer. If you ever need it, tap <strong>Import backup</strong> in Settings to bring everything back.</p>
+      </section>
+
+      <div class="actions welcome-actions">
+        <button type="button" class="primary" id="welcome-start">Get started</button>
+      </div>
     </div>
 
     <!-- ===== Savings ===== -->
@@ -238,6 +264,35 @@
         <button value="" id="tier-cancel">Keep current</button>
       </div>
     </form>
+  </dialog>
+
+  <!-- Shown once, when this browser has no saved data -->
+  <dialog id="welcome-dialog" aria-labelledby="welcome-title">
+    <div id="welcome-ask">
+      <h2 id="welcome-title">Welcome to Prep Tracker</h2>
+      <p class="hint">Have you used Prep Tracker before?</p>
+      <div class="tier-options welcome-choices">
+        <button type="button" class="tier-option" id="welcome-new">
+          <strong>I’m new here</strong>
+          <span class="tier-title">Take a quick look at how it works.</span>
+        </button>
+        <button type="button" class="tier-option" id="welcome-returning">
+          <strong>I’ve used it before</strong>
+          <span class="tier-title">Bring back your data from a backup.</span>
+        </button>
+      </div>
+    </div>
+    <div id="welcome-back" hidden>
+      <h2>Welcome back</h2>
+      <p class="settings-text">There’s no saved data in this browser. Prep Tracker keeps your data only in the browser where you entered it, so it may have been cleared, or you may be on a different device or browser.</p>
+      <p class="settings-text">If you exported a backup, import it now to pick up where you left off.</p>
+      <div class="actions welcome-back-actions">
+        <label class="file-btn primary-file">Import backup
+          <input type="file" id="welcome-import" accept="application/json" hidden>
+        </label>
+        <button type="button" id="welcome-fresh">Start fresh</button>
+      </div>
+    </div>
   </dialog>
 
   <script src="tiers.js"></script>

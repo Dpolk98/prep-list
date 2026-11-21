@@ -2,6 +2,15 @@
 
 A small web app for tracking emergency supplies: food, water, toiletries, first aid, gear, and more.
 
+## First visit
+
+When a browser has no saved data, a welcome popup asks whether you're new or have used the app before.
+
+- **New**: opens the **Welcome** guide, a quick tour of what the app does with a clear reminder to export a backup regularly (your data lives only in that browser). **Get started** then asks how long you're preparing for.
+- **Returning**: offers to import a backup right away, or to start fresh.
+
+The guide can be read again from the About section on the Settings page.
+
 ## Prep tiers
 
 On first use you choose how long you're preparing for. You can change it any time on the **Settings** page.
