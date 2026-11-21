@@ -927,7 +927,8 @@ function resetForm() {
   typeTouched = false;
   $('item-form').reset();
   $('item-id').value = '';
-  $('quantity').value = 1;
+  // Left blank so there's nothing to erase before typing the amount.
+  $('quantity').value = '';
   // The form only adds items to the category of the page it's on.
   const page = currentPage();
   $('category').value = CATEGORIES.includes(page.cat) ? page.cat : '';
