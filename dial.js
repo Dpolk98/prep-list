@@ -14,7 +14,9 @@
   const money = (n) => '$' + Math.round(n).toLocaleString();
   const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 
-  // One entry per number field. Each column is a list of values; split() turns
+  // One entry per number field. ("Saved so far" isn't here on purpose: it
+  // takes an exact amount, so it opens the phone's number pad instead.)
+  // Each column is a list of values; split() turns
   // a field's value into one value per column and join() does the reverse.
   const FIELDS = {
     quantity: {
@@ -40,16 +42,6 @@
       split: (v) => [v],
       join: ([v]) => v,
       preview: (v) => plural(v, 'person', 'people'),
-    },
-    'savings-current': {
-      title: 'Saved so far',
-      columns: [
-        { values: range(0, 500), label: (v) => `$${v}`, unit: 'thousand' },
-        { values: range(0, 950, 50), label: (v) => String(v).padStart(3, '0') },
-      ],
-      split: (v) => [Math.floor(v / 1000), v % 1000],
-      join: ([k, rest]) => k * 1000 + rest,
-      preview: money,
     },
     'savings-weekly': {
       title: 'Baseline per week',

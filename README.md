@@ -37,7 +37,7 @@ The form shows the estimate before you save. Estimated dates are labeled "est." 
 ## Features
 
 - Add, edit and delete items with category, quantity, unit, expiration date, storage location and notes
-- On phones and tablets, number fields (quantity, household size, savings) open a spinning number dial instead of the keyboard
+- On phones and tablets, number fields (quantity, household size, weekly savings baseline, years to cover) open a spinning number dial instead of the keyboard. **Saved so far** opens the number pad, so you can enter an exact amount
 - Quantity and unit unlock once you choose a type, and the unit list fits that type (canned beans: cans, #10 cans, jars; freeze-dried meals: pouches, #10 cans, buckets, servings, meals). The most common unit is selected for you. Choose **Other…** to type your own; units you've typed before are added to that type's list
 - Items that are expired or expire within 60 days are flagged and sorted to the top
 - Once a category has more than 3 types of item, its inventory is split into collapsible groups: one per type, or for Food, one per section (Canned & jarred, Dry staples, Snacks…). Each heading shows its item count and any expired or expiring items. Groups that need attention open on their own and come first; the rest follow the Type list. Search and the status filter open every group with a match. Open or closed groups are remembered, and **Expand all** / **Collapse all** sits above the list
