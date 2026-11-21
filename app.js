@@ -19,6 +19,7 @@ const ICONS = {
   clipboard: '<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
   package: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
   alert: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
+  sliders: '<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   dots: '<circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/>',
   dollar: '<circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/>',
@@ -42,6 +43,7 @@ const PAGES = [
   { slug: 'documents', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies and records.' },
   { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets and anything else.' },
   { slug: 'plans', name: 'Plans & Skills', cat: 'Plans & Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training and community.' },
+  { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, and backups.' },
 ];
 
 // Inventory categories, in menu order.
@@ -260,7 +262,7 @@ function renderNav(page) {
       ? `<span class="nav-alert ${a.expired ? 'bad' : 'warn'}" title="${a.expired} expired, ${a.soon} expiring soon">${n}</span>`
       : '';
     return `
-      <li class="${p.slug === 'water' || p.slug === 'plans' ? 'sep' : ''}">
+      <li class="${['water', 'plans', 'settings'].includes(p.slug) ? 'sep' : ''}">
         <a class="nav-link" href="#/${p.slug}" ${p === page ? 'aria-current="page"' : ''}>
           ${icon(p.icon)}<span>${escapeHtml(p.name)}</span>${alert}
         </a>
@@ -319,9 +321,6 @@ function renderOverview(wd) {
   $('stat-soon').textContent = state.items.filter((i) => statusOf(i) === 'soon').length;
   $('stat-expired').textContent = state.items.filter((i) => statusOf(i) === 'expired').length;
   $('stat-water').textContent = formatDays(wd);
-  $('stat-water-goal').textContent = ` / ${tier.waterGoalDays}`;
-  $('water-hint').textContent = `Water ${waterHint(tier).toLowerCase()}`;
-  if (document.activeElement !== $('people')) $('people').value = state.people;
 
   $('plan-title').textContent = `${tier.name} plan: ${tier.title}`;
   $('plan-mindset').textContent = tier.mindset;
@@ -614,8 +613,8 @@ function renderCategory(page, wd) {
     $('water-goal').textContent = ` / ${tier.waterGoalDays}`;
     $('water-bar').style.width = `${pct}%`;
     $('water-bar').classList.toggle('complete', pct >= 100);
-    $('water-panel-hint').textContent =
-      `For ${state.people} ${state.people === 1 ? 'person' : 'people'} (change on Overview). ${waterHint(tier)}`;
+    $('water-panel-hint').innerHTML =
+      `For ${state.people} ${state.people === 1 ? 'person' : 'people'} (change in <a href="#/settings">Settings</a>). ${escapeHtml(waterHint(tier))}`;
   }
 
   renderSupplies(page);
@@ -667,34 +666,58 @@ function render() {
   $('page-icon').innerHTML = icon(page.icon);
   $('page-title').textContent = page.name;
   $('page-sub').textContent = page.blurb;
-  $('tier-name').textContent = state.tier ? currentTier().name : '—';
 
   renderNav(page);
 
-  const view = page.slug === '' ? 'overview' : page.slug === 'savings' ? 'savings' : page.status ? 'status' : 'category';
-  for (const v of ['overview', 'category', 'savings', 'status']) $(`view-${v}`).hidden = v !== view;
+  const view = page.slug === '' ? 'overview'
+    : page.slug === 'savings' || page.slug === 'settings' ? page.slug
+    : page.status ? 'status' : 'category';
+  for (const v of ['overview', 'category', 'savings', 'settings', 'status']) $(`view-${v}`).hidden = v !== view;
 
   if (view === 'overview') renderOverview(wd);
   if (view === 'category') renderCategory(page, wd);
   if (view === 'savings') renderSavings();
   if (view === 'status') renderStatus(page);
+  if (view === 'settings') renderSettings();
 }
 
-// ---------- Tier picker ----------
+// ---------- Rendering: settings ----------
 
-function openTierPicker() {
-  const dialog = $('tier-dialog');
-  $('tier-options').innerHTML = TIERS.map((t) => {
+// One button per tier, used on the Settings page and the first-use picker.
+function tierOptions() {
+  return TIERS.map((t) => {
     const goal = t.days === null
       ? `${money.format(savingsGoal(t))} for ${state.savings.beyondYears} yrs`
       : money.format(savingsGoal(t));
+    const selected = t.id === state.tier;
     return `
-      <button value="${t.id}" class="tier-option ${t.id === state.tier ? 'selected' : ''}">
+      <button value="${t.id}" data-tier="${t.id}" class="tier-option ${selected ? 'selected' : ''}" aria-pressed="${selected}">
         <strong>${t.name}</strong>
         <span class="tier-title">${t.title}</span>
         <span class="tier-goal">Savings goal ${goal}</span>
       </button>`;
   }).join('');
+}
+
+function renderSettings() {
+  if (document.activeElement !== $('people')) $('people').value = state.people;
+  $('settings-tiers').innerHTML = tierOptions();
+}
+
+$('settings-tiers').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-tier]');
+  if (!btn || btn.dataset.tier === state.tier) return;
+  state.tier = btn.dataset.tier;
+  saveState();
+  render();
+  $('settings-tiers').querySelector(`[data-tier="${state.tier}"]`)?.focus();
+});
+
+// ---------- Tier picker ----------
+
+function openTierPicker() {
+  const dialog = $('tier-dialog');
+  $('tier-options').innerHTML = tierOptions();
   // On first use there is no current tier to keep, so a choice is required.
   $('tier-dialog-actions').hidden = !state.tier;
   dialog.returnValue = '';
@@ -716,7 +739,6 @@ $('tier-dialog').addEventListener('close', () => {
   render();
 });
 
-$('change-tier').addEventListener('click', openTierPicker);
 
 // ---------- Savings inputs ----------
 

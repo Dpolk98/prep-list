@@ -12,10 +12,6 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
     </button>
     <a href="#/" class="brand">Prep Tracker</a>
-    <div class="tier-bar">
-      <span><span class="tier-label">Prepping for </span><strong id="tier-name">—</strong></span>
-      <button id="change-tier">Change</button>
-    </div>
   </header>
 
   <!-- Slide-out navigation -->
@@ -45,14 +41,7 @@
         <div class="stat"><span class="num" id="stat-items">0</span><span class="label">Items</span></div>
         <a class="stat warn stat-link" href="#/expiring"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 days</span></a>
         <a class="stat bad stat-link" href="#/expired"><span class="num" id="stat-expired">0</span><span class="label">Expired</span></a>
-        <div class="stat"><span class="num"><span id="stat-water">0</span><span class="goal" id="stat-water-goal"></span></span><span class="label">Days of water stored</span></div>
-      </section>
-
-      <section class="household">
-        <label>People in household
-          <input type="number" id="people" min="1" value="2">
-        </label>
-        <span class="hint" id="water-hint"></span>
+        <div class="stat"><span class="num" id="stat-water">0</span><span class="label">Days of water stored</span></div>
       </section>
 
       <section class="card">
@@ -62,12 +51,6 @@
 
       <section class="cat-grid" id="cat-grid" aria-label="Categories"></section>
 
-      <section class="data-tools">
-        <button id="export-btn">Export backup</button>
-        <label class="file-btn">Import backup
-          <input type="file" id="import-file" accept="application/json" hidden>
-        </label>
-      </section>
     </div>
 
     <!-- ===== Category page (Food, Water, …) ===== -->
@@ -163,6 +146,37 @@
       <p id="status-empty" class="card empty"></p>
     </div>
 
+    <!-- ===== Settings ===== -->
+    <div id="view-settings" class="view" hidden>
+      <section class="card">
+        <h2>Household</h2>
+        <div class="household">
+          <label>People in household
+            <input type="number" id="people" min="1" value="2">
+          </label>
+        </div>
+        <p class="hint settings-hint">Used to work out how many days your stored water will last.</p>
+      </section>
+
+      <section class="card">
+        <h2>How long are you preparing for?</h2>
+        <p class="hint settings-hint">Each tier builds on the ones before it. It sets the suggested supplies on every page, your water goal and your savings goal.</p>
+        <div class="tier-options" id="settings-tiers"></div>
+      </section>
+
+      <section class="card">
+        <h2>Backup</h2>
+        <p class="settings-text">Your inventory is saved only in this browser, on this device. Export a backup now and then to keep a copy, or to move everything to a new phone or computer. If you clear your browser data or switch browsers, import the backup to bring it all back.</p>
+        <p class="hint settings-hint">Importing replaces what’s here now, so you’ll be asked to confirm first.</p>
+        <div class="data-tools">
+          <button id="export-btn">Export backup</button>
+          <label class="file-btn">Import backup
+            <input type="file" id="import-file" accept="application/json" hidden>
+          </label>
+        </div>
+      </section>
+    </div>
+
     <!-- ===== Savings ===== -->
     <div id="view-savings" class="view" hidden>
       <section class="card" id="savings">
@@ -198,7 +212,7 @@
         <h3>Building it steadily</h3>
         <ul class="reasons">
           <li>Small, regular amounts add up. A steady weekly habit matters more than a big start.</li>
-          <li>Keep some cash at home in small bills for when card readers are down, and the rest somewhere safe that you can reach within a day.</li>
+          <li>Keep some cash at home in small bills for when card readers are down.</li>
           <li>Grow savings and supplies together, and avoid going into debt for supplies. Debt is its own emergency.</li>
         </ul>
       </section>

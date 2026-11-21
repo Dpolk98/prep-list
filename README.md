@@ -4,7 +4,7 @@ A small web app for tracking emergency supplies: food, water, toiletries, first 
 
 ## Prep tiers
 
-On first use you choose how long you're preparing for. You can change it any time from the header.
+On first use you choose how long you're preparing for. You can change it any time on the **Settings** page.
 
 | Tier | Focus | Savings goal (at $500/week) |
 | --- | --- | --- |
@@ -19,11 +19,12 @@ Each tier builds on the ones below it. Every category page has a collapsible **W
 
 The ☰ menu in the top left opens these pages. Each one has its own link, such as `#/water`.
 
-- **Overview**: summary stats, household size, your tier's focus, and a card for savings and each category
+- **Overview**: summary stats, your tier's focus, and a card for savings and each category
 - **Savings** (right after Overview in the menu): progress toward the tier's savings goal, plus why savings matter most once a disruption lasts more than a few days, and how to build them steadily
 - **Category pages**: Water, Food (including stove fuel and cookware), Medical & First Aid, Toiletries & Hygiene, Light & Power, Documents, Other (tools, shelter and bedding, go-bags, masks, fire extinguishers, pets, baby supplies, books and games). Each page shows a collapsible list of suggested supplies (for your tier and the tiers below it), its inventory, and an add-item form. Items can only be added from their own category page, so the form only offers that category's types.
 - **Expired** and **Expiring soon**: tap those tiles on the Overview to see the matching items from every category, grouped by category. Editing an item there opens it on its category page
 - **Plans & Skills**: an always-open list of things to set up (plans, training, community)
+- **Settings**: household size, how long you're preparing for (your tier), and exporting or importing a backup
 
 ## Estimated expiration dates
 
@@ -58,4 +59,4 @@ Then visit http://localhost:8000.
 
 ## Data
 
-Everything is saved in the browser's `localStorage` under the key `prep-tracker:v1`. Which inventory groups you've opened is kept separately under `prep-tracker:open-groups` (it isn't part of backups). Data is per browser and per device, so use **Export backup** to keep a copy or move it to another device.
+Everything is saved in the browser's `localStorage` under the key `prep-tracker:v1`. Which inventory groups you've opened is kept separately under `prep-tracker:open-groups` (it isn't part of backups). Data is per browser and per device, so use **Export backup** on the Settings page to keep a copy or move it to another device.

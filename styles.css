@@ -56,13 +56,6 @@ svg { width: 20px; height: 20px; flex-shrink: 0; }
   border-bottom: 1px solid var(--border);
 }
 .brand { font-weight: 700; font-size: 1.05rem; color: var(--text); text-decoration: none; }
-.tier-bar {
-  margin-left: auto;
-  display: flex; align-items: center; gap: 10px; font-size: .9rem; white-space: nowrap;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 4px 4px 14px;
-}
-.tier-bar strong { color: var(--accent); }
-.tier-bar button { border-radius: 999px; padding: 4px 12px; font-size: .85rem; }
 
 .icon-btn {
   width: 40px; height: 40px; padding: 0;
@@ -146,10 +139,7 @@ h2 { font-size: 1.1rem; margin: 0 0 12px; }
 .stat-link::after { content: "›"; position: absolute; top: 8px; right: 12px; font-size: 1.2rem; color: var(--muted); }
 .goal { font-size: 1rem; font-weight: 500; color: var(--muted); }
 
-.household {
-  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
-  margin-bottom: 16px; font-size: .9rem;
-}
+.household { display: flex; align-items: center; font-size: .9rem; }
 .household label { flex-direction: row; align-items: center; gap: 6px; }
 .household input { width: 70px; }
 .hint { color: var(--muted); font-size: .8rem; }
@@ -282,7 +272,10 @@ input:disabled, select:disabled { cursor: not-allowed; }
 
 .empty { color: var(--muted); text-align: center; padding: 16px 0; margin: 0; }
 
-.data-tools { display: flex; gap: 8px; justify-content: flex-end; }
+.data-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.settings-text { margin: 0 0 8px; max-width: 62ch; font-size: .92rem; }
+.settings-hint { margin: 8px 0 12px; max-width: 62ch; }
+.card > .settings-hint:last-child { margin-bottom: 0; }
 .file-btn {
   flex-direction: row; cursor: pointer; font-size: .95rem; color: var(--text);
   border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; background: var(--surface);
@@ -406,9 +399,6 @@ dialog .hint { margin: 0 0 14px; display: block; }
   .tier-options { grid-template-columns: 1fr; }
 }
 
-@media (max-width: 420px) {
-  .tier-label { display: none; }
-}
 
 /* Expired / Expiring soon pages */
 .back-link { display: inline-block; margin-bottom: 12px; color: var(--accent); text-decoration: none; font-size: .9rem; }
