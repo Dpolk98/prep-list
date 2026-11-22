@@ -539,3 +539,28 @@ dialog .hint { margin: 0 0 14px; display: block; }
   .pd-table tr, .pd-glance div { break-inside: avoid; }
   .pd-section h3, .pd-group h4 { break-after: avoid; }
 }
+
+/* ---------- Grab list ---------- */
+
+.grab-intro { margin: 0 0 12px; max-width: 62ch; }
+.grab-card .hint { margin: 0 0 6px; }
+.grab-list { list-style: none; margin: 0; padding: 0; }
+.grab-entry { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); }
+.grab-entry:first-child { border-top: none; }
+.grab-num {
+  display: grid; place-items: center; flex: none; width: 26px; height: 26px; margin-top: 2px;
+  border-radius: 50%; background: var(--ok-bg); color: var(--accent); font-size: .8rem; font-weight: 700;
+}
+.grab-body { flex: 1; min-width: 0; padding-top: 4px; }
+.grab-name { font-weight: 600; overflow-wrap: anywhere; }
+.grab-where { margin-top: 2px; font-size: .85rem; color: var(--muted); overflow-wrap: anywhere; }
+.menu button:disabled { opacity: .4; cursor: default; background: transparent; }
+.grab-grid { grid-template-columns: 1fr; margin-top: 12px; }
+.field-hint { font-size: .78rem; color: var(--muted); }
+.grab-actions { justify-content: flex-end; margin-top: 16px; }
+
+/* On the printed summary: the two lists side by side when there's room */
+.pd-grab { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; }
+.pd-grab h4 { margin: 0 0 6px; font-size: .95rem; }
+.pd-grab ol { margin: 0; padding-left: 22px; font-size: .9rem; }
+.pd-grab li { margin-bottom: 4px; break-inside: avoid; }

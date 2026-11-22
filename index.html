@@ -230,6 +230,13 @@
       </section>
     </div>
 
+    <!-- ===== Grab list ===== -->
+    <div id="view-grab" class="view" hidden>
+      <!-- Hidden for now (FEATURES.grabList in app.js). -->
+      <p class="hint grab-intro">Keep each list short, and put things in the order you’d grab them. Link an entry to your inventory to always see where it’s kept. The grab list is also on the printed summary, so a copy can live by the door.</p>
+      <div id="grab-lists"></div>
+    </div>
+
     <!-- ===== Print summary ===== -->
     <div id="view-print" class="view" hidden>
       <section class="card print-controls">
@@ -338,6 +345,34 @@
   </main>
 
   <!-- Tier picker: shown on first use and from the "Change" button -->
+  <dialog id="grab-dialog" aria-labelledby="grab-dialog-title">
+    <form id="grab-form" autocomplete="off">
+      <h2 id="grab-dialog-title">Add to the grab list</h2>
+      <div class="grid grab-grid">
+        <label class="wide">From your inventory (optional)
+          <select id="grab-item"></select>
+        </label>
+        <label class="wide">What to grab
+          <input id="grab-name" required placeholder="e.g. Go-bags">
+        </label>
+        <label class="wide">Where it’s kept
+          <input id="grab-where" placeholder="e.g. Hall closet">
+          <span class="field-hint" id="grab-where-hint" hidden>Follows the item’s location in your inventory.</span>
+        </label>
+        <label class="wide">List
+          <select id="grab-list">
+            <option value="five">If you have 5 minutes</option>
+            <option value="fifteen">If you have 15 minutes</option>
+          </select>
+        </label>
+      </div>
+      <div class="actions grab-actions">
+        <button type="button" id="grab-cancel">Cancel</button>
+        <button type="submit" class="primary" id="grab-save">Add</button>
+      </div>
+    </form>
+  </dialog>
+
   <dialog id="tier-dialog" aria-labelledby="tier-dialog-title">
     <form method="dialog">
       <h2 id="tier-dialog-title">How long are you preparing for?</h2>

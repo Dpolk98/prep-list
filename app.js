@@ -9,6 +9,11 @@ const SOON_DAYS = 60;
 
 // Icons, including one per item type, live in icons.js.
 
+// Features that are built but switched off for now. The Grab list is hidden
+// while it's being refined: its page, menu entry, and printed section don't
+// show, but its data is still kept and included in backups.
+const FEATURES = { grabList: false };
+
 // ---------- Pages ----------
 // `cat` ties a page to an inventory category and to its suggested supplies.
 
@@ -23,6 +28,7 @@ const PAGES = [
   { slug: 'documents', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies, and records.' },
   { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets, and anything else.' },
   { slug: 'plans', name: 'Plans and Skills', cat: 'Plans and Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training, and community.' },
+  ...(FEATURES.grabList ? [{ slug: 'grab', name: 'Grab list', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
   { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, and backups.' },
   { slug: 'print', name: 'Print summary', icon: 'printer', blurb: 'Your supplies on paper, for when a phone is dead or the power is out.' },
 ];
@@ -90,12 +96,56 @@ function migrateItem(item) {
   return { ...item, category: spellOutAnd(item.category) };
 }
 
+// ---------- Grab list data ----------
+// Two ordered lists of what to take when leaving in a hurry. Each entry is
+// { id, name, where, itemId }; itemId links it to an inventory item, whose
+// current location is shown instead of `where`.
+
+const GRAB_LISTS = [
+  { key: 'five', title: 'If you have 5 minutes', short: '5 minutes', hint: 'The essentials, in the order you’d grab them.' },
+  { key: 'fifteen', title: 'If you have 15 minutes', short: '15 minutes', hint: 'Everything above first, then these.' },
+];
+
+// A starting point built on the "5 Ps": people and pets, papers,
+// prescriptions, personal needs, and priceless items.
+const STARTER_GRAB = {
+  five: ['Everyone in the household, and pets', 'Go-bags', 'Medications and glasses', 'Phone, charger, wallet, and keys', 'Document pouch'],
+  fifteen: ['Water and snacks for the car', 'Pet food, leashes, and carriers', 'Change of clothes and sturdy shoes', 'Laptop and backup drive', 'Photos and keepsakes', 'Sleeping bags or blankets'],
+};
+
+function grabEntry({ id, name, where = '', itemId = null }) {
+  return { id: id || newId(), name: String(name).trim(), where: String(where || '').trim(), itemId: itemId || null };
+}
+
+// Linked entries keep a copy of their item's current location, so it's still
+// there if the item is deleted later. Refreshed on every save.
+function syncGrabCopies() {
+  for (const { key } of GRAB_LISTS) {
+    for (const entry of state.grab[key]) {
+      const item = entry.itemId && state.items.find((i) => i.id === entry.itemId);
+      if (item) entry.where = (item.location || '').trim();
+    }
+  }
+}
+
+// Older data and backups have no grab list, so they start with the starter one.
+function normalizeGrab(grab) {
+  if (!grab || typeof grab !== 'object') {
+    return Object.fromEntries(GRAB_LISTS.map(({ key }) => [key, STARTER_GRAB[key].map((name) => grabEntry({ name }))]));
+  }
+  const clean = (list) => (Array.isArray(list) ? list : [])
+    .filter((e) => e && typeof e.name === 'string' && e.name.trim())
+    .map(grabEntry);
+  return Object.fromEntries(GRAB_LISTS.map(({ key }) => [key, clean(grab[key])]));
+}
+
 function normalize(data = {}) {
   return {
     items: Array.isArray(data.items) ? data.items.map(migrateItem) : [],
     people: data.people ?? 2,
     tier: TIERS.some((t) => t.id === data.tier) ? data.tier : null,
     savings: { ...DEFAULT_SAVINGS, ...(data.savings || {}) },
+    grab: normalizeGrab(data.grab),
     // Hazard ids from hazards.js, kept in that file's order.
     hazards: Array.isArray(data.hazards) ? HAZARDS.map((h) => h.id).filter((id) => data.hazards.includes(id)) : [],
   };
@@ -117,6 +167,7 @@ function loadState() {
 }
 
 function saveState() {
+  syncGrabCopies();
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     noteChange();
@@ -929,9 +980,9 @@ function render() {
   renderNav(page);
 
   const view = page.slug === '' ? 'overview'
-    : ['savings', 'settings', 'welcome', 'print'].includes(page.slug) ? page.slug
+    : ['savings', 'settings', 'welcome', 'print', 'grab'].includes(page.slug) ? page.slug
     : page.status ? 'status' : 'category';
-  for (const v of ['overview', 'category', 'savings', 'settings', 'status', 'welcome', 'print']) $(`view-${v}`).hidden = v !== view;
+  for (const v of ['overview', 'category', 'savings', 'settings', 'status', 'welcome', 'print', 'grab']) $(`view-${v}`).hidden = v !== view;
 
   if (view === 'overview') renderOverview(wd);
   if (view === 'category') renderCategory(page, wd);
@@ -939,7 +990,189 @@ function render() {
   if (view === 'status') renderStatus(page);
   if (view === 'settings') renderSettings();
   if (view === 'print') renderPrint();
+  if (view === 'grab') renderGrab();
 }
+
+// ---------- Rendering: grab list ----------
+
+let openGrabMenu = null;  // id of the entry whose ⋯ menu is open
+
+// The inventory item an entry is linked to, if it still exists.
+const grabItem = (entry) => (entry.itemId ? state.items.find((i) => i.id === entry.itemId) : null);
+
+// Where an entry is kept: a linked item's current location, or what was typed.
+const grabWhere = (entry) => (grabItem(entry)?.location || entry.where || '').trim();
+
+function grabRow(entry, index, list) {
+  const item = grabItem(entry);
+  const s = item ? statusOf(item) : 'ok';
+  const badge = s === 'ok' ? '' : `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
+  const where = grabWhere(entry);
+  const details = [where, item && 'Linked to inventory'].filter(Boolean).join(' · ');
+  const open = entry.id === openGrabMenu;
+  return `
+    <li class="grab-entry" data-id="${entry.id}">
+      <span class="grab-num">${index + 1}</span>
+      <div class="grab-body">
+        <div class="grab-name">${escapeHtml(entry.name)}${badge}</div>
+        ${details ? `<div class="grab-where">${escapeHtml(details)}</div>` : ''}
+      </div>
+      <div class="item-menu">
+        <button type="button" class="menu-btn" data-grab="menu" aria-expanded="${open}"
+          aria-controls="grab-menu-${entry.id}" aria-label="Actions for ${escapeHtml(entry.name)}">${icon('dots')}</button>
+        <div class="menu" id="grab-menu-${entry.id}" ${open ? '' : 'hidden'}>
+          <button type="button" data-grab="up" ${index === 0 ? 'disabled' : ''}><span class="menu-sym" aria-hidden="true">↑</span>Move up</button>
+          <button type="button" data-grab="down" ${index === list.length - 1 ? 'disabled' : ''}><span class="menu-sym" aria-hidden="true">↓</span>Move down</button>
+          <button type="button" data-grab="edit">Edit</button>
+          <button type="button" data-grab="remove" class="danger">Remove</button>
+        </div>
+      </div>
+    </li>`;
+}
+
+function renderGrab() {
+  $('grab-lists').innerHTML = GRAB_LISTS.map(({ key, title, hint }) => {
+    const list = state.grab[key];
+    return `
+      <section class="card grab-card" data-list="${key}">
+        <h2>${title}</h2>
+        <p class="hint">${hint}</p>
+        ${list.length
+          ? `<ol class="grab-list">${list.map((e, i) => grabRow(e, i, list)).join('')}</ol>`
+          : '<p class="empty">Nothing here yet.</p>'}
+        <div class="actions">
+          <button type="button" data-grab="add">Add to this list</button>
+        </div>
+      </section>`;
+  }).join('');
+}
+
+// Which list an entry is in, and where.
+function findGrab(id) {
+  for (const { key } of GRAB_LISTS) {
+    const index = state.grab[key].findIndex((e) => e.id === id);
+    if (index !== -1) return { key, index, entry: state.grab[key][index] };
+  }
+  return null;
+}
+
+function closeGrabMenu({ focus = false } = {}) {
+  if (!openGrabMenu) return;
+  const row = document.querySelector(`.grab-entry[data-id="${openGrabMenu}"]`);
+  openGrabMenu = null;
+  if (!row) return;
+  row.querySelector('.menu').hidden = true;
+  const btn = row.querySelector('.menu-btn');
+  btn.setAttribute('aria-expanded', 'false');
+  if (focus) btn.focus();
+}
+
+$('grab-lists').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-grab]');
+  if (!btn || btn.disabled) return;
+  const act = btn.dataset.grab;
+  if (act === 'add') return openGrabDialog({ list: btn.closest('.grab-card').dataset.list });
+
+  const id = btn.closest('.grab-entry').dataset.id;
+  if (act === 'menu') {
+    const wasOpen = openGrabMenu === id;
+    closeGrabMenu();
+    if (!wasOpen) {
+      openGrabMenu = id;
+      const row = btn.closest('.grab-entry');
+      row.querySelector('.menu').hidden = false;
+      btn.setAttribute('aria-expanded', 'true');
+    }
+    return;
+  }
+
+  const found = findGrab(id);
+  if (!found) return;
+  const list = state.grab[found.key];
+  if (act === 'edit') { closeGrabMenu(); return openGrabDialog({ list: found.key, entry: found.entry }); }
+  if (act === 'remove') { list.splice(found.index, 1); openGrabMenu = null; }
+  if (act === 'up' || act === 'down') {
+    const to = found.index + (act === 'up' ? -1 : 1);
+    [list[found.index], list[to]] = [list[to], list[found.index]];
+  }
+  saveState();
+  render();
+  // Keep focus on the tapped button, so an entry can be moved several places.
+  // At the top or bottom (button now disabled), fall back to the ⋯ button.
+  const row = document.querySelector(`.grab-entry[data-id="${id}"]`);
+  const same = row?.querySelector(`[data-grab="${act}"]:not([disabled])`);
+  if (same) same.focus();
+  else row?.querySelector('.menu-btn').focus();
+});
+
+document.addEventListener('click', (e) => {
+  if (openGrabMenu && !e.target.closest('.grab-entry .item-menu')) closeGrabMenu();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && openGrabMenu) closeGrabMenu({ focus: true });
+});
+
+// ---------- Grab list: add and edit ----------
+
+let editingGrabId = null;
+
+// Fills the Where field from a linked item, locked so it follows the item.
+function syncGrabWhere() {
+  const item = state.items.find((i) => i.id === $('grab-item').value);
+  $('grab-where').disabled = Boolean(item);
+  if (item) $('grab-where').value = item.location || '';
+  $('grab-where-hint').hidden = !item;
+}
+
+function openGrabDialog({ list, entry = null }) {
+  editingGrabId = entry?.id || null;
+  $('grab-dialog-title').textContent = entry ? 'Edit grab list entry' : 'Add to the grab list';
+  $('grab-save').textContent = entry ? 'Save' : 'Add';
+  $('grab-item').innerHTML = '<option value="">Not linked</option>' + CATEGORIES.map((cat) => {
+    const items = state.items.filter((i) => i.category === cat).sort(byName);
+    if (!items.length) return '';
+    return `<optgroup label="${escapeHtml(cat)}">${items.map((i) =>
+      `<option value="${i.id}">${escapeHtml(i.name)}${i.location ? ` (${escapeHtml(i.location)})` : ''}</option>`).join('')}</optgroup>`;
+  }).join('');
+  $('grab-item').value = grabItem(entry || {}) ? entry.itemId : '';
+  $('grab-name').value = entry?.name || '';
+  $('grab-where').value = entry?.where || '';
+  $('grab-list').value = list;
+  syncGrabWhere();
+  $('grab-dialog').showModal();
+  $('grab-name').focus();
+}
+
+// Picking an item fills in its name, unless a different name was typed.
+let lastLinkedName = '';
+$('grab-item').addEventListener('change', () => {
+  const item = state.items.find((i) => i.id === $('grab-item').value);
+  const name = $('grab-name').value.trim();
+  if (item && (!name || name === lastLinkedName)) $('grab-name').value = item.name;
+  lastLinkedName = item ? item.name : '';
+  syncGrabWhere();
+});
+
+$('grab-cancel').addEventListener('click', () => $('grab-dialog').close());
+
+$('grab-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('grab-name').value.trim();
+  if (!name) return;
+  const itemId = $('grab-item').value || null;
+  // A linked entry keeps a copy of the item's location, in case the item is deleted later.
+  const entry = grabEntry({ id: editingGrabId, name, where: $('grab-where').value, itemId });
+  const to = $('grab-list').value;
+  const found = editingGrabId && findGrab(editingGrabId);
+  if (found && found.key === to) state.grab[to][found.index] = entry;
+  else {
+    if (found) state.grab[found.key].splice(found.index, 1);
+    state.grab[to].push(entry);
+  }
+  saveState();
+  $('grab-dialog').close();
+  render();
+});
 
 // ---------- Rendering: print summary ----------
 // A plain document of everything on hand, laid out to print on paper (or
@@ -1049,6 +1282,21 @@ function renderPrint() {
         ${glance.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
       </dl>
     </section>
+
+    ${FEATURES.grabList && GRAB_LISTS.some(({ key }) => state.grab[key].length) ? `
+    <section class="pd-section">
+      <h3>Grab list</h3>
+      <div class="pd-grab">
+        ${GRAB_LISTS.filter(({ key }) => state.grab[key].length).map(({ key, title }) => `
+          <div>
+            <h4>${title}</h4>
+            <ol>${state.grab[key].map((e) => {
+              const where = grabWhere(e);
+              return `<li><strong>${escapeHtml(e.name)}</strong>${where ? ` <span class="pd-muted">· ${escapeHtml(where)}</span>` : ''}</li>`;
+            }).join('')}</ol>
+          </div>`).join('')}
+      </div>
+    </section>` : ''}
 
     ${attention.length ? `
     <section class="pd-section">
