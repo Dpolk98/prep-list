@@ -1383,7 +1383,21 @@ document.addEventListener('mouseup', (e) => {
   selectOnRelease = null;
 });
 
+// ---------- Offline ----------
+// sw.js saves the app's files on the device so it opens with no connection.
+// Service workers need http or https, so opening index.html as a file skips
+// this, and the app works as before.
+
+function registerOffline() {
+  if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+  // Shown once a saved copy is active, even if re-registering fails while offline.
+  navigator.serviceWorker.ready.then(() => { $('offline-status').hidden = false; });
+}
+
 // ---------- Init ----------
+
+registerOffline();
 
 resetForm();
 render();

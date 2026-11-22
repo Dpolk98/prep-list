@@ -69,7 +69,8 @@ Each food item shows its own estimate, such as "About 1,200 est." Items with a u
 - Search, plus filters by category and status
 - Each item shows its details on separate rows (quantity, type, estimated calories for food, expiration, location, and notes). Its ⋯ menu has **Use one** and **Add one** (the menu stays open for repeat taps), **Edit** and **Delete**
 - Export and import a JSON backup
-- Works offline, adapts to light and dark mode, and fits phone screens
+- Works offline: on the first visit, `sw.js` (a service worker) saves the app's own files on the device, so it opens with no connection. When online, it always loads the newest version and refreshes the saved copy, waiting up to 3 seconds on a weak signal before falling back to it. Settings → About says when the app is saved. This covers the app itself, not your data, which stays in `localStorage` as described below
+- Adapts to light and dark mode and fits phone screens
 - Has its own app icon (a checklist on green) in browser tabs and when added to a phone's home screen. The icon files are in `icons/`, and `manifest.webmanifest` describes the app to phones. Opened from the home screen, it runs full-screen like an installed app. On iPhone, a home-screen copy keeps its own data, separate from Safari's, so export a backup before removing it from the home screen
 
 ## Running it
