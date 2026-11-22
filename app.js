@@ -2,6 +2,7 @@
 // All data is stored in this browser's localStorage; nothing leaves the device.
 // Tier definitions (suggested supplies, mindset, savings notes) live in tiers.js.
 // Shelf-life estimates live in shelf-life.js.
+// Calorie estimates for the Food page live in calories.js.
 
 const STORAGE_KEY = 'prep-tracker:v1';
 const SOON_DAYS = 60;
@@ -200,23 +201,40 @@ function expiryParts(item) {
   return { label: 'Expires', text: `In ${formatSpan(days)} (${date})` };
 }
 
-// Converts a water item's quantity to gallons, based on its unit.
-function toGallons(qty, unit) {
-  const u = (unit || '').toLowerCase().trim();
-  if (/^(gal|gallon)s?$/.test(u)) return qty;
-  if (/^(l|liter|litre)s?$/.test(u)) return qty * 0.264172;
-  if (/^(oz|fl ?oz|ounce)s?$/.test(u)) return qty / 128;
-  if (/^(ml)$/.test(u)) return qty * 0.000264172;
-  if (/^(bottle|box|boxe|can)s?$/.test(u)) return qty * 0.132; // assumes 16.9 oz (500 mL) bottles, boxes, or cans
-  if (/^(case)s?$/.test(u)) return qty * 24 * 0.132;  // assumes cases of 24 × 500 mL
-  return 0;
+// Water types that aren't drinking water themselves, so they never count
+// toward days of water (a bottle of bleach isn't a bottle of water).
+const NOT_DRINKING_WATER = new Set(['tablets', 'bleach', 'filter']);
+// Equipment that may or may not be full: counted when its unit is a volume
+// ("55 gallons"), but never listed as "not counted".
+const WATER_EQUIPMENT = new Set(['containers']);
+
+// Stored drinking water (non-expired), and the items whose unit couldn't be
+// converted to gallons (see gallonsPerUnit in units.js).
+function waterSummary() {
+  let gallons = 0;
+  const uncounted = [];
+  for (const i of state.items) {
+    if (i.category !== 'Water' || statusOf(i) === 'expired') continue;
+    // Older items have no type; go by the name instead.
+    const type = i.type || guessType({ name: i.name, unit: i.unit, category: 'Water' });
+    if (NOT_DRINKING_WATER.has(type)) continue;
+    const per = gallonsPerUnit(i.unit);
+    if (per !== null) gallons += Math.max(0, Number(i.quantity) || 0) * per;
+    else if (!WATER_EQUIPMENT.has(type)) uncounted.push(i);
+  }
+  return { days: gallons / Math.max(1, state.people), uncounted };
 }
 
 function waterDays() {
-  const gallons = state.items
-    .filter((i) => i.category === 'Water' && statusOf(i) !== 'expired')
-    .reduce((sum, i) => sum + toGallons(Number(i.quantity) || 0, i.unit), 0);
-  return gallons / Math.max(1, state.people);
+  return waterSummary().days;
+}
+
+// "Rice and Honey", or "Rice, Honey, Oats, and 2 more", for naming items an
+// estimate left out.
+function listNames(items) {
+  const names = items.slice(0, 3).map((i) => escapeHtml(i.name));
+  if (items.length > 3) names.push(`${items.length - 3} more`);
+  return new Intl.ListFormat('en-US', { type: 'conjunction' }).format(names);
 }
 
 function formatDays(d) {
@@ -227,6 +245,53 @@ function waterHint(tier) {
   return tier.waterGoalDays < 30 || tier.id === 'month'
     ? `Goal: 1 gallon per person per day for ${tier.waterGoalDays} days.`
     : 'Keep 30 days stored. Past that, rely on a water source you can filter and purify.';
+}
+
+// ---------- Food calories ----------
+
+const CALORIES_PER_DAY = 2000; // per person, a common planning figure
+
+// The food goal follows the tier, up to a year: past that, the plan shifts
+// from storing food to producing it (as water caps at 30 days).
+function foodGoalDays(tier) {
+  return tier.days ?? 365;
+}
+
+// Rounds down to two significant figures (48,250 → 48,000), since the
+// estimate isn't precise enough for more and should lean low.
+function roughCalories(n) {
+  const whole = Math.max(0, Math.floor(n));
+  const step = 10 ** Math.max(0, String(whole).length - 2);
+  return (Math.floor(whole / step) * step).toLocaleString('en-US');
+}
+
+// Total estimated calories in non-expired Food items, and the items the
+// estimate couldn't work out (no type, or a unit it can't convert).
+function foodCalories() {
+  let calories = 0;
+  let count = 0;
+  const unestimated = [];
+  for (const i of state.items) {
+    if (i.category !== 'Food') continue;
+    count += 1;
+    if (statusOf(i) === 'expired') continue;
+    const est = estimateCalories(i);
+    if (est?.unknown) unestimated.push(i);
+    else if (est?.calories) calories += est.calories;
+  }
+  const days = calories / (CALORIES_PER_DAY * Math.max(1, state.people));
+  return { calories, days, count, unestimated };
+}
+
+// The Calories row of a Food item, or null for items that aren't counted.
+function caloriesFact(item) {
+  const est = estimateCalories(item);
+  if (!est || est.none) return null;
+  if (est.unknown === 'type') return '<span class="est">Not estimated without a type</span>';
+  if (est.unknown && !String(item.unit || '').trim()) return '<span class="est">Not estimated without a unit</span>';
+  if (est.unknown) return `<span class="est">Not estimated for “${escapeHtml(item.unit)}”</span>`;
+  const expired = statusOf(item) === 'expired' ? ' <span class="est">(not counted while expired)</span>' : '';
+  return `About ${roughCalories(est.calories)} <span class="est">est.</span>${expired}`;
 }
 
 function escapeHtml(s) {
@@ -454,6 +519,7 @@ function itemRow(i) {
   // With a type shown, "(est.)" is enough; older items name their basis.
   const basis = type ? '' : ` · ${escapeHtml(i.expiresBasis || 'typical shelf life')}`;
   const exp = expiryParts(i);
+  const calories = caloriesFact(i);
   const expiry = i.expiresEstimated
     ? `${exp.text} <span class="est" title="Estimated from the item type's typical shelf life. Edit the item to enter the printed date.">est.${basis}</span>`
     : exp.text;
@@ -461,6 +527,7 @@ function itemRow(i) {
   const facts = [
     ['Quantity', `${i.quantity} ${escapeHtml(i.unit)}`.trim()],
     type && ['Type', escapeHtml(type.name)],
+    calories && ['Calories', calories],
     [exp.label, expiry],
     i.location && ['Location', escapeHtml(i.location)],
     i.notes && ['Notes', escapeHtml(i.notes)],
@@ -638,13 +705,53 @@ function renderCategory(page, wd) {
     $('water-bar').classList.toggle('complete', pct >= 100);
     $('water-panel-hint').innerHTML =
       `For ${state.people} ${state.people === 1 ? 'person' : 'people'} (change in <a href="#/settings">Settings</a>). ${escapeHtml(waterHint(tier))}`;
+    const { uncounted } = waterSummary();
+    $('water-uncounted').hidden = uncounted.length === 0;
+    if (uncounted.length) {
+      const them = uncounted.length === 1 ? 'it' : 'them';
+      $('water-uncounted').innerHTML =
+        `Not counted yet: ${listNames(uncounted)}. Edit ${them} and choose gallons, liters, or bottles, ` +
+        `or put the size in the unit (like “5-gallon jugs”), to include ${them}.`;
+    }
   }
+
+  // Food gets a rough calorie estimate.
+  $('food-panel').hidden = page.slug !== 'food';
+  if (page.slug === 'food') renderFoodPanel(tier);
 
   renderSupplies(page);
 
   $('inventory-card').hidden = Boolean(page.noInventory);
   $('form-card').hidden = Boolean(page.noInventory);
   if (!page.noInventory) renderInventory(page);
+}
+
+function renderFoodPanel(tier) {
+  const { calories, days, count, unestimated } = foodCalories();
+  const goal = foodGoalDays(tier);
+  // Rounded down, like the calories, so the estimate never reads high.
+  const shownDays = Math.floor(days * 10) / 10;
+  const people = `${state.people} ${state.people === 1 ? 'person' : 'people'}`;
+
+  $('food-calories').textContent = roughCalories(calories);
+  $('food-bar').style.width = `${Math.min(100, Math.round((days / goal) * 100))}%`;
+  $('food-bar').classList.toggle('complete', days >= goal);
+  $('food-panel-hint').innerHTML = count === 0
+    ? 'Add food to your inventory below to see an estimate.'
+    : `About ${formatDays(shownDays)} ${shownDays === 1 ? 'day' : 'days'} of food for ${people} ` +
+      `(change in <a href="#/settings">Settings</a>). ` +
+      `Goal: ${CALORIES_PER_DAY.toLocaleString('en-US')} calories per person per day for ${goal} days.`;
+
+  // Name the items left out, so they can be fixed.
+  const note = $('food-unestimated');
+  note.hidden = unestimated.length === 0;
+  if (unestimated.length) {
+    const them = unestimated.length === 1 ? 'it' : 'them';
+    const fix = unestimated.some((i) => !findType(i.category, i.type))
+      ? 'choose a type and one of the listed units'
+      : 'choose one of the listed units, or put the size in the unit (like “5 lb bags”),';
+    note.innerHTML = `Not estimated yet: ${listNames(unestimated)}. Edit ${them} and ${fix} to include ${them}.`;
+  }
 }
 
 // ---------- Rendering: savings ----------

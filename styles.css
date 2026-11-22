@@ -354,10 +354,35 @@ input:disabled, select:disabled { cursor: not-allowed; }
 
 /* ---------- Water and savings ---------- */
 
-.water-big, .savings-goal { display: flex; align-items: baseline; gap: 4px; }
-.water-big span:first-child, .savings-goal .num { font-size: 2.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
-.water-panel .label { font-size: .85rem; color: var(--muted); display: block; margin-bottom: 10px; }
-.water-panel .hint, #savings .hint { margin: 8px 0 0; }
+.water-big, .food-big, .savings-goal { display: flex; align-items: baseline; gap: 4px; }
+.water-big span:first-child, .food-big span:first-child, .savings-goal .num { font-size: 2.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.water-panel .label, .food-panel .label { font-size: .85rem; color: var(--muted); display: block; margin-bottom: 10px; }
+.water-panel .hint, .food-panel .hint, #savings .hint { margin: 8px 0 0; }
+
+/* Food calorie estimate */
+.food-big { gap: 8px; }
+.food-big .unit { color: var(--muted); }
+.estimate-note {
+  margin-top: 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--muted); font-size: .8rem;
+}
+.estimate-note > summary {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; cursor: pointer; list-style: none;
+}
+.estimate-note > summary::-webkit-details-marker { display: none; }
+.estimate-note > summary::before {
+  content: ''; width: 6px; height: 6px; flex-shrink: 0; margin: 0 2px;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg); transition: transform .15s ease;
+}
+.estimate-note[open] > summary::before { transform: translateY(-2px) rotate(45deg); }
+.estimate-note > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 8px; }
+.estimate-note strong { color: var(--text); }
+.estimate-note .more { margin-left: auto; color: var(--accent); white-space: nowrap; }
+.estimate-note p { margin: 0 12px 8px; max-width: 62ch; }
+.estimate-note p:last-child { margin-bottom: 12px; }
 
 .savings-goal { gap: 8px; margin-bottom: 6px; }
 .savings-goal .of { color: var(--muted); }
@@ -405,7 +430,7 @@ dialog .hint { margin: 0 0 14px; display: block; }
 .backup-note p { margin: 0 0 10px; max-width: 62ch; }
 .backup-note p:last-child { margin-bottom: 0; }
 /* Links within text use the app's green instead of the browser's blue. */
-.hint a, .settings-text a, .backup-note a { color: var(--accent); }
+.hint a, .settings-text a, .backup-note a, .estimate-note a { color: var(--accent); }
 .welcome-actions { margin: 0 0 24px; }
 
 /* ---------- Small screens ---------- */

@@ -43,6 +43,19 @@ The expiration date is optional. If you leave it blank, the app estimates one fr
 
 The form shows the estimate before you save. Estimated dates are labeled "est." in the list. Edit the item and enter the printed date to replace the estimate. Types, shelf lives, and the name-matching rules live in `shelf-life.js`.
 
+## Calorie estimate
+
+The Food page opens with a rough estimate of the calories in your food inventory, and about how many days that would feed your household at 2,000 calories per person per day. A bar shows progress toward your tier's goal (up to a year).
+
+It's worked out from each item's type, quantity, and unit, and it leans low on purpose, so it's more likely to come in under the real number than over it:
+
+- Calorie figures sit near the low end of what's typical for each type, with the smaller common package size for each container (a 2 lb bag of rice, a 15 oz can, a 25 lb bucket)
+- Most types also check the item's name, since calories can vary a lot within a type: Spam counts for far more than tuna, canned beans for more than green beans, and broth for almost nothing. A name that doesn't match anything gets the type's cautious default. Items filed under *Other shelf-stable food* use the figures for whatever type their name suggests
+- Besides each type's own units, it understands weights (lb, oz, kg, and g), kitchen measures (cups, quarts, liters, and tablespoons), servings (by typical label sizes), cases (12 cans, jars, or bottles), and sizes or counts written into the unit, such as "25 lb bags", "cans (15 oz)", or "24-pack". "Each", or no unit, counts as one of the smallest container the item comes in
+- Not counted: expired items, infant formula and baby food, and things with few or no calories (fuel, cookware, seeds, spices, coffee, and tea)
+
+Each food item shows its own estimate, such as "About 1,200 est." Items with a unit the estimate can't convert are named on the panel so they can be fixed. The panel says plainly that it’s only an estimate. Tap **How it works** for how it’s worked out and what isn’t counted; that section starts closed to save space. Labels give the exact numbers. The figures live in `calories.js`, and the unit handling shared with the water estimate lives in `units.js`.
+
 ## Features
 
 - Add, edit, and delete items with category, quantity, unit, expiration date, storage location, and notes
@@ -51,9 +64,10 @@ The form shows the estimate before you save. Estimated dates are labeled "est." 
 - Quantity and unit unlock once you choose a type, and the unit list fits that type (canned beans: cans, #10 cans, jars; freeze-dried meals: pouches, #10 cans, buckets, servings, meals). The most common unit is selected for you. Choose **Other…** to type your own; units you've typed before are added to that type's list
 - Items that are expired or expire within 60 days are flagged and sorted to the top
 - Once a category has more than 3 types of item, its inventory is split into collapsible groups: one per type, or for Food, one per section (Canned and jarred, Dry staples, Snacks…). Each heading shows its item count and any expired or expiring items. Groups that need attention open on their own and come first; the rest follow the Type list. Search and the status filter open every group with a match. Open or closed groups are remembered, and **Expand all** / **Collapse all** sits above the list
-- **Days of water** estimate: 1 gallon per person per day, based on household size (understands gallons, liters, oz, mL, and 500 mL bottles)
+- **Days of water** estimate: 1 gallon per person per day, based on household size. It understands gallons, quarts, pints, cups, liters, mL, fl oz, 500 mL bottles, cases of 24, 1-gallon jugs, and sizes written into the unit ("5-gallon jugs", "24-pack", "case of 35"). Purification tablets, bleach, and filters aren't counted as water, and items with a unit it can't convert are named on the Water page so they can be fixed
+- **Calorie estimate** on the Food page: a rough, deliberately low count of your food's calories and how many days it would last your household
 - Search, plus filters by category and status
-- Each item shows its details on separate rows (quantity, type, expiration, location, notes). Its ⋯ menu has **Use one** and **Add one** (the menu stays open for repeat taps), **Edit** and **Delete**
+- Each item shows its details on separate rows (quantity, type, estimated calories for food, expiration, location, and notes). Its ⋯ menu has **Use one** and **Add one** (the menu stays open for repeat taps), **Edit** and **Delete**
 - Export and import a JSON backup
 - Works offline, adapts to light and dark mode, and fits phone screens
 

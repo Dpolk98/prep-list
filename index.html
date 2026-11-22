@@ -60,6 +60,23 @@
         <span class="label">days of drinking water stored</span>
         <div class="bar"><div class="fill" id="water-bar"></div></div>
         <p class="hint" id="water-panel-hint"></p>
+        <p class="hint" id="water-uncounted" hidden></p>
+      </section>
+
+      <!-- Food gets a rough calorie estimate (see calories.js) -->
+      <section class="card food-panel" id="food-panel" hidden>
+        <div class="food-big"><span id="food-calories">0</span><span class="unit">calories</span></div>
+        <span class="label">estimated, from the food in your inventory</span>
+        <div class="bar"><div class="fill" id="food-bar"></div></div>
+        <p class="hint" id="food-panel-hint"></p>
+        <!-- Collapsed by default; the heading alone still says it's an estimate. -->
+        <details class="estimate-note">
+          <summary><strong>This is only an estimate.</strong><span class="more">How it works</span></summary>
+          <p>It uses typical calories for each item’s type, quantity, and unit, and leans low on purpose: lower-end calorie counts and smaller package sizes. Actual calories vary by brand and size, so use it as a rough starting point for planning, not an exact count.</p>
+          <p>Besides each type’s own units, it understands weights (lb, oz, kg, and g), kitchen measures (cups, quarts, and liters), servings, and sizes written into the unit, like “25 lb bags” or “24-pack”. “Each”, or no unit, counts as one of the smallest container the item comes in.</p>
+          <p>Not counted: expired items, infant formula and baby food, and things with few or no calories, like fuel, cookware, seeds, spices, coffee, and tea.</p>
+        </details>
+        <p class="hint" id="food-unestimated" hidden></p>
       </section>
 
       <section class="card supplies-card" id="supplies-card">
@@ -155,7 +172,7 @@
             <input type="number" id="people" min="1" step="1" value="2" inputmode="numeric" pattern="[0-9]*">
           </label>
         </div>
-        <p class="hint settings-hint">Used to work out how many days your stored water will last.</p>
+        <p class="hint settings-hint">Used to work out how many days your stored water and food will last.</p>
       </section>
 
       <section class="card">
@@ -297,6 +314,8 @@
 
   <script src="tiers.js"></script>
   <script src="shelf-life.js"></script>
+  <script src="units.js"></script>
+  <script src="calories.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
