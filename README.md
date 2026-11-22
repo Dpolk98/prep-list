@@ -68,7 +68,8 @@ Each food item shows its own estimate, such as "About 1,200 est." Items with a u
 - **Calorie estimate** on the Food page: a rough, deliberately low count of your food's calories and how many days it would last your household
 - Search, plus filters by category and status
 - Each item shows its details on separate rows (quantity, type, estimated calories for food, expiration, location, and notes). Its ⋯ menu has **Use one** and **Add one** (the menu stays open for repeat taps), **Edit** and **Delete**
-- Export and import a JSON backup
+- Export and import a JSON backup. The Backup card on Settings shows when you last exported one from this device
+- **Backup reminders**: once something has changed since your last backup, a calm note on the Overview appears after 30 days without a backup or after 5 changes to your items (adding, editing, deleting, or using one), whichever comes first. It offers **Export backup** or **Remind me later** (a week). Exporting clears it, and importing a backup counts as up to date, since what's on the device then matches a backup file. If nothing has changed, there's no note
 - Works offline: on the first visit, `sw.js` (a service worker) saves the app's own files on the device, so it opens with no connection. When online, it always loads the newest version and refreshes the saved copy, waiting up to 3 seconds on a weak signal before falling back to it. Settings → About says when the app is saved. This covers the app itself, not your data, which stays in `localStorage` as described below
 - Adapts to light and dark mode and fits phone screens
 - Has its own app icon (a checklist on green) in browser tabs and when added to a phone's home screen. The icon files are in `icons/`, and `manifest.webmanifest` describes the app to phones. Opened from the home screen, it runs full-screen like an installed app. On iPhone, a home-screen copy keeps its own data, separate from Safari's, so export a backup before removing it from the home screen
@@ -85,4 +86,4 @@ Then visit http://localhost:8000.
 
 ## Data
 
-Everything is saved in the browser's `localStorage` under the key `prep-tracker:v1`. Which inventory groups you've opened is kept separately under `prep-tracker:open-groups` (it isn't part of backups). Data is per browser and per device, so use **Export backup** on the Settings page to keep a copy or move it to another device.
+Everything is saved in the browser's `localStorage` under the key `prep-tracker:v1`. Which inventory groups you've opened is kept separately under `prep-tracker:open-groups`, and the backup reminder's details (last export, first change since then, item changes since then, and "remind me later") under `prep-tracker:backup`. Neither is part of backups. Data is per browser and per device, so use **Export backup** on the Settings page to keep a copy or move it to another device.

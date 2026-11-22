@@ -116,12 +116,80 @@ function loadState() {
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    noteChange();
   } catch (err) {
     alert('Could not save. Your browser storage may be full or disabled.');
   }
 }
 
+// ---------- Backup reminders ----------
+// Kept apart from the inventory (and out of backups): the date of the last
+// export, the date of the first change since then, how many item changes
+// have been made since then, and a "remind me later" date. Dates are
+// YYYY-MM-DD.
+//
+// Once something has changed since the last backup, the reminder appears
+// after 30 days without one, or after 5 item changes, whichever comes first.
+
+const BACKUP_KEY = 'prep-tracker:backup';
+const BACKUP_REMIND_DAYS = 30;
+const BACKUP_REMIND_CHANGES = 5;
+const BACKUP_SNOOZE_DAYS = 7;
+
+function backupInfo() {
+  try {
+    const info = JSON.parse(localStorage.getItem(BACKUP_KEY));
+    if (info && typeof info === 'object') return info;
+  } catch { /* fall through */ }
+  return { last: null, changedSince: null, itemChanges: 0, snoozeUntil: null };
+}
+
+function saveBackupInfo(info) {
+  try { localStorage.setItem(BACKUP_KEY, JSON.stringify(info)); } catch { /* not essential */ }
+}
+
+// The item list as last saved, to tell item changes apart from settings
+// changes. Set once the state has loaded.
+let savedItemsJson = null;
+
+// Called on every save. Records the first change after a backup, and counts
+// a save as an item change when the item list is different from last time
+// (adding, editing, deleting, Use one, Add one, and so on).
+function noteChange() {
+  const info = backupInfo();
+  const itemsJson = JSON.stringify(state.items);
+  const itemChanged = savedItemsJson !== null && itemsJson !== savedItemsJson;
+  savedItemsJson = itemsJson;
+  saveBackupInfo({
+    ...info,
+    changedSince: info.changedSince || toIsoDate(new Date()),
+    itemChanges: (info.itemChanges || 0) + (itemChanged ? 1 : 0),
+  });
+}
+
+function shouldRemindBackup() {
+  const info = backupInfo();
+  if (!state.items.length || !info.changedSince) return false;
+  if (info.snoozeUntil && daysUntil(info.snoozeUntil) > 0) return false;
+  if ((info.itemChanges || 0) >= BACKUP_REMIND_CHANGES) return true;
+  // With no backup yet, the 30 days count from the first change.
+  return -daysUntil(info.last || info.changedSince) >= BACKUP_REMIND_DAYS;
+}
+
+// "5 changes to your items", or plain "changes" when only settings changed.
+function changesSinceText(info) {
+  const n = info.itemChanges || 0;
+  return n ? `${n} change${n === 1 ? '' : 's'} to your items` : 'changes';
+}
+
+// "today", "yesterday", or "41 days ago".
+function daysAgo(iso) {
+  const n = -daysUntil(iso);
+  return n <= 0 ? 'today' : n === 1 ? 'yesterday' : `${n} days ago`;
+}
+
 const state = loadState();
+savedItemsJson = JSON.stringify(state.items);
 
 // ---------- Helpers ----------
 
@@ -400,6 +468,8 @@ function renderOverview(wd) {
   $('stat-expired').textContent = state.items.filter((i) => statusOf(i) === 'expired').length;
   $('stat-water').textContent = formatDays(wd);
 
+  renderBackupReminder();
+
   $('plan-title').textContent = `${tier.name} plan: ${tier.title}`;
   $('plan-mindset').textContent = tier.mindset;
 
@@ -436,6 +506,17 @@ function renderOverview(wd) {
     </a>`);
 
   $('cat-grid').innerHTML = cards.join('');
+}
+
+// A gentle note on the Overview when changes have gone a while without a backup.
+function renderBackupReminder() {
+  const show = shouldRemindBackup();
+  $('backup-reminder').hidden = !show;
+  if (!show) return;
+  const info = backupInfo();
+  $('backup-reminder-text').textContent = info.last
+    ? `Your last backup was ${daysAgo(info.last)}, and you’ve made ${changesSinceText(info)} since then. Your data is saved only on this device, so exporting a backup keeps a copy somewhere safe.`
+    : 'You haven’t exported a backup from this device yet. Your data is saved only here, so exporting one keeps a copy somewhere safe.';
 }
 
 // ---------- Rendering: category page ----------
@@ -850,6 +931,11 @@ function tierOptions() {
 function renderSettings() {
   if (document.activeElement !== $('people')) $('people').value = state.people;
   $('settings-tiers').innerHTML = tierOptions();
+
+  const info = backupInfo();
+  $('backup-last').textContent = info.last
+    ? `Last backup exported from this device: ${formatLongDate(info.last)} (${daysAgo(info.last)}).${info.changedSince ? ` You’ve made ${changesSinceText(info)} since then.` : ''}`
+    : 'No backup exported from this device yet.';
 }
 
 $('settings-tiers').addEventListener('click', (e) => {
@@ -1262,13 +1348,25 @@ $('people').addEventListener('change', () => {
 
 // ---------- Backup ----------
 
-$('export-btn').addEventListener('click', () => {
+function exportBackup() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `prep-tracker-backup-${toIsoDate(new Date())}.json`;
   a.click();
   URL.revokeObjectURL(a.href);
+  saveBackupInfo({ last: toIsoDate(new Date()), changedSince: null, itemChanges: 0, snoozeUntil: null });
+  render();
+}
+
+$('export-btn').addEventListener('click', exportBackup);
+$('backup-reminder-export').addEventListener('click', exportBackup);
+
+$('backup-reminder-later').addEventListener('click', () => {
+  const later = new Date();
+  later.setDate(later.getDate() + BACKUP_SNOOZE_DAYS);
+  saveBackupInfo({ ...backupInfo(), snoozeUntil: toIsoDate(later) });
+  render();
 });
 
 // Replaces everything with a backup file. Returns true if it was imported.
@@ -1285,6 +1383,8 @@ async function importBackup(file) {
     imported.tier = imported.tier || state.tier;
     Object.assign(state, imported);
     saveState();
+    // What's here now matches a backup file, so nothing is unsaved.
+    saveBackupInfo({ ...backupInfo(), changedSince: null, itemChanges: 0 });
     render();
     return true;
   } catch (err) {

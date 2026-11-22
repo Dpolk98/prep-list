@@ -52,6 +52,15 @@
         <div class="stat"><span class="num" id="stat-water">0</span><span class="label">Days of water stored</span></div>
       </section>
 
+      <section class="card backup-reminder" id="backup-reminder" aria-labelledby="backup-reminder-title" hidden>
+        <h2 id="backup-reminder-title">Time for a backup</h2>
+        <p id="backup-reminder-text"></p>
+        <div class="data-tools">
+          <button type="button" class="primary" id="backup-reminder-export">Export backup</button>
+          <button type="button" id="backup-reminder-later">Remind me later</button>
+        </div>
+      </section>
+
       <section class="card">
         <h2 id="plan-title"></h2>
         <p class="mindset" id="plan-mindset"></p>
@@ -192,6 +201,7 @@
       <section class="card">
         <h2>Backup</h2>
         <p class="settings-text">Your inventory is saved only in this browser, on this device. Export a backup now and then to keep a copy, or to move everything to a new phone or computer. If you clear your browser data or switch browsers, import the backup to bring it all back.</p>
+        <p class="settings-text" id="backup-last"></p>
         <p class="hint settings-hint">Importing replaces what’s here now, so you’ll be asked to confirm first.</p>
         <div class="data-tools">
           <button id="export-btn">Export backup</button>
