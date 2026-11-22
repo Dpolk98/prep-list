@@ -70,6 +70,7 @@ Each food item shows its own estimate, such as "About 1,200 est." Items with a u
 - Each item shows its details on separate rows (quantity, type, estimated calories for food, expiration, location, and notes). Its ⋯ menu has **Use one** and **Add one** (the menu stays open for repeat taps), **Edit** and **Delete**
 - Export and import a JSON backup
 - Works offline, adapts to light and dark mode, and fits phone screens
+- Has its own app icon (a checklist on green) in browser tabs and when added to a phone's home screen. The icon files are in `icons/`, and `manifest.webmanifest` describes the app to phones. Opened from the home screen, it runs full-screen like an installed app. On iPhone, a home-screen copy keeps its own data, separate from Safari's, so export a backup before removing it from the home screen
 
 ## Running it
 
