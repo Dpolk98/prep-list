@@ -223,6 +223,28 @@
       </section>
     </div>
 
+    <!-- ===== Print summary ===== -->
+    <div id="view-print" class="view" hidden>
+      <section class="card print-controls">
+        <p class="settings-text">A copy of your supplies to keep on paper, with what you have, where it’s stored, and what to use first. Print it, or save it as a PDF from the print screen to keep somewhere else.</p>
+        <div class="print-options">
+          <label>Group inventory by
+            <select id="print-group">
+              <option value="category">Category</option>
+              <option value="location">Location</option>
+            </select>
+          </label>
+          <label class="check-label"><input type="checkbox" id="print-savings"> Include savings amounts</label>
+        </div>
+        <p class="hint settings-hint">Savings are left off unless you tick the box, since anyone who finds a printout can read it.</p>
+        <div class="data-tools">
+          <button type="button" class="primary" id="print-btn">Print or save as PDF</button>
+        </div>
+      </section>
+
+      <article class="card print-doc" id="print-doc" aria-label="Summary preview"></article>
+    </div>
+
     <!-- ===== Welcome guide (new users, and from Settings) ===== -->
     <div id="view-welcome" class="view" hidden>
       <section class="card welcome-tour">
