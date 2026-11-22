@@ -29,6 +29,7 @@ const PAGES = [
   { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets, and anything else.' },
   { slug: 'plans', name: 'Plans and Skills', cat: 'Plans and Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training, and community.' },
   ...(FEATURES.grabList ? [{ slug: 'grab', name: 'Grab list', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
+  { slug: 'reference', name: 'Quick reference', icon: 'book', blurb: 'Short how-tos for when the power or water is out. Saved on this device, so they work offline.' },
   { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, and backups.' },
   { slug: 'print', name: 'Print summary', icon: 'printer', blurb: 'Your supplies on paper, for when a phone is dead or the power is out.' },
 ];
@@ -980,9 +981,9 @@ function render() {
   renderNav(page);
 
   const view = page.slug === '' ? 'overview'
-    : ['savings', 'settings', 'welcome', 'print', 'grab'].includes(page.slug) ? page.slug
+    : ['savings', 'settings', 'welcome', 'print', 'grab', 'reference'].includes(page.slug) ? page.slug
     : page.status ? 'status' : 'category';
-  for (const v of ['overview', 'category', 'savings', 'settings', 'status', 'welcome', 'print', 'grab']) $(`view-${v}`).hidden = v !== view;
+  for (const v of ['overview', 'category', 'savings', 'settings', 'status', 'welcome', 'print', 'grab', 'reference']) $(`view-${v}`).hidden = v !== view;
 
   if (view === 'overview') renderOverview(wd);
   if (view === 'category') renderCategory(page, wd);
@@ -991,7 +992,47 @@ function render() {
   if (view === 'settings') renderSettings();
   if (view === 'print') renderPrint();
   if (view === 'grab') renderGrab();
+  if (view === 'reference') renderReference();
 }
+
+// ---------- Rendering: quick reference ----------
+// The cards in reference.js. Their content never changes, so they're built
+// once, and stay open or closed as you left them while you move around.
+
+function referenceBody(card) {
+  const table = card.table ? `
+    <table class="ref-table">
+      <thead><tr>${card.table.head.map((h) => `<th scope="col">${h}</th>`).join('')}</tr></thead>
+      <tbody>${card.table.rows.map((row) => `<tr>${row.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+    </table>` : '';
+  return `<ul class="ref-points">${card.points.map((p) => `<li>${p}</li>`).join('')}</ul>${table}`;
+}
+
+function renderReference() {
+  if ($('reference-list').children.length) return;
+  $('reference-list').innerHTML = REFERENCE.map((card) => `
+    <details class="card ref-card" id="ref-${card.id}">
+      <summary>
+        <span class="group-icon">${icon(card.icon)}</span>
+        <span class="ref-title">${card.title}</span>
+      </summary>
+      <div class="ref-body">${referenceBody(card)}</div>
+    </details>`).join('');
+  updateReferenceToggle();
+}
+
+function updateReferenceToggle() {
+  const cards = [...$('reference-list').querySelectorAll('details')];
+  $('reference-toggle').textContent = cards.length && cards.every((d) => d.open) ? 'Collapse all' : 'Expand all';
+}
+
+$('reference-toggle').addEventListener('click', () => {
+  const cards = [...$('reference-list').querySelectorAll('details')];
+  const open = !cards.every((d) => d.open);
+  cards.forEach((d) => { d.open = open; });
+  updateReferenceToggle();
+});
+$('reference-list').addEventListener('toggle', updateReferenceToggle, true);
 
 // ---------- Rendering: grab list ----------
 
@@ -1313,11 +1354,20 @@ function renderPrint() {
         </div>`).join('') : '<p class="pd-muted">No items yet.</p>'}
     </section>
 
+    ${$('print-reference').checked ? `
+    <section class="pd-section pd-reference">
+      <h3>Quick reference</h3>
+      <div class="pd-ref-cards">
+        ${REFERENCE.map((card) => `<div class="pd-ref-card"><h4>${card.title}</h4>${referenceBody(card)}</div>`).join('')}
+      </div>
+    </section>` : ''}
+
     <p class="pd-foot">A snapshot from ${printDate()}. The up-to-date list is in Prep Tracker on your device.</p>`;
 }
 
 $('print-group').addEventListener('change', renderPrint);
 $('print-savings').addEventListener('change', renderPrint);
+$('print-reference').addEventListener('change', renderPrint);
 $('print-btn').addEventListener('click', () => window.print());
 
 // ---------- Rendering: settings ----------

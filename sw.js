@@ -16,6 +16,7 @@ const FILES = [
   'manifest.webmanifest',
   'tiers.js',
   'hazards.js',
+  'reference.js',
   'shelf-life.js',
   'units.js',
   'calories.js',

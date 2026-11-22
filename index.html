@@ -237,6 +237,15 @@
       <div id="grab-lists"></div>
     </div>
 
+    <!-- ===== Quick reference ===== -->
+    <div id="view-reference" class="view" hidden>
+      <div class="group-tools ref-tools">
+        <button type="button" class="link-btn" id="reference-toggle">Expand all</button>
+      </div>
+      <div id="reference-list"></div>
+      <p class="hint ref-note">General guidance from public health agencies, including the CDC, EPA, USDA, FEMA, and the Red Cross. In an emergency, call 911 and follow instructions from local officials.</p>
+    </div>
+
     <!-- ===== Print summary ===== -->
     <div id="view-print" class="view" hidden>
       <section class="card print-controls">
@@ -249,6 +258,7 @@
             </select>
           </label>
           <label class="check-label"><input type="checkbox" id="print-savings"> Include savings amounts</label>
+          <label class="check-label"><input type="checkbox" id="print-reference"> Include quick reference</label>
         </div>
         <p class="hint settings-hint">Savings are left off unless you tick the box, since anyone who finds a printout can read it.</p>
         <div class="data-tools">
@@ -268,7 +278,7 @@
           <li><strong>Watches expiration dates for you.</strong> Leave the date blank and the app estimates one from the type of item. The Overview shows anything expired or expiring within 60 days, so you can use it and replace it in time.</li>
           <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them. On the Settings page, you can also choose hazards where you live, like winter storms or wildfire, for a few more suggestions.</li>
           <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash and investments, each with a goal sized to how long you’re preparing for.</li>
-          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan.</li>
+          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. Quick reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection.</li>
         </ul>
       </section>
 
@@ -415,6 +425,7 @@
 
   <script src="tiers.js"></script>
   <script src="hazards.js"></script>
+  <script src="reference.js"></script>
   <script src="shelf-life.js"></script>
   <script src="units.js"></script>
   <script src="calories.js"></script>

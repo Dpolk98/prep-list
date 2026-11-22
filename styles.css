@@ -538,7 +538,44 @@ dialog .hint { margin: 0 0 14px; display: block; }
   .print-doc { border: 0; border-radius: 0; padding: 0; background: none; }
   .pd-table tr, .pd-glance div { break-inside: avoid; }
   .pd-section h3, .pd-group h4 { break-after: avoid; }
+  /* The quick reference starts its own page, so it can be posted separately. */
+  .pd-reference { break-before: page; margin-top: 0; }
 }
+
+/* ---------- Quick reference ---------- */
+
+.ref-tools { margin: 0 0 6px; }
+.ref-card { padding: 0; }
+.ref-card + .ref-card { margin-top: 10px; }
+.ref-card > summary {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; cursor: pointer; list-style: none;
+}
+.ref-card > summary::-webkit-details-marker { display: none; }
+.ref-card > summary::after {
+  content: ''; width: 8px; height: 8px; margin-left: auto; flex-shrink: 0;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(45deg); transition: transform .15s ease;
+}
+.ref-card[open] > summary::after { transform: translateY(3px) rotate(-135deg); }
+.ref-card > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--radius); }
+.ref-title { font-weight: 600; font-size: 1rem; }
+.ref-body { padding: 0 16px 14px; }
+.ref-points { margin: 0; padding-left: 20px; font-size: .92rem; }
+.ref-points li { margin-bottom: 8px; max-width: 62ch; }
+.ref-points li::marker { color: var(--accent); }
+.ref-table { width: 100%; max-width: 480px; border-collapse: collapse; margin: 4px 0 0; font-size: .88rem; }
+.ref-table th { text-align: left; font-size: .75rem; font-weight: 600; color: var(--muted); padding: 6px 8px 6px 0; border-bottom: 1px solid var(--border); }
+.ref-table td { padding: 6px 8px 6px 0; border-bottom: 1px solid var(--border); }
+.ref-note { margin: 14px 0 0; max-width: 62ch; }
+
+/* On the printed summary: cards in two columns */
+.pd-ref-cards { columns: 2 260px; column-gap: 24px; }
+.pd-ref-card { break-inside: avoid; margin-bottom: 12px; }
+.pd-ref-card h4 { margin: 0 0 4px; font-size: .95rem; }
+.pd-ref-card .ref-points { font-size: .85rem; padding-left: 18px; }
+.pd-ref-card .ref-points li { margin-bottom: 3px; }
+.pd-ref-card .ref-table { font-size: .82rem; }
 
 /* ---------- Grab list ---------- */
 
