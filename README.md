@@ -24,6 +24,10 @@ On first use you choose how long you're preparing for. You can change it any tim
 
 Each tier builds on the ones below it. Every category page has a collapsible **What to buy** list of suggested supplies for your tier, followed by the lower tiers' suggestions as "foundations". Tap **Add** on a suggestion to log it in your inventory; items you already have are marked "In inventory". The weekly savings baseline can be changed. The investment goal is always 1.5 times the emergency cash goal. Tier content lives in `tiers.js`.
 
+## Hazards where you live
+
+On the **Settings** page you can choose any hazards that apply where you live: winter storms, extreme heat, hurricanes, tornadoes, floods, wildfire, and earthquakes. Each one adds a few suggestions, whatever your tier, since they depend on the place rather than how long you're preparing for. They appear on the category pages' **What to buy** lists and on Plans and Skills, in a section headed with the hazard's name, right after your tier's own suggestions. A suggestion shared by two chosen hazards is listed once. With none chosen, What to buy ends with a short pointer to Settings. Chosen hazards also show on the Overview's plan card and on the printed summary, and they're included in backups. Hazard content lives in `hazards.js`.
+
 ## Pages
 
 The ☰ menu in the top left opens these pages. Each one has its own link, such as `#/water`.
@@ -34,7 +38,7 @@ The ☰ menu in the top left opens these pages. Each one has its own link, such 
 - **Expired** and **Expiring soon**: tap those tiles on the Overview to see the matching items from every category, grouped by category. Editing an item there opens it on its category page
 - **Plans and Skills**: an always-open list of things to set up (plans, training, community)
 - **Print summary**: everything on hand as a plain document for paper, for when a phone is dead or the power is out. It shows household size and tier, an "at a glance" block (items, days of water, a rough count of days of food, and expired and expiring counts), a **Use or replace soon** table, and the full inventory as tables grouped by category or by storage location (locations that differ only in capitals or spacing are combined). Savings amounts are left off unless **Include savings amounts** is ticked, since anyone who finds a printout can read it. **Print or save as PDF** opens the browser's print screen, and the print styles hide the app's menu and controls so only the summary prints in black and white. On a phone screen, the preview shows each item as a short labelled block
-- **Settings**: household size, how long you're preparing for (your tier), and exporting or importing a backup, plus an About section with a link to support the app on Ko-fi
+- **Settings**: household size, how long you're preparing for (your tier), hazards where you live, and exporting or importing a backup, plus an About section with a link to support the app on Ko-fi
 
 ## Estimated expiration dates
 

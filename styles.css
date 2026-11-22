@@ -425,6 +425,29 @@ dialog .hint { margin: 0 0 14px; display: block; }
 .tier-option.selected { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 #tier-dialog-actions { justify-content: flex-end; }
 
+/* Hazards where you live (Settings), and their chips on the Overview */
+/* One column on phones, more on wider screens, so no name has to wrap. */
+.hazard-options { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.hazard-option {
+  flex-direction: row; align-items: center; gap: 7px;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg); color: var(--text); font-size: .92rem; line-height: 1.25; cursor: pointer;
+}
+.hazard-option input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex-shrink: 0; }
+.hazard-option svg { width: 18px; height: 18px; color: var(--accent); }
+.hazard-option:hover { border-color: var(--accent); }
+.hazard-option:has(input:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.plan-hazards { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 10px 0 0; }
+.plan-hazards-label { font-size: .8rem; color: var(--muted); margin-right: 2px; }
+.hazard-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px 3px 8px; border-radius: 999px;
+  background: var(--ok-bg); color: var(--accent); font-size: .8rem; font-weight: 600;
+}
+.hazard-chip svg { width: 14px; height: 14px; }
+.hazard-tip { margin: 14px 0 0; }
+.hazard-tip a { color: var(--accent); }
+
 /* ---------- Welcome popup and guide ---------- */
 
 .welcome-choices { grid-template-columns: 1fr; }

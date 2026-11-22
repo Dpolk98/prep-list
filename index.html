@@ -64,6 +64,7 @@
       <section class="card">
         <h2 id="plan-title"></h2>
         <p class="mindset" id="plan-mindset"></p>
+        <p class="plan-hazards" id="plan-hazards" hidden></p>
       </section>
 
       <section class="cat-grid" id="cat-grid" aria-label="Categories"></section>
@@ -199,6 +200,12 @@
       </section>
 
       <section class="card">
+        <h2>Hazards where you live</h2>
+        <p class="hint settings-hint">Choose any that apply. Each one adds a few suggestions to the What to buy lists and to Plans and Skills. It’s fine to leave these blank.</p>
+        <div class="hazard-options" id="settings-hazards"></div>
+      </section>
+
+      <section class="card">
         <h2>Backup</h2>
         <p class="settings-text">Your inventory is saved only in this browser, on this device. Export a backup now and then to keep a copy, or to move everything to a new phone or computer. If you clear your browser data or switch browsers, import the backup to bring it all back.</p>
         <p class="settings-text" id="backup-last"></p>
@@ -252,7 +259,7 @@
         <ul class="reasons">
           <li><strong>Keeps track of your supplies.</strong> Water, Food, Medical, and the other categories each have their own page in the ☰ menu. Add what you have, with how much, where it’s stored, and when it expires.</li>
           <li><strong>Watches expiration dates for you.</strong> Leave the date blank and the app estimates one from the type of item. The Overview shows anything expired or expiring within 60 days, so you can use it and replace it in time.</li>
-          <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them.</li>
+          <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them. On the Settings page, you can also choose hazards where you live, like winter storms or wildfire, for a few more suggestions.</li>
           <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash and investments, each with a goal sized to how long you’re preparing for.</li>
           <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan.</li>
         </ul>
@@ -372,6 +379,7 @@
   </dialog>
 
   <script src="tiers.js"></script>
+  <script src="hazards.js"></script>
   <script src="shelf-life.js"></script>
   <script src="units.js"></script>
   <script src="calories.js"></script>

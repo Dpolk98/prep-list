@@ -96,6 +96,8 @@ function normalize(data = {}) {
     people: data.people ?? 2,
     tier: TIERS.some((t) => t.id === data.tier) ? data.tier : null,
     savings: { ...DEFAULT_SAVINGS, ...(data.savings || {}) },
+    // Hazard ids from hazards.js, kept in that file's order.
+    hazards: Array.isArray(data.hazards) ? HAZARDS.map((h) => h.id).filter((id) => data.hazards.includes(id)) : [],
   };
 }
 
@@ -209,6 +211,16 @@ function currentTier() {
 // The current tier plus every tier below it.
 function includedTiers() {
   return TIERS.slice(0, TIERS.indexOf(currentTier()) + 1);
+}
+
+// The hazards chosen in Settings, in hazards.js order.
+function chosenHazards() {
+  return HAZARDS.filter((h) => state.hazards.includes(h.id));
+}
+
+// "winter storms, floods, and wildfire"
+function hazardList(hazards = chosenHazards()) {
+  return new Intl.ListFormat('en-US', { type: 'conjunction' }).format(hazards.map((h) => h.name.toLowerCase()));
 }
 
 // Days from today until an ISO date (YYYY-MM-DD). Negative = in the past.
@@ -473,6 +485,10 @@ function renderOverview(wd) {
 
   $('plan-title').textContent = `${tier.name} plan: ${tier.title}`;
   $('plan-mindset').textContent = tier.mindset;
+  $('plan-hazards').hidden = !state.hazards.length;
+  $('plan-hazards').innerHTML = state.hazards.length
+    ? `<span class="plan-hazards-label">Also preparing for</span>${chosenHazards().map((h) => `<span class="hazard-chip">${icon(h.icon)}${escapeHtml(h.name)}</span>`).join('')}`
+    : '';
 
   // Savings first, then one card per category page.
   const cards = PAGES.filter((p) => p.cat).map((p) => {
@@ -529,12 +545,20 @@ function renderSupplies(page) {
   const canAdd = !page.noInventory;
   let total = 0;
 
-  // Current tier first, then the foundations it builds on, nearest first.
-  const html = [...includedTiers()].reverse().map((t) => {
-    const list = t.supplies.filter((s) => s.cat === page.cat);
+  // Your tier first, then the hazards where you live, then the foundations
+  // the tier builds on, nearest first. A name is only listed once.
+  const [own, ...foundations] = [...includedTiers()].reverse();
+  const sections = [
+    { label: `${own.name} · your tier`, supplies: own.supplies },
+    ...chosenHazards().map((h) => ({ label: `${h.name} · where you live`, supplies: h.supplies })),
+    ...foundations.map((t) => ({ label: `${t.name} · foundation`, supplies: t.supplies })),
+  ];
+  const seen = new Set();
+  const html = sections.map(({ label, supplies }) => {
+    const list = supplies.filter((s) => s.cat === page.cat && !seen.has(s.name));
+    list.forEach((s) => seen.add(s.name));
     if (!list.length) return '';
     total += list.length;
-    const label = t === tier ? `${t.name} · your tier` : `${t.name} · foundation`;
     return `
       <h3>${escapeHtml(label)}</h3>
       <ul class="supplies">
@@ -555,18 +579,23 @@ function renderSupplies(page) {
       </ul>`;
   }).join('');
 
+  // With no hazards chosen, a pointer to where they're chosen.
+  const hazardTip = state.hazards.length ? '' :
+    '<p class="hint hazard-tip">You can add suggestions for hazards where you live, such as winter storms or wildfire, on the <a href="#/settings">Settings</a> page.</p>';
+  const plusHazards = state.hazards.length ? `, plus a few for ${hazardList()}` : '';
+
   $('plans-card').hidden = !page.noInventory || total === 0;
   $('supplies-card').hidden = Boolean(page.noInventory) || total === 0;
   if (page.noInventory) {
-    $('plans-intro').textContent = `Plans and skills worth having at the ${tier.name} tier.`;
-    $('plans-list').innerHTML = html;
+    $('plans-intro').textContent = `Plans and skills worth having at the ${tier.name} tier${plusHazards}.`;
+    $('plans-list').innerHTML = html + hazardTip;
     $('supplies').innerHTML = '';
     return;
   }
   $('supplies-count').textContent = `${total} idea${total === 1 ? '' : 's'}`;
   $('supplies-intro').textContent =
-    `Ideas for your shopping list at the ${tier.name} tier. Tap Add once you have something to log it in your inventory.`;
-  $('supplies').innerHTML = html;
+    `Ideas for your shopping list at the ${tier.name} tier${plusHazards}. Tap Add once you have something to log it in your inventory.`;
+  $('supplies').innerHTML = html + hazardTip;
   $('plans-list').innerHTML = '';
 }
 
@@ -1011,6 +1040,7 @@ function renderPrint() {
     <header class="pd-head">
       <h2>Prep Tracker summary</h2>
       <p class="pd-meta">Printed ${printDate()} · Household of ${state.people} · ${escapeHtml(tier.name).replaceAll(' ', '&nbsp;')} plan: ${escapeHtml(tier.title)}</p>
+      ${state.hazards.length ? `<p class="pd-meta">Also preparing for ${escapeHtml(hazardList())}</p>` : ''}
     </header>
 
     <section class="pd-section">
@@ -1063,6 +1093,11 @@ function tierOptions() {
 function renderSettings() {
   if (document.activeElement !== $('people')) $('people').value = state.people;
   $('settings-tiers').innerHTML = tierOptions();
+  $('settings-hazards').innerHTML = HAZARDS.map((h) => `
+    <label class="hazard-option">
+      <input type="checkbox" value="${h.id}" ${state.hazards.includes(h.id) ? 'checked' : ''}>
+      ${icon(h.icon)}<span>${escapeHtml(h.name)}</span>
+    </label>`).join('');
 
   const info = backupInfo();
   $('backup-last').textContent = info.last
@@ -1471,6 +1506,13 @@ $('toggle-groups').addEventListener('click', () => {
 for (const id of ['search', 'filter-status']) {
   $(id).addEventListener('input', render);
 }
+
+$('settings-hazards').addEventListener('change', () => {
+  const checked = [...$('settings-hazards').querySelectorAll('input:checked')].map((el) => el.value);
+  state.hazards = HAZARDS.map((h) => h.id).filter((id) => checked.includes(id));
+  saveState();
+  render();
+});
 
 $('people').addEventListener('change', () => {
   state.people = Math.max(1, Math.round(Number($('people').value) || 1));
