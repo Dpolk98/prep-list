@@ -52,6 +52,17 @@
         <div class="stat"><span class="num" id="stat-water">0</span><span class="label">Days of water stored</span></div>
       </section>
 
+      <section class="card celebrate-card" id="celebrate-card" aria-labelledby="celebrate-title" hidden>
+        <span class="review-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4M5 3v4M3 5h4"/></svg>Year in review</span>
+        <h2 id="celebrate-title">One year of being prepared</h2>
+        <p id="celebrate-text"></p>
+        <div class="data-tools">
+          <button type="button" class="primary" id="celebrate-open">See your year</button>
+          <button type="button" id="celebrate-later">Maybe later</button>
+        </div>
+        <p class="hint">You can open it any time from the Settings page.</p>
+      </section>
+
       <section class="card backup-reminder" id="backup-reminder" aria-labelledby="backup-reminder-title" hidden>
         <h2 id="backup-reminder-title">Time for a backup</h2>
         <p id="backup-reminder-text"></p>
@@ -206,6 +217,14 @@
       </section>
 
       <section class="card">
+        <h2>Year in review</h2>
+        <p class="settings-text">A look back at how your supplies and savings have grown over the last 12 months, with a month-by-month chart and a few highlights. Each year, on the anniversary of when you started, it also appears on the Overview.</p>
+        <div class="data-tools">
+          <a class="file-btn link-button" href="#/review">See your year in review</a>
+        </div>
+      </section>
+
+      <section class="card">
         <h2>Backup</h2>
         <p class="settings-text">Your inventory is saved only in this browser, on this device. Export a backup now and then to keep a copy, or to move everything to a new phone or computer. If you clear your browser data or switch browsers, import the backup to bring it all back.</p>
         <p class="settings-text" id="backup-last"></p>
@@ -235,6 +254,11 @@
       <!-- Hidden for now (FEATURES.grabList in app.js). -->
       <p class="hint grab-intro">Keep each list short, and put things in the order you’d grab them. Link an entry to your inventory to always see where it’s kept. The grab list is also on the printed summary, so a copy can live by the door.</p>
       <div id="grab-lists"></div>
+    </div>
+
+    <!-- ===== Year in review (from the Overview each year, and from Settings) ===== -->
+    <div id="view-review" class="view" hidden>
+      <div id="review-content"></div>
     </div>
 
     <!-- ===== Quick reference ===== -->
@@ -278,6 +302,7 @@
           <li><strong>Watches expiration dates for you.</strong> Leave the date blank and the app estimates one from the type of item. The Overview shows anything expired or expiring within 60 days, so you can use it and replace it in time.</li>
           <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them. On the Settings page, you can also choose hazards where you live, like winter storms or wildfire, for a few more suggestions.</li>
           <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash and investments, each with a goal sized to how long you’re preparing for.</li>
+          <li><strong>Celebrates your progress.</strong> Once a year, on the anniversary of when you started, the Overview offers a look back at how your supplies and savings have grown. You can open it any time from the Settings page.</li>
           <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. Quick reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection.</li>
         </ul>
       </section>

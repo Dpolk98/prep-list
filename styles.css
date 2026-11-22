@@ -542,6 +542,61 @@ dialog .hint { margin: 0 0 14px; display: block; }
   .pd-reference { break-before: page; margin-top: 0; }
 }
 
+/* ---------- Year in review ---------- */
+
+.review-kicker {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent);
+}
+.review-kicker svg { width: 16px; height: 16px; }
+.celebrate-card { border-color: var(--accent); background: var(--ok-bg); }
+.celebrate-card h2 { margin: 6px 0 6px; font-size: 1.3rem; }
+.celebrate-card p { margin: 0 0 12px; max-width: 62ch; font-size: .92rem; }
+.celebrate-card .hint { margin: 10px 0 0; }
+
+.review-hero { border-color: var(--accent); background: var(--ok-bg); text-align: center; padding: 22px 16px; }
+.review-hero h2 { margin: 0 0 4px; font-size: 1.5rem; }
+.review-hero p { margin: 0; color: var(--muted); }
+
+.review-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 12px; }
+@media (min-width: 700px) { .review-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.review-stat {
+  display: flex; flex-direction: column; gap: 2px; padding: 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.review-stat .num { font-size: 1.4rem; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--accent); }
+.review-stat .label { font-size: .8rem; color: var(--muted); }
+.review-stat .change { font-size: .75rem; color: var(--text); margin-top: 6px; }
+
+.metric-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 14px; }
+.metric-tabs button { padding: 6px 12px; border-radius: 999px; font-size: .85rem; }
+.metric-tabs button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-text); font-weight: 600; }
+
+.review-chart { display: flex; align-items: stretch; gap: 4px; height: 150px; }
+.rv-col { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; }
+.rv-track { flex: 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+.rv-bar { display: block; width: 100%; max-width: 30px; background: var(--accent); border-radius: 4px 4px 0 0; }
+.rv-bar.empty { height: 0; border-bottom: 2px dashed var(--border); border-radius: 0; background: none; }
+.rv-value { font-size: .62rem; color: var(--muted); margin-bottom: 2px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.rv-label { font-size: .7rem; color: var(--muted); margin-top: 4px; border-top: 1px solid var(--border); width: 100%; text-align: center; padding-top: 4px; }
+.review-note { margin: 10px 0 0; }
+
+.ahead-row { margin-top: 12px; }
+.ahead-text { display: flex; justify-content: space-between; gap: 8px; font-size: .9rem; margin-bottom: 6px; }
+.ahead-text span { color: var(--muted); }
+.ahead-row .mini-bar { height: 6px; }
+.review-closing { text-align: center; color: var(--muted); max-width: 52ch; margin: 18px auto 8px; font-size: .92rem; }
+
+/* Confetti, once, when the yearly card is opened */
+.confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
+.confetti span {
+  position: absolute; top: -12px; width: 8px; height: 12px; border-radius: 2px; opacity: .9;
+  animation-name: confetti-fall; animation-timing-function: ease-in; animation-fill-mode: forwards;
+}
+@keyframes confetti-fall {
+  to { transform: translate(var(--drift), 105vh) rotate(540deg); opacity: .6; }
+}
+
 /* ---------- Quick reference ---------- */
 
 .ref-tools { margin: 0 0 6px; }

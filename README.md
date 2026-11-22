@@ -41,6 +41,19 @@ The ☰ menu in the top left opens these pages. Each one has its own link, such 
 - **Print summary**: everything on hand as a plain document for paper, for when a phone is dead or the power is out. It shows household size and tier, an "at a glance" block (items, days of water, a rough count of days of food, and expired and expiring counts), a **Use or replace soon** table, and the full inventory as tables grouped by category or by storage location (locations that differ only in capitals or spacing are combined). Savings amounts are left off unless **Include savings amounts** is ticked, since anyone who finds a printout can read it. **Include quick reference** adds the Quick reference cards in two columns, starting on a new page so they can be posted on their own. **Print or save as PDF** opens the browser's print screen, and the print styles hide the app's menu and controls so only the summary prints in black and white. On a phone screen, the preview shows each item as a short labelled block
 - **Settings**: household size, how long you're preparing for (your tier), hazards where you live, and exporting or importing a backup, plus an About section with a link to support the app on Ko-fi
 
+## Year in review
+
+Once a year, on the anniversary of when you started, a **Year in review** card appears at the top of the Overview ("One year of being prepared"). **See your year** opens the review with a short shower of confetti (skipped if the device is set to reduce motion), and **Maybe later** puts the card away until next year. The review can be opened any time from the **Settings** page, where it covers the last 12 months, or your time so far if you started more recently.
+
+It shows:
+
+- **Then and now** for items on hand, days of water, a rough count of days of food, and savings, each compared with the earliest month in the review
+- **Month by month**: a bar chart of any of the four, one bar per month
+- **Highlights**, only ones that are true: how many items you added and your busiest month, how many categories have supplies, items added straight from the What to buy suggestions, moving up a tier, and having nothing expired
+- **Looking ahead**: progress bars toward your tier's water, food, and savings goals
+
+The app keeps one small snapshot per month (items, water, food, savings, and tier), updated whenever you save and when the app opens. Opening the app doesn't count as a change for the backup reminder. Months from before snapshots were kept are worked out from the dates items were added, using what you have now, so savings history starts from the first recorded month. When you started is saved as well, or taken from the earliest date an item was added. Both are part of backups. Whether this year's review has been seen is kept separately under `prep-tracker:review`.
+
 ## Estimated expiration dates
 
 Every item has a **type** within its category, for example Food → *Canned meat and fish*, *White rice (bagged)*, or *Freeze-dried meals*. As you type the name, the app suggests a type; once you pick one yourself, it stays put.
@@ -92,4 +105,4 @@ Then visit http://localhost:8000.
 
 ## Data
 
-Everything is saved in the browser's `localStorage` under the key `prep-tracker:v1`. Which inventory groups you've opened is kept separately under `prep-tracker:open-groups`, and the backup reminder's details (last export, first change since then, item changes since then, and "remind me later") under `prep-tracker:backup`. Neither is part of backups. Data is per browser and per device, so use **Export backup** on the Settings page to keep a copy or move it to another device.
+Everything is saved in the browser's `localStorage` under the key `prep-tracker:v1`. Which inventory groups you've opened is kept separately under `prep-tracker:open-groups`, the backup reminder's details (last export, first change since then, item changes since then, and "remind me later") under `prep-tracker:backup`, and the last Year in review celebrated under `prep-tracker:review`. None of these are part of backups. Data is per browser and per device, so use **Export backup** on the Settings page to keep a copy or move it to another device.
