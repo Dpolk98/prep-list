@@ -36,7 +36,7 @@ function icon(name) {
 
 const PAGES = [
   { slug: '', name: 'Overview', icon: 'home', blurb: 'Your readiness across every category.' },
-  { slug: 'savings', name: 'Savings', icon: 'dollar', blurb: 'Your emergency fund: the most flexible part of being prepared.' },
+  { slug: 'savings', name: 'Savings', icon: 'dollar', blurb: 'Your emergency cash and investments: the most flexible part of being prepared.' },
   { slug: 'water', name: 'Water', cat: 'Water', icon: 'droplet', blurb: 'Stored water, purification, and sources.' },
   { slug: 'food', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking fuel, and long-term staples.' },
   { slug: 'medical', name: 'Medical and First Aid', cat: 'Medical and First Aid', icon: 'medkit', blurb: 'First aid, medications, and medical skills.' },
@@ -82,7 +82,8 @@ function currentPage() {
 
 // ---------- State ----------
 
-const DEFAULT_SAVINGS = { current: 0, weekly: 500, beyondYears: 2 };
+// `current` is emergency cash saved so far, and `invested` is money in investments.
+const DEFAULT_SAVINGS = { current: 0, invested: 0, weekly: 500, beyondYears: 2 };
 
 // Fills in any missing fields, so data saved by older versions still loads.
 // Categories that were removed or renamed. Saved data and imported backups
@@ -321,8 +322,24 @@ function tierWeeks(tier) {
   return days / 7;
 }
 
-function savingsGoal(tier) {
+// The emergency cash goal is the weekly baseline times the tier's length.
+// Investments aim for 1.5 times that, and the Overview shows both together.
+const INVEST_MULTIPLIER = 1.5;
+
+function cashGoal(tier) {
   return Math.round(tierWeeks(tier) * (Number(state.savings.weekly) || 0));
+}
+
+function investGoal(tier) {
+  return Math.round(cashGoal(tier) * INVEST_MULTIPLIER);
+}
+
+function savingsGoal(tier) {
+  return cashGoal(tier) + investGoal(tier);
+}
+
+function totalSaved() {
+  return (Number(state.savings.current) || 0) + (Number(state.savings.invested) || 0);
 }
 
 function alertsFor(cat) {
@@ -428,8 +445,9 @@ function renderOverview(wd) {
       </a>`;
   });
 
+  // Emergency cash and investments together.
   const goal = savingsGoal(tier);
-  const saved = Number(state.savings.current) || 0;
+  const saved = totalSaved();
   const sp = goal ? Math.min(100, Math.round((saved / goal) * 100)) : 0;
   cards.unshift(`
     <a class="cat-card" href="#/savings">
@@ -756,30 +774,40 @@ function renderFoodPanel(tier) {
 
 // ---------- Rendering: savings ----------
 
+// Fills in one card on the Savings page: the amount, goal, bar, and math line.
+function renderFund(prefix, current, goal, math) {
+  const pct = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0;
+  $(`${prefix}-current-display`).textContent = money.format(current);
+  $(`${prefix}-goal`).textContent = money.format(goal);
+  $(`${prefix}-bar`).style.width = `${pct}%`;
+  $(`${prefix}-bar`).classList.toggle('complete', goal > 0 && current >= goal);
+  const remaining = Math.max(0, goal - current);
+  $(`${prefix}-math`).textContent =
+    `${math} ` + (remaining > 0 ? `${money.format(remaining)} to go.` : 'Goal reached.');
+}
+
 function renderSavings() {
   const tier = currentTier();
-  const goal = savingsGoal(tier);
-  const current = Number(state.savings.current) || 0;
-  const pct = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0;
+  const cash = Number(state.savings.current) || 0;
+  const invested = Number(state.savings.invested) || 0;
 
   $('savings-note').textContent = tier.savingsNote;
-  $('savings-current-display').textContent = money.format(current);
-  $('savings-goal').textContent = money.format(goal);
-  $('savings-bar').style.width = `${pct}%`;
-  $('savings-bar').classList.toggle('complete', goal > 0 && current >= goal);
 
   const weeks = tierWeeks(tier);
   const weeksText = weeks === 1 ? '1 week' : `${weeks.toFixed(1).replace(/\.0$/, '')} weeks`;
   const span = tier.days === null
     ? `${state.savings.beyondYears} year${state.savings.beyondYears === 1 ? '' : 's'} (${weeksText})`
     : weeksText;
-  const remaining = Math.max(0, goal - current);
-  $('savings-math').textContent =
-    `${tier.name} tier: ${span} × ${money.format(Number(state.savings.weekly) || 0)}/week. ` +
-    (remaining > 0 ? `${money.format(remaining)} to go.` : 'Goal reached.');
+  renderFund('savings', cash, cashGoal(tier),
+    `${tier.name} tier: ${span} × ${money.format(Number(state.savings.weekly) || 0)}/week.`);
+  renderFund('invest', invested, investGoal(tier),
+    `1.5 times your ${money.format(cashGoal(tier))} emergency cash goal.`);
 
   // Don't overwrite a field while the user is typing in it.
-  const fields = { 'savings-current': current, 'savings-weekly': state.savings.weekly, 'beyond-years': state.savings.beyondYears };
+  const fields = {
+    'savings-current': cash, 'invest-current': invested,
+    'savings-weekly': state.savings.weekly, 'beyond-years': state.savings.beyondYears,
+  };
   for (const [id, val] of Object.entries(fields)) {
     if (document.activeElement !== $(id)) $(id).value = val;
   }
@@ -874,6 +902,12 @@ $('tier-dialog').addEventListener('close', () => {
 
 $('savings-current').addEventListener('input', (e) => {
   state.savings.current = Math.max(0, Number(e.target.value) || 0);
+  saveState();
+  renderSavings();
+});
+
+$('invest-current').addEventListener('input', (e) => {
+  state.savings.invested = Math.max(0, Number(e.target.value) || 0);
   saveState();
   renderSavings();
 });

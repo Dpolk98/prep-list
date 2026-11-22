@@ -212,7 +212,7 @@
           <li><strong>Keeps track of your supplies.</strong> Water, Food, Medical, and the other categories each have their own page in the ☰ menu. Add what you have, with how much, where it’s stored, and when it expires.</li>
           <li><strong>Watches expiration dates for you.</strong> Leave the date blank and the app estimates one from the type of item. The Overview shows anything expired or expiring within 60 days, so you can use it and replace it in time.</li>
           <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them.</li>
-          <li><strong>Helps you build savings.</strong> The Savings page tracks your progress toward an emergency fund sized to your goal.</li>
+          <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash and investments, each with a goal sized to how long you’re preparing for.</li>
           <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan.</li>
         </ul>
       </section>
@@ -231,7 +231,8 @@
 
     <!-- ===== Savings ===== -->
     <div id="view-savings" class="view" hidden>
-      <section class="card" id="savings">
+      <section class="card fund" id="savings" aria-labelledby="cash-title">
+        <h2 id="cash-title">Emergency cash</h2>
         <p class="mindset" id="savings-note"></p>
         <div class="savings-goal">
           <span class="num" id="savings-current-display">$0</span>
@@ -252,6 +253,22 @@
         </div>
       </section>
 
+      <section class="card fund" id="investments" aria-labelledby="invest-title">
+        <h2 id="invest-title">Investments</h2>
+        <p class="mindset">Money set aside for the longer term, such as a retirement account or other investments. It backs up your emergency cash if a disruption lasts a long time.</p>
+        <div class="savings-goal">
+          <span class="num" id="invest-current-display">$0</span>
+          <span class="of">of <strong id="invest-goal">$0</strong> goal</span>
+        </div>
+        <div class="bar"><div class="fill" id="invest-bar"></div></div>
+        <p class="hint" id="invest-math"></p>
+        <div class="grid savings-inputs">
+          <label>Invested so far ($)
+            <input type="number" id="invest-current" min="0" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0">
+          </label>
+        </div>
+      </section>
+
       <section class="card savings-why">
         <h2>Why savings matter most</h2>
         <p>Stored supplies get you through the first days of a disruption. The longer it lasts, the more your savings matter. Most long disruptions are financial ones: a job loss, an illness, rising prices, or a slow local economy. Money is what carries a household through them.</p>
@@ -265,6 +282,7 @@
         <ul class="reasons">
           <li>Small, regular amounts add up. A steady weekly habit matters more than a big start.</li>
           <li>Keep some cash at home in small bills for when card readers are down.</li>
+          <li>Emergency cash is the money you can reach right away. Investments can rise and fall in value and can take a few days to sell, so they work best as the longer-term layer behind your cash.</li>
           <li>Grow savings and supplies together, and avoid going into debt for supplies. Debt is its own emergency.</li>
         </ul>
       </section>

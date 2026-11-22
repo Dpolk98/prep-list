@@ -15,21 +15,21 @@ The guide can be read again from the About section on the Settings page.
 
 On first use you choose how long you're preparing for. You can change it any time on the **Settings** page.
 
-| Tier | Focus | Savings goal (at $500/week) |
-| --- | --- | --- |
-| 1 Week | Shelter in place: stored supplies that need no power or running water | $500 |
-| 1 Month | Extended disruption: cook without power, purify water, handle sanitation | $2,143 |
-| 1 Year | Long-term self-reliance: renewable water, bulk staples, generated power, skills | $26,071 |
-| Beyond | Sustainable living: production, skills, and community | $500/week × years you choose |
+| Tier | Focus | Emergency cash goal (at $500/week) | Investment goal | Total |
+| --- | --- | --- | --- | --- |
+| 1 Week | Shelter in place: stored supplies that need no power or running water | $500 | $750 | $1,250 |
+| 1 Month | Extended disruption: cook without power, purify water, handle sanitation | $2,143 | $3,215 | $5,358 |
+| 1 Year | Long-term self-reliance: renewable water, bulk staples, generated power, skills | $26,071 | $39,107 | $65,178 |
+| Beyond | Sustainable living: production, skills, and community | $500/week × years you choose | 1.5 × cash goal | Both together |
 
-Each tier builds on the ones below it. Every category page has a collapsible **What to buy** list of suggested supplies for your tier, followed by the lower tiers' suggestions as "foundations". Tap **Add** on a suggestion to log it in your inventory; items you already have are marked "In inventory". The weekly savings baseline can be changed. Tier content lives in `tiers.js`.
+Each tier builds on the ones below it. Every category page has a collapsible **What to buy** list of suggested supplies for your tier, followed by the lower tiers' suggestions as "foundations". Tap **Add** on a suggestion to log it in your inventory; items you already have are marked "In inventory". The weekly savings baseline can be changed. The investment goal is always 1.5 times the emergency cash goal. Tier content lives in `tiers.js`.
 
 ## Pages
 
 The ☰ menu in the top left opens these pages. Each one has its own link, such as `#/water`.
 
 - **Overview**: summary stats, your tier's focus, and a card for savings and each category
-- **Savings** (right after Overview in the menu): progress toward the tier's savings goal, plus why savings matter most once a disruption lasts more than a few days, and how to build them steadily
+- **Savings** (right after Overview in the menu): two cards, **Emergency cash** and **Investments**, each with its own amount, goal, and progress bar. The Overview's Savings card adds the two together. Below them, why savings matter most once a disruption lasts more than a few days, and how to build them steadily
 - **Category pages**: Water, Food (including stove fuel and cookware), Medical and First Aid, Toiletries and Hygiene, Light and Power, Documents, Other (tools, shelter and bedding, go-bags, masks, fire extinguishers, pets, baby supplies, and books and games). Each page shows a collapsible list of suggested supplies (for your tier and the tiers below it), its inventory, and an add-item form. Items can only be added from their own category page, so the form only offers that category's types.
 - **Expired** and **Expiring soon**: tap those tiles on the Overview to see the matching items from every category, grouped by category. Editing an item there opens it on its category page
 - **Plans and Skills**: an always-open list of things to set up (plans, training, community)

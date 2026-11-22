@@ -357,7 +357,7 @@ input:disabled, select:disabled { cursor: not-allowed; }
 .water-big, .food-big, .savings-goal { display: flex; align-items: baseline; gap: 4px; }
 .water-big span:first-child, .food-big span:first-child, .savings-goal .num { font-size: 2.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
 .water-panel .label, .food-panel .label { font-size: .85rem; color: var(--muted); display: block; margin-bottom: 10px; }
-.water-panel .hint, .food-panel .hint, #savings .hint { margin: 8px 0 0; }
+.water-panel .hint, .food-panel .hint, .fund .hint { margin: 8px 0 0; }
 
 /* Food calorie estimate */
 .food-big { gap: 8px; }
@@ -386,7 +386,8 @@ input:disabled, select:disabled { cursor: not-allowed; }
 
 .savings-goal { gap: 8px; margin-bottom: 6px; }
 .savings-goal .of { color: var(--muted); }
-#savings .hint { margin-bottom: 12px; }
+.fund h2 { margin-bottom: 4px; }
+.fund .hint { margin-bottom: 12px; }
 .savings-inputs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
 .savings-why p { margin: 0 0 12px; max-width: 62ch; }
