@@ -334,6 +334,45 @@ function caloriesPerUnit(profile, type, unit) {
   return each === null ? null : each * (sized.count || 1);
 }
 
+// ----- Label figures, from a scanned barcode -----
+// A scanned item can carry its label's figures from Open Food Facts:
+// nutrition = { kcal, per, size }: calories per 100 g (or 100 mL), and the
+// package's net weight in g (or volume in mL) when it's known. These are
+// exact, so they're used instead of the type's cautious figures whenever the
+// unit allows: one package (cans, jars, boxes, each…), a weight or volume,
+// a case of 12, or a count written into the unit ("6-pack").
+
+const PACKAGE_UNITS = new Set(['can', 'jar', 'box', 'bag', 'pouch', 'bottle', 'packet', 'package',
+  'carton', 'tub', 'canister', 'bar', 'sleeve', 'meal']);
+const G_PER_LB = 453.592;
+const ML_PER_CUP = 236.588;
+
+function labelCaloriesPerUnit(nutrition, unit) {
+  const per100 = Number(nutrition?.kcal);
+  if (!(per100 > 0)) return null;
+  const pkg = Number(nutrition.size) > 0 ? (nutrition.size * per100) / 100 : null;
+  const inAmount = (amount, measure) => {
+    if (nutrition.per !== 'ml' && WEIGHT_IN_LB.has(measure)) return (amount * WEIGHT_IN_LB.get(measure) * G_PER_LB * per100) / 100;
+    const volumeKey = measure === 'oz' || measure === 'ounce' ? 'fl oz' : measure;
+    if (nutrition.per === 'ml' && VOLUME_IN_CUPS.has(volumeKey) && !['#10 can', 'bucket', 'mylar bag'].includes(volumeKey)) {
+      return (amount * VOLUME_IN_CUPS.get(volumeKey) * ML_PER_CUP * per100) / 100;
+    }
+    return null;
+  };
+  const key = unitKey(unit);
+  if (EACH_WORDS.has(key) || PACKAGE_UNITS.has(key)) return pkg;
+  if (key === 'case' || key === 'dozen') return pkg === null ? null : 12 * pkg;
+  const measured = inAmount(1, key);
+  if (measured !== null) return measured;
+  const sized = parseUnitSize(unit);
+  if (!sized) return null;
+  if (sized.measure) {
+    const each = inAmount(sized.amount, sized.measure);
+    return each === null ? null : each * (sized.count || 1);
+  }
+  return pkg === null ? null : pkg * sized.count;
+}
+
 // The figures for a type, picked by the item's name when the type has name
 // patterns. Names are compared in lowercase, with "&" read as "and".
 function calorieProfile(type, name) {
@@ -344,13 +383,20 @@ function calorieProfile(type, name) {
 }
 
 // Estimated calories for an item. Returns one of:
-//   { calories }               for the item's whole quantity
+//   { calories, label? }       for the item's whole quantity (label: true
+//                              when it came from a scanned label)
 //   { none: true }             not counted as food (fuel, coffee, and so on)
 //   { unknown: 'type' | 'unit' } a Food item the estimate can't work out
 //   null                       not a Food item
-function estimateCalories({ category, type, name, unit, quantity }) {
+function estimateCalories({ category, type, name, unit, quantity, nutrition }) {
   if (category !== 'Food') return null;
   const qty = Math.max(0, Number(quantity) || 0);
+
+  // A scanned label's own figures, when the unit allows.
+  if (nutrition) {
+    const perUnit = labelCaloriesPerUnit(nutrition, unit);
+    if (perUnit !== null) return { calories: qty * perUnit, label: true };
+  }
 
   // "Other shelf-stable food": borrow the figures of the type the name
   // suggests, when that type is food and knows this unit.

@@ -542,6 +542,51 @@ dialog .hint { margin: 0 0 14px; display: block; }
   .pd-reference { break-before: page; margin-top: 0; }
 }
 
+/* ---------- Barcode scanning ---------- */
+
+.scan-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 0 12px; }
+.scan-row .hint { margin: 0; }
+.scan-btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--accent); }
+.scan-btn svg { width: 18px; height: 18px; }
+.scan-btn:hover { border-color: var(--accent); }
+.scan-info { margin: -4px 0 12px; font-size: .85rem; color: var(--muted); }
+.scan-info .link-btn { padding: 0 0 0 4px; }
+
+.scan-dialog { padding: 16px; }
+.scan-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.scan-head h2 { margin: 0; }
+.scan-view {
+  position: relative; overflow: hidden; border-radius: var(--radius); background: #000;
+  aspect-ratio: 4 / 3; max-height: 52vh; width: 100%;
+}
+.scan-view video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* Kept in step with GUIDE in scan.js */
+.scan-frame {
+  position: absolute; left: 8%; top: 22%; width: 84%; height: 56%;
+  border: 2px solid rgb(255 255 255 / .9); border-radius: 10px;
+  box-shadow: 0 0 0 100vmax rgb(0 0 0 / .35);
+}
+.scan-line {
+  position: absolute; left: 6%; right: 6%; top: 50%; height: 2px; border-radius: 2px;
+  background: #5fb38a; box-shadow: 0 0 8px #5fb38a; animation: scan-sweep 2.4s ease-in-out infinite;
+}
+@keyframes scan-sweep { 0%, 100% { transform: translateY(-38px); } 50% { transform: translateY(38px); } }
+@media (prefers-reduced-motion: reduce) { .scan-line { animation: none; } }
+.scan-status { margin: 12px 0 0; font-size: .92rem; min-height: 1.3em; }
+.scan-result { margin: 10px 0 18px; }
+.scan-note { margin: 0 0 10px; font-size: .92rem; }
+.scan-product {
+  display: flex; flex-direction: column; gap: 2px; padding: 12px;
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+}
+.scan-product span { font-size: .85rem; color: var(--muted); }
+.scan-actions { flex-wrap: wrap; }
+.scan-alt { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+.scan-manual { display: flex; gap: 8px; flex: 1; min-width: 220px; }
+.scan-manual input { flex: 1; min-width: 0; }
+.scan-credit { margin: 14px 0 0; font-size: .78rem; }
+.scan-credit a { color: var(--accent); }
+
 /* ---------- Year in review ---------- */
 
 .review-kicker {

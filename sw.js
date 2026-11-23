@@ -22,6 +22,8 @@ const FILES = [
   'calories.js',
   'icons.js',
   'app.js',
+  'barcode.js',
+  'scan.js',
   'icons/icon.svg',
   'icons/icon-192.png',
   'icons/icon-512.png',

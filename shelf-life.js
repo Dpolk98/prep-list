@@ -166,7 +166,7 @@ const TYPE_RULES = {
     [/\boats?\b|oatmeal/, 'oats'],
     [/cereal|granola/, 'cereal'],
     [/flour|cornmeal|pancake|baking mix|biscuit mix/, 'flour'],
-    [/peanut butter|nut butter|almond butter/, 'nut-butter'],
+    [/peanut butter|nut butter|almond butter|nutella|hazelnut spread/, 'nut-butter'],
     [/\bnuts?\b|almond|cashew|pecan|walnut|peanuts|trail mix|sunflower|pumpkin seed/, 'nuts'],
     [/cracker|pretzel|chips|popcorn/, 'snacks'],
     [/instant coffee|\btea\b/, 'coffee-instant'],

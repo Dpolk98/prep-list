@@ -447,6 +447,7 @@ function caloriesFact(item) {
   if (est.unknown && !String(item.unit || '').trim()) return '<span class="est">Not estimated without a unit</span>';
   if (est.unknown) return `<span class="est">Not estimated for “${escapeHtml(item.unit)}”</span>`;
   const expired = statusOf(item) === 'expired' ? ' <span class="est">(not counted while expired)</span>' : '';
+  if (est.label) return `${(Math.round(est.calories / 10) * 10).toLocaleString('en-US')} <span class="est">from the label</span>${expired}`;
   return `About ${roughCalories(est.calories)} <span class="est">est.</span>${expired}`;
 }
 
@@ -1920,7 +1921,39 @@ for (const id of ['name', 'type', 'expires']) {
   $(id).addEventListener('input', onFormInput);
 }
 
+// ---------- Scanned details (see scan.js) ----------
+// After a barcode scan fills in the form, its barcode and label figures wait
+// here until the item is added. `pendingScan` = { barcode, nutrition, source }.
+let pendingScan = null;
+
+// The line under the form that says what a scan filled in, and the Scan
+// button, which is offered on the Food page while adding (not editing).
+function renderScanInfo(item = null) {
+  const page = currentPage();
+  $('scan-row').hidden = page.cat !== 'Food' || Boolean($('item-id').value);
+  const info = item || pendingScan;
+  const parts = [];
+  if (info?.barcode) parts.push(`Barcode ${BARCODE.display(info.barcode)}`);
+  const n = info?.nutrition;
+  if (n?.kcal) {
+    const pkg = n.size ? Math.round((n.size * n.kcal) / 100 / 10) * 10 : null;
+    parts.push(pkg
+      ? `about ${pkg.toLocaleString('en-US')} calories per package, from the label`
+      : `${Math.round(n.kcal)} calories per 100 ${n.per === 'ml' ? 'mL' : 'g'}, from the label`);
+  }
+  $('scan-info-text').textContent = parts.join(' · ');
+  $('scan-info').hidden = !parts.length;
+  // Only a scan that's waiting to be added can be cleared.
+  $('scan-clear').hidden = Boolean(item) || !pendingScan;
+}
+
+$('scan-clear').addEventListener('click', () => {
+  pendingScan = null;
+  renderScanInfo();
+});
+
 function resetForm() {
+  pendingScan = null;
   editingAddedDate = null;
   typeTouched = false;
   $('item-form').reset();
@@ -1937,6 +1970,7 @@ function resetForm() {
   $('submit-btn').textContent = 'Add item';
   $('cancel-edit').hidden = true;
   updateExpiresHint();
+  renderScanInfo();
 }
 
 function startEdit(item) {
@@ -1961,6 +1995,8 @@ function startEdit(item) {
   $('form-title').textContent = 'Edit item';
   $('submit-btn').textContent = 'Save changes';
   $('cancel-edit').hidden = false;
+  pendingScan = null;
+  renderScanInfo(item.barcode || item.nutrition ? item : null);
   $('form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   $('name').focus({ preventScroll: true });
 }
@@ -1998,7 +2034,9 @@ $('item-form').addEventListener('submit', (e) => {
   if (id) {
     Object.assign(state.items.find((i) => i.id === id), data);
   } else {
-    state.items.push({ id: newId(), added: toIsoDate(new Date()), ...data });
+    // A scan's barcode and label figures go with the new item.
+    const scanned = pendingScan ? { barcode: pendingScan.barcode, ...(pendingScan.nutrition ? { nutrition: pendingScan.nutrition } : {}) } : {};
+    state.items.push({ id: newId(), added: toIsoDate(new Date()), ...data, ...scanned });
   }
   // Open the item's group so you can see where it went.
   setGroupOpen(category, groupOf(data).key, true);

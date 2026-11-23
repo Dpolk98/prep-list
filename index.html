@@ -103,6 +103,7 @@
           <summary><strong>This is only an estimate.</strong><span class="more">How it works</span></summary>
           <p>It uses typical calories for each item’s type, quantity, and unit, and leans low on purpose: lower-end calorie counts and smaller package sizes. Actual calories vary by brand and size, so use it as a rough starting point for planning, not an exact count.</p>
           <p>Besides each type’s own units, it understands weights (lb, oz, kg, and g), kitchen measures (cups, quarts, and liters), servings, and sizes written into the unit, like “25 lb bags” or “24-pack”. “Each”, or no unit, counts as one of the smallest container the item comes in.</p>
+          <p>Items added by scanning a barcode use the calories from their own label instead, when Open Food Facts lists them. Those show “from the label” rather than “est.”.</p>
           <p>Not counted: expired items, infant formula and baby food, and things with few or no calories, like fuel, cookware, seeds, spices, coffee, and tea.</p>
         </details>
         <p class="hint" id="food-unestimated" hidden></p>
@@ -148,6 +149,11 @@
 
       <section class="card" id="form-card">
         <h2 id="form-title">Add an item</h2>
+        <div class="scan-row" id="scan-row" hidden>
+          <button type="button" class="scan-btn" id="scan-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 7v10"/><path d="M12 7v10"/><path d="M17 7v10"/></svg>Scan a barcode</button>
+          <span class="hint">Fills in the name and calories from the label.</span>
+        </div>
+        <p class="scan-info" id="scan-info" hidden><span id="scan-info-text"></span> <button type="button" class="link-btn" id="scan-clear">Clear</button></p>
         <form id="item-form" autocomplete="off">
           <input type="hidden" id="item-id">
           <input type="hidden" id="category">
@@ -298,7 +304,7 @@
       <section class="card welcome-tour">
         <h2>What Prep Tracker does</h2>
         <ul class="reasons">
-          <li><strong>Keeps track of your supplies.</strong> Water, Food, Medical, and the other categories each have their own page in the ☰ menu. Add what you have, with how much, where it’s stored, and when it expires.</li>
+          <li><strong>Keeps track of your supplies.</strong> Water, Food, Medical, and the other categories each have their own page in the ☰ menu. Add what you have, with how much, where it’s stored, and when it expires. On the Food page, you can scan a barcode to fill in the details.</li>
           <li><strong>Watches expiration dates for you.</strong> Leave the date blank and the app estimates one from the type of item. The Overview shows anything expired or expiring within 60 days, so you can use it and replace it in time.</li>
           <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them. On the Settings page, you can also choose hazards where you live, like winter storms or wildfire, for a few more suggestions.</li>
           <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash and investments, each with a goal sized to how long you’re preparing for.</li>
@@ -380,6 +386,31 @@
   </main>
 
   <!-- Tier picker: shown on first use and from the "Change" button -->
+  <dialog id="scan-dialog" class="scan-dialog" aria-labelledby="scan-title">
+    <div class="scan-head">
+      <h2 id="scan-title">Scan a barcode</h2>
+      <button type="button" class="icon-btn" id="scan-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="scan-view" id="scan-view" hidden>
+      <video id="scan-video" playsinline muted autoplay></video>
+      <div class="scan-frame" aria-hidden="true"><span class="scan-line"></span></div>
+    </div>
+    <p class="scan-status" id="scan-status" role="status" aria-live="polite"></p>
+    <div class="scan-result" id="scan-result" hidden></div>
+    <div class="scan-alt" id="scan-alt">
+      <label class="file-btn">Take a photo
+        <input type="file" id="scan-photo" accept="image/*" capture="environment" hidden>
+      </label>
+      <form class="scan-manual" id="scan-manual" autocomplete="off">
+        <input id="scan-code" inputmode="numeric" maxlength="16" placeholder="Or type the number" aria-label="Barcode number">
+        <button type="submit">Look up</button>
+      </form>
+    </div>
+    <p class="hint scan-credit">Product details come from <a href="https://world.openfoodfacts.org" target="_blank" rel="noopener">Open Food Facts</a>, a free, open food database. Only the barcode number is sent.</p>
+  </dialog>
+
   <dialog id="grab-dialog" aria-labelledby="grab-dialog-title">
     <form id="grab-form" autocomplete="off">
       <h2 id="grab-dialog-title">Add to the grab list</h2>
@@ -448,6 +479,7 @@
     </div>
   </dialog>
 
+  <script src="barcode.js"></script>
   <script src="tiers.js"></script>
   <script src="hazards.js"></script>
   <script src="reference.js"></script>
@@ -456,5 +488,6 @@
   <script src="calories.js"></script>
   <script src="icons.js"></script>
   <script src="app.js"></script>
+  <script src="scan.js"></script>
 </body>
 </html>

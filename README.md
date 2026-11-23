@@ -62,6 +62,18 @@ The expiration date is optional. If you leave it blank, the app estimates one fr
 
 The form shows the estimate before you save. Estimated dates are labeled "est." in the list. Edit the item and enter the printed date to replace the estimate. Types, shelf lives, and the name-matching rules live in `shelf-life.js`.
 
+## Barcode scanning
+
+On the Food page, **Scan a barcode** (above the add form) opens the camera. Hold the barcode level inside the frame and it's read on its own, usually within a second. It reads grocery barcodes: EAN-13, UPC-A, EAN-8, and UPC-E.
+
+- **Something new**: the number is looked up on [Open Food Facts](https://world.openfoodfacts.org), a free, open food database. Only the barcode number is sent. **Use these details** fills in the add form with the product's name, a type (from the product's categories or its name), a unit from its packaging (cans, jars, boxes, and so on), and its calories from the label. Set the quantity and tap **Add item** as usual. The barcode and label figures are saved with the item
+- **Something you already have** (same barcode): **Add one** or **Use one** right from the scanner, which is handy when putting groceries away or taking things out of storage, or **Add as a new item** (for example, a second batch with a different date)
+- **Not in Open Food Facts**: **Fill in myself** keeps the barcode with the item, so it's recognized next time
+- **No connection**: the lookup can be tried again. Recognizing things already in your inventory works offline
+- **No camera**, or camera access turned off: **Take a photo** reads the barcode from a picture, or **Or type the number** looks up the digits printed under it. Typed numbers are checked first, so a typo is caught before any lookup
+
+Barcodes are read by the browser's own reader where there is one (Android and desktop Chrome), and otherwise by `barcode.js`, a small reader written for this app with no outside library. It reads straight lines across the picture, checks each code's check digit, and in the camera view only accepts a code read on two lines (or in two frames in a row), so a misread is very unlikely. The camera and lookup code is in `scan.js`. The camera only works over https (as on GitHub Pages) or on `localhost`.
+
 ## Calorie estimate
 
 The Food page opens with a rough estimate of the calories in your food inventory, and about how many days that would feed your household at 2,000 calories per person per day. A bar shows progress toward your tier's goal (up to a year).
@@ -71,6 +83,7 @@ It's worked out from each item's type, quantity, and unit, and it leans low on p
 - Calorie figures sit near the low end of what's typical for each type, with the smaller common package size for each container (a 2 lb bag of rice, a 15 oz can, a 25 lb bucket)
 - Most types also check the item's name, since calories can vary a lot within a type: Spam counts for far more than tuna, canned beans for more than green beans, and broth for almost nothing. A name that doesn't match anything gets the type's cautious default. Items filed under *Other shelf-stable food* use the figures for whatever type their name suggests
 - Besides each type's own units, it understands weights (lb, oz, kg, and g), kitchen measures (cups, quarts, liters, and tablespoons), servings (by typical label sizes), cases (12 cans, jars, or bottles), and sizes or counts written into the unit, such as "25 lb bags", "cans (15 oz)", or "24-pack". "Each", or no unit, counts as one of the smallest container the item comes in
+- Items added by scanning a barcode use their own label's calories instead (calories per 100 g and the package size, from Open Food Facts), when the unit is a package, a weight, a case, or a count. They show "from the label" rather than "est."
 - Not counted: expired items, infant formula and baby food, and things with few or no calories (fuel, cookware, seeds, spices, coffee, and tea)
 
 Each food item shows its own estimate, such as "About 1,200 est." Items with a unit the estimate can't convert are named on the panel so they can be fixed. The panel says plainly that it’s only an estimate. Tap **How it works** for how it’s worked out and what isn’t counted; that section starts closed to save space. Labels give the exact numbers. The figures live in `calories.js`, and the unit handling shared with the water estimate lives in `units.js`.
