@@ -274,6 +274,14 @@
           <a class="file-btn link-button" id="kofi-link" href="https://ko-fi.com/danielpolk" target="_blank" rel="noopener">Support on Ko-fi ↗</a>
         </div>
       </section>
+
+      <section class="card">
+        <h2>Setup</h2>
+        <p class="settings-text">Go through the setup questions again: how long you’re preparing for, how many people, and your Local Hazards. Your current answers are filled in, and nothing changes until you tap Finish.</p>
+        <div class="data-tools">
+          <button type="button" id="setup-again">Run setup again</button>
+        </div>
+      </section>
     </div>
 
     <!-- ===== Grab list ===== -->
@@ -472,27 +480,30 @@
     </form>
   </dialog>
 
-  <dialog id="hazard-dialog" aria-labelledby="hazard-dialog-title">
-    <form method="dialog">
-      <h2 id="hazard-dialog-title">Local Hazards</h2>
-      <p class="hint">Choose any that apply where you live. Each one adds a few suggestions to the What to buy lists. You can change these any time on the Settings page.</p>
-      <div class="hazard-options" id="hazard-dialog-options"></div>
-      <div class="actions hazard-actions">
-        <button value="skip">Skip</button>
-        <button value="save" class="primary">Done</button>
-      </div>
-    </form>
-  </dialog>
+  <!-- First-use setup: three short questions, answered once -->
+  <dialog id="setup-dialog" class="setup-dialog" aria-labelledby="setup-title">
+    <div class="setup-progress" id="setup-progress" aria-hidden="true"><span></span><span></span><span></span></div>
+    <p class="setup-step" id="setup-step"></p>
+    <h2 id="setup-title" tabindex="-1"></h2>
+    <p class="hint" id="setup-hint"></p>
 
-  <dialog id="tier-dialog" aria-labelledby="tier-dialog-title">
-    <form method="dialog">
-      <h2 id="tier-dialog-title">How long are you preparing for?</h2>
-      <p class="hint">Each tier builds on the ones before it. You can change this any time.</p>
-      <div class="tier-options" id="tier-options"></div>
-      <div class="actions" id="tier-dialog-actions">
-        <button value="" id="tier-cancel">Keep current</button>
+    <div class="tier-options" id="setup-tier"></div>
+
+    <div class="people-picker" id="setup-people" hidden>
+      <button type="button" class="step-btn" id="people-minus" aria-label="One fewer person">−</button>
+      <div class="people-count">
+        <input id="setup-people-count" type="number" min="1" max="99" step="1" inputmode="numeric" pattern="[0-9]*" aria-label="People you’re preparing for">
+        <span id="setup-people-word">people</span>
       </div>
-    </form>
+      <button type="button" class="step-btn" id="people-plus" aria-label="One more person">+</button>
+    </div>
+
+    <div class="hazard-options" id="setup-hazards" hidden></div>
+
+    <div class="actions setup-actions">
+      <button type="button" id="setup-back">Back</button>
+      <button type="button" class="primary" id="setup-next">Continue</button>
+    </div>
   </dialog>
 
   <!-- Shown once, when this browser has no saved data -->
