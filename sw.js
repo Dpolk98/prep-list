@@ -18,6 +18,7 @@ const FILES = [
   'hazards.js',
   'reference.js',
   'shelf-life.js',
+  'supply-match.js',
   'units.js',
   'calories.js',
   'icons.js',

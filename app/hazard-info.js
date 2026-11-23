@@ -13,7 +13,7 @@ function openHazardInfo(id) {
   const item = (s, canHave) => `
     <li>
       <div><span class="supply-name">${escapeHtml(s.name)}</span><span class="supply-note">${escapeHtml(s.note)}</span></div>
-      ${canHave && inInventory(s.name, s.cat) ? '<span class="have">In inventory</span>' : ''}
+      ${canHave && ownsSupply(s, state.items) ? '<span class="have">In inventory</span>' : ''}
     </li>`;
   const byCategory = PAGES.filter((p) => CATEGORIES.includes(p.cat)).map((p) => {
     const list = supplies.filter((s) => s.cat === p.cat);
@@ -22,7 +22,7 @@ function openHazardInfo(id) {
       <h4><button type="button" class="link-btn hazard-info-cat" data-page="${p.slug}">${icon(p.icon)}${escapeHtml(p.name)}<span aria-hidden="true">›</span></button></h4>
       <ul class="supplies">${list.map((s) => item(s, true)).join('')}</ul>`;
   }).join('');
-  const have = supplies.filter((s) => inInventory(s.name, s.cat)).length;
+  const have = supplies.filter((s) => ownsSupply(s, state.items)).length;
 
   $('hazard-info-icon').innerHTML = icon(h.icon);
   $('hazard-info-title').textContent = h.name;

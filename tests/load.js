@@ -7,7 +7,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const ROOT = path.join(__dirname, '..');
-const FILES = ['barcode.js', 'shelf-life.js', 'units.js', 'calories.js'];
+const FILES = ['barcode.js', 'tiers.js', 'hazards.js', 'shelf-life.js', 'supply-match.js', 'units.js', 'calories.js'];
 
 function load() {
   const context = vm.createContext({});
@@ -16,7 +16,7 @@ function load() {
     vm.runInContext(code, context, { filename: file });
   }
   return vm.runInContext(`({
-    BARCODE,
+    BARCODE, TIERS, HAZARDS, supplyNameKey, ownsSupply,
     ITEM_TYPES, TYPE_RULES, typesFor, findType, guessType, addToDate, toIsoDate, describeShelfLife, estimateExpiry,
     dropAbbreviationDots, unitKey, parseUnitSize, gallonsPerUnit, WEIGHT_IN_LB, VOLUME_IN_CUPS,
     FOOD_CALORIES, MEASURES, calorieProfile, caloriesPerUnit, labelCaloriesPerUnit, estimateCalories, estimateServings,
