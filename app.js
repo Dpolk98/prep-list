@@ -9,10 +9,10 @@ const SOON_DAYS = 60;
 
 // Icons, including one per item type, live in icons.js.
 
-// Features that are built but switched off for now. The Grab list is hidden
-// while it's being refined: its page, menu entry, and printed section don't
-// show, but its data is still kept and included in backups.
-const FEATURES = { grabList: false };
+// Features that can be switched off while they're being worked on. When
+// grabList is false, the Grab list's page, menu entry, and printed section
+// don't show, but its data is still kept and included in backups.
+const FEATURES = { grabList: true };
 
 // ---------- Pages ----------
 // `cat` ties a page to an inventory category and to its suggested supplies.
@@ -103,8 +103,11 @@ function migrateItem(item) {
 
 // ---------- Grab list data ----------
 // Two ordered lists of what to take when leaving in a hurry. Each entry is
-// { id, name, where, itemId }; itemId links it to an inventory item, whose
-// current location is shown instead of `where`.
+// { id, name, where, itemId, cat, types, done }: itemId links it to an
+// inventory item, whose current location is shown instead of `where`; cat
+// (and optionally types) ties it to a kind of inventory item, whose storage
+// locations are shown when there's no link or typed location; done is
+// ticked off when it's been grabbed.
 
 const GRAB_LISTS = [
   { key: 'five', title: 'If you have 5 minutes', short: '5 minutes', hint: 'The essentials, in the order you’d grab them.' },
@@ -113,13 +116,38 @@ const GRAB_LISTS = [
 
 // A starting point built on the "5 Ps": people and pets, papers,
 // prescriptions, personal needs, and priceless items.
+// Each starter entry names the inventory items it goes with.
 const STARTER_GRAB = {
-  five: ['Everyone in the household, and pets', 'Go-bags', 'Medications and glasses', 'Phone, charger, wallet, and keys', 'Document pouch'],
-  fifteen: ['Water and snacks for the car', 'Pet food, leashes, and carriers', 'Change of clothes and sturdy shoes', 'Laptop and backup drive', 'Photos and keepsakes', 'Sleeping bags or blankets'],
+  five: [
+    { name: 'Everyone in the household, and pets' },
+    { name: 'Go-bags', cat: 'Other', types: ['bags'] },
+    { name: 'Medications and glasses', cat: 'Medical and First Aid' },
+    { name: 'Phone, charger, wallet, and keys' },
+    { name: 'Document pouch', cat: 'Documents' },
+  ],
+  fifteen: [
+    { name: 'Water and snacks for the car', cat: 'Water' },
+    { name: 'Pet food, leashes, and carriers', cat: 'Other', types: ['pet-food', 'pet-supplies'] },
+    { name: 'Change of clothes and sturdy shoes', cat: 'Other', types: ['shelter'] },
+    { name: 'Laptop and backup drive', cat: 'Documents', types: ['digital'] },
+    { name: 'Photos and keepsakes' },
+    { name: 'Sleeping bags or blankets', cat: 'Other', types: ['shelter'] },
+  ],
 };
+const STARTER_BY_NAME = new Map(Object.values(STARTER_GRAB).flat().map((s) => [s.name, s]));
 
-function grabEntry({ id, name, where = '', itemId = null }) {
-  return { id: id || newId(), name: String(name).trim(), where: String(where || '').trim(), itemId: itemId || null };
+function grabEntry({ id, name, where = '', itemId = null, cat = null, types = null, done = false }) {
+  // Starter entries saved before categories existed pick theirs up by name.
+  const starter = !cat && STARTER_BY_NAME.get(String(name).trim());
+  return {
+    id: id || newId(),
+    name: String(name).trim(),
+    where: String(where || '').trim(),
+    itemId: itemId || null,
+    cat: CATEGORIES.includes(cat) ? cat : starter?.cat || null,
+    types: Array.isArray(types) ? types : starter?.types || null,
+    done: Boolean(done),
+  };
 }
 
 // Linked entries keep a copy of their item's current location, so it's still
@@ -136,7 +164,7 @@ function syncGrabCopies() {
 // Older data and backups have no grab list, so they start with the starter one.
 function normalizeGrab(grab) {
   if (!grab || typeof grab !== 'object') {
-    return Object.fromEntries(GRAB_LISTS.map(({ key }) => [key, STARTER_GRAB[key].map((name) => grabEntry({ name }))]));
+    return Object.fromEntries(GRAB_LISTS.map(({ key }) => [key, STARTER_GRAB[key].map((s) => grabEntry(s))]));
   }
   const clean = (list) => (Array.isArray(list) ? list : [])
     .filter((e) => e && typeof e.name === 'string' && e.name.trim())
@@ -630,6 +658,7 @@ let pendingEditId = null;
 
 window.addEventListener('hashchange', () => {
   closeDrawer({ restoreFocus: false });
+  grabEditing = false;
   $('search').value = '';
   $('filter-status').value = '';
   $('supplies-details').open = false;
@@ -1594,7 +1623,6 @@ $('reference-list').addEventListener('toggle', updateReferenceToggle, true);
 
 // ---------- Rendering: grab list ----------
 
-let openGrabMenu = null;  // id of the entry whose ⋯ menu is open
 
 // The inventory item an entry is linked to, if it still exists.
 const grabItem = (entry) => (entry.itemId ? state.items.find((i) => i.id === entry.itemId) : null);
@@ -1602,48 +1630,75 @@ const grabItem = (entry) => (entry.itemId ? state.items.find((i) => i.id === ent
 // Where an entry is kept: a linked item's current location, or what was typed.
 const grabWhere = (entry) => (grabItem(entry)?.location || entry.where || '').trim();
 
-function grabRow(entry, index, list) {
+// Where the inventory items an entry goes with are stored: "Hall closet,
+// Kitchen cabinet", or "" if none of them have a location.
+function grabCategoryWhere(entry) {
+  if (!entry.cat) return '';
+  const seen = new Map();
+  state.items
+    .filter((i) => i.category === entry.cat && (!entry.types || entry.types.includes(i.type)))
+    .forEach((i) => {
+      const loc = (i.location || '').trim();
+      if (loc && !seen.has(loc.toLowerCase())) seen.set(loc.toLowerCase(), loc);
+    });
+  const places = [...seen.values()];
+  if (!places.length) return '';
+  return places.length > 3 ? `${places.slice(0, 3).join(', ')}, and ${places.length - 3} more` : new Intl.ListFormat('en-US').format(places);
+}
+
+function grabRow(entry, index) {
   const item = grabItem(entry);
   const s = item ? statusOf(item) : 'ok';
   const badge = s === 'ok' ? '' : `<span class="badge ${s}">${s === 'expired' ? 'Expired' : 'Expiring soon'}</span>`;
   const where = grabWhere(entry);
-  const details = [where, item && 'Linked to inventory'].filter(Boolean).join(' · ');
-  const open = entry.id === openGrabMenu;
+  const kept = where || grabCategoryWhere(entry);
+  const details = kept ? `Kept in: ${kept}` : '';
+  // Number on the left, the entry in the middle, and a checkbox on the
+  // right to tick it off once it's grabbed. Only in edit mode does tapping
+  // an entry open it, so a stray tap while checking things off can't.
+  const body = `
+        <span class="grab-name">${escapeHtml(entry.name)}${badge}</span>
+        ${details ? `<span class="grab-where">${escapeHtml(details)}</span>` : ''}`;
   return `
-    <li class="grab-entry" data-id="${entry.id}">
+    <li class="grab-entry ${entry.done ? 'done' : ''}" data-id="${entry.id}">
       <span class="grab-num">${index + 1}</span>
-      <div class="grab-body">
-        <div class="grab-name">${escapeHtml(entry.name)}${badge}</div>
-        ${details ? `<div class="grab-where">${escapeHtml(details)}</div>` : ''}
-      </div>
-      <div class="item-menu">
-        <button type="button" class="menu-btn" data-grab="menu" aria-expanded="${open}"
-          aria-controls="grab-menu-${entry.id}" aria-label="Actions for ${escapeHtml(entry.name)}">${icon('dots')}</button>
-        <div class="menu" id="grab-menu-${entry.id}" ${open ? '' : 'hidden'}>
-          <button type="button" data-grab="up" ${index === 0 ? 'disabled' : ''}><span class="menu-sym" aria-hidden="true">↑</span>Move up</button>
-          <button type="button" data-grab="down" ${index === list.length - 1 ? 'disabled' : ''}><span class="menu-sym" aria-hidden="true">↓</span>Move down</button>
-          <button type="button" data-grab="edit">Edit</button>
-          <button type="button" data-grab="remove" class="danger">Remove</button>
-        </div>
-      </div>
+      ${grabEditing
+        ? `<button type="button" class="grab-body" data-grab="edit" aria-label="Edit ${escapeHtml(entry.name)}">${body}</button>
+           <span class="grab-edit-mark" aria-hidden="true">›</span>`
+        : `<div class="grab-body">${body}</div>
+           <input type="checkbox" class="grab-check" data-grab="check" ${entry.done ? 'checked' : ''} aria-label="${escapeHtml(entry.name)}: done">`}
     </li>`;
 }
 
+// Edit mode, switched on from the bottom of the page.
+let grabEditing = false;
+
 function renderGrab() {
+  $('view-grab').classList.toggle('grab-editing', grabEditing);
   $('grab-lists').innerHTML = GRAB_LISTS.map(({ key, title, hint }) => {
     const list = state.grab[key];
+    const done = list.filter((e) => e.done).length;
     return `
       <section class="card grab-card" data-list="${key}">
-        <h2>${title}</h2>
-        <p class="hint">${hint}</p>
+        <div class="grab-card-head">
+          <h2>${title}</h2>
+          ${done ? `<span class="grab-progress">${done} of ${list.length} done</span>` : ''}
+        </div>
+        <p class="hint">${grabEditing ? 'Tap an entry to change or remove it.' : hint}</p>
         ${list.length
-          ? `<ol class="grab-list">${list.map((e, i) => grabRow(e, i, list)).join('')}</ol>`
+          ? `<ol class="grab-list">${list.map(grabRow).join('')}</ol>`
           : '<p class="empty">Nothing here yet.</p>'}
-        <div class="actions">
-          <button type="button" data-grab="add">Add to this list</button>
+        <div class="actions grab-card-actions">
+          ${grabEditing ? '<button type="button" data-grab="add">Add to this list</button>' : ''}
+          ${done && !grabEditing ? '<button type="button" class="link-btn" data-grab="uncheck">Uncheck all</button>' : ''}
         </div>
       </section>`;
-  }).join('');
+  }).join('') + `
+    <div class="grab-mode">
+      ${grabEditing
+        ? '<button type="button" class="primary" data-grab-mode="off">Done editing</button>'
+        : '<button type="button" data-grab-mode="on">Edit list</button><p class="hint">Change, add, or remove entries.</p>'}
+    </div>`;
 }
 
 // Which list an entry is in, and where.
@@ -1655,60 +1710,36 @@ function findGrab(id) {
   return null;
 }
 
-function closeGrabMenu({ focus = false } = {}) {
-  if (!openGrabMenu) return;
-  const row = document.querySelector(`.grab-entry[data-id="${openGrabMenu}"]`);
-  openGrabMenu = null;
-  if (!row) return;
-  row.querySelector('.menu').hidden = true;
-  const btn = row.querySelector('.menu-btn');
-  btn.setAttribute('aria-expanded', 'false');
-  if (focus) btn.focus();
-}
-
 $('grab-lists').addEventListener('click', (e) => {
+  const mode = e.target.closest('[data-grab-mode]');
+  if (mode) {
+    grabEditing = mode.dataset.grabMode === 'on';
+    renderGrab();
+    // Back to the top of the lists, where the change is visible.
+    $('grab-lists').scrollIntoView({ block: 'start' });
+    window.scrollBy(0, -70);
+    return;
+  }
   const btn = e.target.closest('[data-grab]');
   if (!btn || btn.disabled) return;
   const act = btn.dataset.grab;
   if (act === 'add') return openGrabDialog({ list: btn.closest('.grab-card').dataset.list });
-
-  const id = btn.closest('.grab-entry').dataset.id;
-  if (act === 'menu') {
-    const wasOpen = openGrabMenu === id;
-    closeGrabMenu();
-    if (!wasOpen) {
-      openGrabMenu = id;
-      const row = btn.closest('.grab-entry');
-      row.querySelector('.menu').hidden = false;
-      btn.setAttribute('aria-expanded', 'true');
-    }
+  if (act === 'uncheck') {
+    state.grab[btn.closest('.grab-card').dataset.list].forEach((entry) => { entry.done = false; });
+    saveState();
+    render();
     return;
   }
 
+  const id = btn.closest('.grab-entry').dataset.id;
   const found = findGrab(id);
   if (!found) return;
-  const list = state.grab[found.key];
-  if (act === 'edit') { closeGrabMenu(); return openGrabDialog({ list: found.key, entry: found.entry }); }
-  if (act === 'remove') { list.splice(found.index, 1); openGrabMenu = null; }
-  if (act === 'up' || act === 'down') {
-    const to = found.index + (act === 'up' ? -1 : 1);
-    [list[found.index], list[to]] = [list[to], list[found.index]];
-  }
+  if (act === 'edit') return openGrabDialog({ list: found.key, entry: found.entry });
+  // Ticked off as it's grabbed; saved, so it survives the app closing.
+  if (act === 'check') found.entry.done = btn.checked;
   saveState();
   render();
-  // Keep focus on the tapped button, so an entry can be moved several places.
-  // At the top or bottom (button now disabled), fall back to the ⋯ button.
-  const row = document.querySelector(`.grab-entry[data-id="${id}"]`);
-  const same = row?.querySelector(`[data-grab="${act}"]:not([disabled])`);
-  if (same) same.focus();
-  else row?.querySelector('.menu-btn').focus();
-});
-
-document.addEventListener('click', (e) => {
-  if (openGrabMenu && !e.target.closest('.grab-entry .item-menu')) closeGrabMenu();
-});
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && openGrabMenu) closeGrabMenu({ focus: true });
+  if (act === 'check') document.querySelector(`.grab-entry[data-id="${id}"] .grab-check`)?.focus();
 });
 
 // ---------- Grab list: add and edit ----------
@@ -1727,6 +1758,7 @@ function openGrabDialog({ list, entry = null }) {
   editingGrabId = entry?.id || null;
   $('grab-dialog-title').textContent = entry ? 'Edit grab list entry' : 'Add to the grab list';
   $('grab-save').textContent = entry ? 'Save' : 'Add';
+  $('grab-remove').hidden = !entry;
   $('grab-item').innerHTML = '<option value="">Not linked</option>' + CATEGORIES.map((cat) => {
     const items = state.items.filter((i) => i.category === cat).sort(byName);
     if (!items.length) return '';
@@ -1737,6 +1769,8 @@ function openGrabDialog({ list, entry = null }) {
   $('grab-name').value = entry?.name || '';
   $('grab-where').value = entry?.where || '';
   $('grab-list').value = list;
+  $('grab-cat').innerHTML = '<option value="">None</option>' + CATEGORIES.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  $('grab-cat').value = entry?.cat || '';
   syncGrabWhere();
   $('grab-dialog').showModal();
   $('grab-name').focus();
@@ -1748,21 +1782,33 @@ $('grab-item').addEventListener('change', () => {
   const item = state.items.find((i) => i.id === $('grab-item').value);
   const name = $('grab-name').value.trim();
   if (item && (!name || name === lastLinkedName)) $('grab-name').value = item.name;
+  if (item) $('grab-cat').value = item.category;
   lastLinkedName = item ? item.name : '';
   syncGrabWhere();
 });
 
 $('grab-cancel').addEventListener('click', () => $('grab-dialog').close());
 
+$('grab-remove').addEventListener('click', () => {
+  const found = editingGrabId && findGrab(editingGrabId);
+  if (found) state.grab[found.key].splice(found.index, 1);
+  saveState();
+  $('grab-dialog').close();
+  render();
+});
+
 $('grab-form').addEventListener('submit', (e) => {
   e.preventDefault();
   const name = $('grab-name').value.trim();
   if (!name) return;
   const itemId = $('grab-item').value || null;
-  // A linked entry keeps a copy of the item's location, in case the item is deleted later.
-  const entry = grabEntry({ id: editingGrabId, name, where: $('grab-where').value, itemId });
-  const to = $('grab-list').value;
   const found = editingGrabId && findGrab(editingGrabId);
+  // A starter entry keeps its narrower types while its category is unchanged.
+  const cat = $('grab-cat').value || null;
+  const types = found && found.entry.cat === cat ? found.entry.types : null;
+  // A linked entry keeps a copy of the item's location, in case the item is deleted later.
+  const entry = grabEntry({ id: editingGrabId, name, where: $('grab-where').value, itemId, cat, types, done: found?.entry.done });
+  const to = $('grab-list').value;
   if (found && found.key === to) state.grab[to][found.index] = entry;
   else {
     if (found) state.grab[found.key].splice(found.index, 1);

@@ -799,19 +799,34 @@ body.low-power *, body.low-power *::before, body.low-power *::after { animation:
 .grab-intro { margin: 0 0 12px; max-width: 62ch; }
 .grab-card .hint { margin: 0 0 6px; }
 .grab-list { list-style: none; margin: 0; padding: 0; }
-.grab-entry { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); }
+.grab-entry { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); }
 .grab-entry:first-child { border-top: none; }
 .grab-num {
-  display: grid; place-items: center; flex: none; width: 26px; height: 26px; margin-top: 2px;
+  display: grid; place-items: center; flex: none; width: 26px; height: 26px;
   border-radius: 50%; background: var(--ok-bg); color: var(--accent); font-size: .8rem; font-weight: 700;
 }
-.grab-body { flex: 1; min-width: 0; padding-top: 4px; }
+.grab-body {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 2px 0; border: none; background: none; text-align: left; font-size: 1rem; color: var(--text); cursor: pointer;
+}
 .grab-name { font-weight: 600; overflow-wrap: anywhere; }
-.grab-where { margin-top: 2px; font-size: .85rem; color: var(--muted); overflow-wrap: anywhere; }
+.grab-where { font-size: .82rem; color: var(--muted); overflow-wrap: anywhere; }
+.grab-check { flex: none; width: 24px; height: 24px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.grab-entry.done .grab-num { background: var(--accent); color: var(--accent-text); }
+div.grab-body { cursor: default; }
+.grab-edit-mark { flex: none; color: var(--muted); font-size: 1.3rem; font-weight: 600; }
+.grab-editing .grab-card { border-color: var(--accent); }
+.grab-mode { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 22px 0 8px; text-align: center; }
+.grab-mode .hint { margin: 0; }
+.grab-entry.done .grab-name { text-decoration: line-through; color: var(--muted); font-weight: 500; }
+.grab-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.grab-progress { font-size: .8rem; font-weight: 600; color: var(--accent); white-space: nowrap; }
+.grab-card-actions { align-items: center; justify-content: space-between; }
 .menu button:disabled { opacity: .4; cursor: default; background: transparent; }
 .grab-grid { grid-template-columns: 1fr; margin-top: 12px; }
 .field-hint { font-size: .78rem; color: var(--muted); }
 .grab-actions { justify-content: flex-end; margin-top: 16px; }
+.danger-btn { color: var(--bad); margin-right: auto; }
 
 /* On the printed summary: the two lists side by side when there's room */
 .pd-grab { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; }

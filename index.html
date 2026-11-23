@@ -286,7 +286,6 @@
 
     <!-- ===== Grab list ===== -->
     <div id="view-grab" class="view" hidden>
-      <!-- Hidden for now (FEATURES.grabList in app.js). -->
       <p class="hint grab-intro">Keep each list short, and put things in the order you’d grab them. Link an entry to your inventory to always see where it’s kept. The grab list is also on the printed summary, so a copy can live by the door.</p>
       <div id="grab-lists"></div>
     </div>
@@ -350,7 +349,7 @@
           <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them. You can also choose Local Hazards, like winter storms or wildfire, for a few more suggestions.</li>
           <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash and investments, each with a goal sized to how long you’re preparing for.</li>
           <li><strong>Celebrates your progress.</strong> Once a year, on the anniversary of when you started, the Overview offers a look back at how your supplies and savings have grown. You can open it any time from the Settings page.</li>
-          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. Quick reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection. During an outage, low-battery mode (in the ☰ menu) shows just the essentials on a black screen that uses less power.</li>
+          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. The Grab list keeps an ordered list of what to take if you ever need to leave in a hurry, with boxes to tick off. Quick reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection. During an outage, low-battery mode (in the ☰ menu) shows just the essentials on a black screen that uses less power.</li>
         </ul>
       </section>
 
@@ -466,6 +465,10 @@
           <input id="grab-where" placeholder="e.g. Hall closet">
           <span class="field-hint" id="grab-where-hint" hidden>Follows the item’s location in your inventory.</span>
         </label>
+        <label class="wide">Goes with (optional)
+          <select id="grab-cat"></select>
+          <span class="field-hint">Shows where you keep this kind of item in your inventory.</span>
+        </label>
         <label class="wide">List
           <select id="grab-list">
             <option value="five">If you have 5 minutes</option>
@@ -474,6 +477,7 @@
         </label>
       </div>
       <div class="actions grab-actions">
+        <button type="button" class="danger-btn" id="grab-remove" hidden>Remove</button>
         <button type="button" id="grab-cancel">Cancel</button>
         <button type="submit" class="primary" id="grab-save">Add</button>
       </div>
