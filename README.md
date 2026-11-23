@@ -65,7 +65,7 @@ The form shows the estimate before you save. Estimated dates are labeled "est." 
 
 ## Barcode scanning
 
-On the Food page, the add section sits above the inventory list, so adding something is the first thing you see, and it starts with two side-by-side buttons: **Scan a barcode** and **Enter manually**. The full add form stays folded away until one of them is used (it also opens when you edit an item or tap **Add** on a What to buy suggestion), and it folds back after an item is added. Other categories have no scanner, so their form is always open.
+On every category page, the add section sits above the inventory list, so adding something is the first thing you see, and the full add form stays folded away until it's needed. On the Food page it starts with two side-by-side buttons, **Scan a barcode** and **Enter manually**; other categories have no scanner, so they show one **Add an item** button. The form also opens when you edit an item or tap **Add** on a What to buy suggestion, and it folds back after an item is added.
 
 **Scan a barcode** opens the camera. Hold the barcode level inside the frame and it's read on its own, usually within a second. It reads grocery barcodes: EAN-13, UPC-A, EAN-8, and UPC-E.
 

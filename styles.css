@@ -604,6 +604,11 @@ body.low-power *, body.low-power *::before, body.low-power *::after { animation:
 .scan-row .scan-btn { flex-direction: column; justify-content: center; gap: 6px; padding: 12px 8px; text-align: center; }
 .scan-row .scan-btn svg { width: 22px; height: 22px; }
 .btn-label { display: inline-flex; align-items: center; gap: 6px; }
+.toggle-icon { display: inline-grid; place-items: center; }
+/* Pages without a scanner: one full-width Add an item button. */
+.scan-row.single { grid-template-columns: minmax(0, 460px); }
+#form-card.folded .scan-row { margin-bottom: 0; }
+.scan-row.single .scan-btn { flex-direction: row; padding: 12px 14px; }
 .manual-toggle .chevron {
   width: 7px; height: 7px; margin-left: 2px;
   border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;

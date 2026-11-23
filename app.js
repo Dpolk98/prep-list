@@ -908,25 +908,19 @@ function renderInventory(page) {
   $('empty').hidden = visible.length > 0;
   $('empty').textContent = items.length
     ? 'No items match your filters.'
-    : `No ${page.name.toLowerCase()} items yet. Add one ${page.cat === 'Food' ? 'above' : 'below'}.`;
+    : `No ${page.name.toLowerCase()} items yet. Add one above.`;
 }
 
-// On the Food page, adding comes first: the (folded) add form sits above
-// the inventory. Other pages keep it below, where their open form is out of
-// the way of the list.
-function placeFormCard(page) {
+// Adding comes first: the (folded) add section sits above the inventory.
+function placeFormCard() {
   const form = $('form-card');
   const list = $('inventory-card');
-  if (page.cat === 'Food') {
-    if (form.nextElementSibling !== list) list.before(form);
-  } else if (list.nextElementSibling !== form) {
-    list.after(form);
-  }
+  if (form.nextElementSibling !== list) list.before(form);
 }
 
 function renderCategory(page, wd) {
   const tier = currentTier();
-  placeFormCard(page);
+  placeFormCard();
 
   // Water gets a headline "days stored" panel.
   $('water-panel').hidden = page.slug !== 'water';
@@ -2108,18 +2102,34 @@ for (const id of ['name', 'type', 'expires']) {
 // here until the item is added. `pendingScan` = { barcode, nutrition, source }.
 let pendingScan = null;
 
-// On the Food page, adding starts with two buttons, Scan a barcode and
-// Enter manually, and the form itself stays folded away until one is used
-// (or an item is being edited, or a What to buy suggestion is added).
-// Other pages have no scanner, so their form is always open.
+// On every category page, adding starts folded: on Food, two buttons, Scan
+// a barcode and Enter manually; elsewhere (no scanner), one Add an item
+// button. The form itself stays folded away until it's needed: one of those
+// is tapped, an item is being edited, or a What to buy suggestion is added.
 let manualOpen = false;
 
-const formFolds = () => currentPage().cat === 'Food' && !$('item-id').value;
+const formFolds = () => CATEGORIES.includes(currentPage().cat) && !$('item-id').value;
+
+const TOGGLE_ICONS = {
+  pencil: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.4 3.6a2.1 2.1 0 1 1 3 3L7 19l-4 1 1-4z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
+};
 
 function renderEntryMode() {
   const folds = formFolds();
+  const food = currentPage().cat === 'Food';
   $('scan-row').hidden = !folds;
+  $('scan-row').classList.toggle('single', !food);
+  $('scan-btn').hidden = !food;
+  $('scan-hint').hidden = !food;
+  $('manual-toggle-text').textContent = food ? 'Enter manually' : 'Add an item';
+  const iconName = food ? 'pencil' : 'plus';
+  if ($('manual-toggle-icon').dataset.icon !== iconName) {
+    $('manual-toggle-icon').innerHTML = TOGGLE_ICONS[iconName];
+    $('manual-toggle-icon').dataset.icon = iconName;
+  }
   $('item-form').hidden = folds && !manualOpen;
+  $('form-card').classList.toggle('folded', folds && !manualOpen);
   $('manual-toggle').setAttribute('aria-expanded', String(folds && manualOpen));
 }
 
@@ -2158,6 +2168,17 @@ $('scan-clear').addEventListener('click', () => {
   renderScanInfo();
 });
 
+// An example name for each category's form.
+const NAME_EXAMPLES = {
+  'Water': 'Bottled water',
+  'Food': 'Canned black beans',
+  'Medical and First Aid': 'First aid kit',
+  'Toiletries and Hygiene': 'Toilet paper',
+  'Light and Power': 'AA batteries',
+  'Documents': 'Copies of IDs',
+  'Other': 'Duct tape',
+};
+
 function resetForm() {
   pendingScan = null;
   manualOpen = false;
@@ -2170,6 +2191,7 @@ function resetForm() {
   // The form only adds items to the category of the page it's on.
   const page = currentPage();
   $('category').value = CATEGORIES.includes(page.cat) ? page.cat : '';
+  $('name').placeholder = `e.g. ${NAME_EXAMPLES[page.cat] || 'Canned black beans'}`;
   fillTypeOptions();
   unitsForType = null;
   syncUnitsToType();
