@@ -226,7 +226,7 @@ input:disabled, select:disabled { cursor: not-allowed; }
   display: grid; grid-template-columns: max-content 1fr; gap: 3px 14px;
   margin: 6px 0 0; font-size: .85rem;
 }
-.facts dt { color: var(--muted); }
+.facts dt { color: var(--muted); align-self: start; } /* one line tall, so fitServings can measure a line */
 .facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 
 /* Collapsible groups (one per type, or per Food section) */
@@ -266,6 +266,33 @@ input:disabled, select:disabled { cursor: not-allowed; }
 
 /* "⋯" actions menu, to the right of the item name */
 .item-menu { position: relative; flex-shrink: 0; }
+/* Servings sit after the quantity when they fit on the line. Otherwise all
+   of the item's facts fold into a small Details toggle under its name */
+.item-more { display: none; margin-top: 6px; }
+.item.servings-wrapped .item-more { display: block; }
+.item.servings-wrapped > .facts { display: none; }
+/* Details reads as a small section heading: a full-width strip that starts a
+   little left of the facts, with a gray line running down beside them from
+   under its arrow */
+.item-more > summary {
+  display: flex; align-items: center; gap: 8px;
+  margin-left: -8px; padding: 5px 10px; cursor: pointer; list-style: none;
+  background: var(--bg); border-radius: 8px;
+  color: var(--muted); font-size: .72rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.item-more > summary::-webkit-details-marker { display: none; }
+.item-more > summary::before {
+  content: ''; width: 6px; height: 6px; flex-shrink: 0;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg); transition: transform .15s ease;
+}
+.item-more[open] > summary::before { transform: translateY(-2px) rotate(45deg); }
+.item-more > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.item-more > .facts {
+  margin: 4px 0 0 6px; padding: 2px 0 2px 12px;
+  border-left: 1px solid var(--border);
+}
 .menu-btn {
   display: grid; place-items: center; width: 36px; height: 32px; padding: 0;
   border-color: transparent; background: transparent; color: var(--muted);

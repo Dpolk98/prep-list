@@ -414,3 +414,28 @@ function estimateCalories({ category, type, name, unit, quantity, nutrition }) {
   if (perUnit === null) return { unknown: 'unit' };
   return { calories: qty * perUnit };
 }
+
+// Estimated servings in an item, by its type's typical label serving (1/4 cup
+// of dry rice, 1/2 cup of canned vegetables, 2 tbsp of peanut butter), or
+// null when there's no sensible figure: not food, no serving size for the type
+// (bars, MREs), a quantity already counted in servings, or under one serving.
+// Rounded down, so it leans toward fewer servings, like the calories.
+function estimateServings(item) {
+  if (unitKey(String(item.unit || '').toLowerCase()) === 'serving') return null;
+  const est = estimateCalories(item);
+  if (!est || est.none || est.unknown || !(est.calories > 0)) return null;
+  const profile = calorieProfile(item.type, item.name);
+  if (!profile || profile.none) return null;
+  let perServing;
+  if (est.label) {
+    // The label gives calories per 100 g (or mL); a serving weighs the
+    // type's typical amount, with mL taken as roughly a gram each.
+    const servingLb = profile.servingLb ?? MEASURES[item.type]?.serving;
+    perServing = servingLb ? (servingLb * G_PER_LB * item.nutrition.kcal) / 100 : null;
+  } else {
+    perServing = caloriesPerUnit(profile, item.type, 'servings');
+  }
+  if (!(perServing > 0)) return null;
+  const servings = Math.floor(est.calories / perServing);
+  return servings >= 1 ? servings : null;
+}

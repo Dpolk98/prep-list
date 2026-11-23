@@ -555,6 +555,39 @@ function caloriesFact(item) {
   return `About ${roughCalories(est.calories)} <span class="est">est.</span>${expired}`;
 }
 
+// A Food item's servings, "about 24 servings", or null when there's no
+// sensible figure. Shown after the quantity on the same line when it fits,
+// and otherwise with the item's other facts in a Details toggle (see fitServings).
+function servingsText(item) {
+  const n = estimateServings(item);
+  return n ? `about ${n.toLocaleString('en-US')} serving${n === 1 ? '' : 's'}` : null;
+}
+
+// Rows whose quantity line would wrap with the servings after it get the
+// "servings-wrapped" class, which folds all of the item's facts, servings
+// included, into the Details toggle.
+// Rows in a closed group have no size yet, so they're checked when it opens.
+function fitServings() {
+  document.querySelectorAll('.item:has(.servings-inline)').forEach((li) => {
+    const dd = li.querySelector('.facts dd');
+    const dt = li.querySelector('.facts dt');
+    li.classList.remove('servings-wrapped');
+    const line = dt.getBoundingClientRect().height;
+    if (!line) return; // not on screen
+    li.classList.toggle('servings-wrapped', dd.getBoundingClientRect().height > line * 1.5);
+  });
+}
+let fitQueued = false;
+function queueFitServings() {
+  if (fitQueued) return;
+  fitQueued = true;
+  queueMicrotask(() => { fitQueued = false; fitServings(); });
+}
+new MutationObserver(queueFitServings).observe(document.querySelector('main'), { childList: true, subtree: true });
+window.addEventListener('resize', queueFitServings);
+document.addEventListener('toggle', (e) => { if (e.target.matches?.('.item-group')) queueFitServings(); }, true);
+document.addEventListener('click', (e) => { if (e.target.closest('.item-group > summary')) setTimeout(fitServings, 0); });
+
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, (c) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
@@ -889,18 +922,24 @@ function itemRow(i) {
   const basis = type ? '' : ` · ${escapeHtml(i.expiresBasis || 'typical shelf life')}`;
   const exp = expiryParts(i);
   const calories = caloriesFact(i);
+  const servings = servingsText(i);
   const expiry = i.expiresEstimated
     ? `${exp.text} <span class="est" title="Estimated from the item type's typical shelf life. Edit the item to enter the printed date.">est.${basis}</span>`
     : exp.text;
-  // One labelled row per detail; empty ones are left out.
-  const facts = [
-    ['Quantity', `${i.quantity} ${escapeHtml(i.unit)}`.trim()],
+  // One labelled row per detail; empty ones are left out. The Details
+  // toggle (used when the servings wouldn't fit on the quantity line) holds
+  // the same facts, with servings on a row of their own.
+  const quantity = `${i.quantity} ${escapeHtml(i.unit)}`.trim();
+  const factList = (servingsRow) => [
+    ['Quantity', servingsRow ? quantity : quantity + (servings ? ` <span class="est servings-inline">· ${servings}</span>` : '')],
+    servingsRow && servings && ['Servings', `${servings[0].toUpperCase() + servings.slice(1)} <span class="est">est.</span>`],
     type && ['Type', escapeHtml(type.name)],
     calories && ['Calories', calories],
     [exp.label, expiry],
     i.location && ['Location', escapeHtml(i.location)],
     i.notes && ['Notes', escapeHtml(i.notes)],
   ].filter(Boolean).map(([label, value]) => `<dt>${label}</dt><dd>${value}</dd>`).join('');
+  const facts = factList(false);
   return `
     <li class="item" data-id="${i.id}">
       <div class="item-head">
@@ -917,6 +956,11 @@ function itemRow(i) {
         </div>
       </div>
       <dl class="facts">${facts}</dl>
+      ${servings ? `
+        <details class="item-more">
+          <summary>Details</summary>
+          <dl class="facts">${factList(true)}</dl>
+        </details>` : ''}
     </li>`;
 }
 
