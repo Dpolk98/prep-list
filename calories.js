@@ -336,8 +336,9 @@ function caloriesPerUnit(profile, type, unit) {
 
 // ----- Label figures, from a scanned barcode -----
 // A scanned item can carry its label's figures from Open Food Facts:
-// nutrition = { kcal, per, size }: calories per 100 g (or 100 mL), and the
-// package's net weight in g (or volume in mL) when it's known. These are
+// nutrition = { kcal, per, size, serving }: calories per 100 g (or 100 mL),
+// the package's net weight in g (or volume in mL) when it's known, and the
+// label's serving in the same g or mL when the scan gave one. These are
 // exact, so they're used instead of the type's cautious figures whenever the
 // unit allows: one package (cans, jars, boxes, each…), a weight or volume,
 // a case of 12, or a count written into the unit ("6-pack").
@@ -415,17 +416,28 @@ function estimateCalories({ category, type, name, unit, quantity, nutrition }) {
   return { calories: qty * perUnit };
 }
 
-// Estimated servings in an item, by its type's typical label serving (1/4 cup
+// Estimated servings in an item, by the serving on its scanned label when
+// there is one, else by its type's typical label serving (1/4 cup
 // of dry rice, 1/2 cup of canned vegetables, 2 tbsp of peanut butter), or
 // null when there's no sensible figure: not food, no serving size for the type
 // (bars, MREs), a quantity already counted in servings, or under one serving.
-// Rounded down, so it leans toward fewer servings, like the calories.
+// Rounded down, so it leans toward fewer servings, like the calories. A
+// label's own serving is rounded to the nearest whole serving instead, the
+// way labels state "about 2 servings per container" for a 425 g can with
+// 236 g servings.
 function estimateServings(item) {
   if (unitKey(String(item.unit || '').toLowerCase()) === 'serving') return null;
   const est = estimateCalories(item);
   if (!est || est.none || est.unknown || !(est.calories > 0)) return null;
   const profile = calorieProfile(item.type, item.name);
   if (!profile || profile.none) return null;
+  const labelServing = Number(item.nutrition?.serving);
+  const labelKcal = Number(item.nutrition?.kcal);
+  if (labelServing > 0 && labelKcal > 0) {
+    // The scanned label's own serving, like 1 cup (236 g) of hash.
+    const servings = Math.round(est.calories / ((labelServing * labelKcal) / 100));
+    return servings >= 1 ? servings : null;
+  }
   let perServing;
   if (est.label) {
     // The label gives calories per 100 g (or mL); a serving weighs the

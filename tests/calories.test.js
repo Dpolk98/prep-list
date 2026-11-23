@@ -173,3 +173,39 @@ test('estimateServings returns null when there is no sensible figure', () => {
   assert.equal(estimateServings(item({ type: 'mre', name: 'MRE', unit: 'meals' })), null); // no serving size
   assert.equal(estimateServings(item({ unit: 'oz', quantity: 1 })), null); // under one serving
 });
+
+test('estimateServings uses the serving on a scanned label when there is one', () => {
+  const hash = { category: 'Food', type: 'canned-meat', name: 'Corned Beef Hash', unit: 'cans', quantity: 1 };
+  // Without a label serving, the 2 oz canned-meat serving gives 4.
+  assert.equal(estimateServings(hash), 4);
+  // A 425 g can with a 1 cup (236 g) serving: about 2 servings, as on the label.
+  const nutrition = { kcal: 190, per: 'g', size: 425, serving: 236 };
+  assert.equal(estimateServings({ ...hash, nutrition }), 2);
+  assert.equal(estimateServings({ ...hash, quantity: 3, nutrition }), 5); // 5.4 cans' worth of servings
+});
+
+test('estimateServings uses a label serving even without a package size', () => {
+  // The calories then come from the type (550 a can of corned beef), and the
+  // serving's calories from the label: 236 g at 190 kcal/100 g.
+  const item = { category: 'Food', type: 'canned-meat', name: 'Corned Beef Hash', unit: 'cans', quantity: 1,
+    nutrition: { kcal: 190, per: 'g', serving: 236 } };
+  assert.equal(estimateServings(item), 1);
+});
+
+test('estimateServings gives label servings for types with no serving size of their own', () => {
+  const mre = { category: 'Food', type: 'mre', name: 'MRE', unit: 'meals', quantity: 2 };
+  assert.equal(estimateServings(mre), null);
+  // Two 250 g pouches at 500 kcal/100 g with 125 g servings: 2 a pouch.
+  assert.equal(estimateServings({ ...mre, unit: 'pouches', nutrition: { kcal: 500, per: 'g', size: 250, serving: 125 } }), 4);
+});
+
+test('estimateServings ignores a missing or unusable label serving', () => {
+  const rice = { category: 'Food', type: 'rice-white', name: 'Rice', unit: 'bags', quantity: 1 };
+  const nutrition = { kcal: 360, per: 'g', size: 907 };
+  assert.equal(estimateServings({ ...rice, nutrition }), 19);
+  assert.equal(estimateServings({ ...rice, nutrition: { ...nutrition, serving: 0 } }), 19);
+  assert.equal(estimateServings({ ...rice, nutrition: { ...nutrition, serving: 'abc' } }), 19);
+  // Still not counted when the quantity is already in servings, or not food.
+  assert.equal(estimateServings({ ...rice, unit: 'servings', nutrition: { ...nutrition, serving: 45 } }), null);
+  assert.equal(estimateServings({ ...rice, type: 'stove-fuel', nutrition: { ...nutrition, serving: 45 } }), null);
+});

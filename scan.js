@@ -27,7 +27,7 @@
 
   const OFF_PRODUCT = 'https://world.openfoodfacts.org/api/v2/product/';
   const OFF_FIELDS = ['product_name', 'product_name_en', 'generic_name', 'brands', 'quantity',
-    'product_quantity', 'product_quantity_unit', 'nutriments', 'categories_tags', 'packaging_tags'].join(',');
+    'product_quantity', 'product_quantity_unit', 'serving_quantity', 'serving_size', 'nutriments', 'categories_tags', 'packaging_tags'].join(',');
 
   // Open Food Facts category tags (without "en:") for each Food type. Tags
   // run from general to specific, so they're checked from the last one back.
@@ -355,6 +355,14 @@
     let per = String(p.product_quantity_unit || '').toLowerCase() === 'ml' ? 'ml' : 'g';
     if (!(size > 0)) ({ size = null, per = 'g' } = sizeFromText(p.quantity) || {});
     if (!(size > 0) || size > 100000) size = null;
+    // The label's serving, in the same g or mL as the calories: the number
+    // Open Food Facts works out, or else text like "1 cup (236 g)".
+    let serving = num(p.serving_quantity);
+    if (!(serving > 0)) {
+      const fromText = sizeFromText(String(p.serving_size || '').replace(/^[^(]*\((.*)\).*$/, '$1'));
+      serving = fromText?.per === per ? fromText.size : null;
+    }
+    if (!(serving > 0) || serving > 5000 || (size && serving > size)) serving = null;
     const packaging = (p.packaging_tags || []).map((t) => t.replace(/^[a-z]{2}:/, '').split(':')[0].trim());
     return {
       name,
@@ -362,7 +370,10 @@
       quantityText: String(p.quantity || '').replace(/\s*(?:℮|\be)\s*$/u, '').trim(),
       type: typeFromCategories(p.categories_tags || []),
       packaging,
-      nutrition: kcal > 0 && kcal < 1000 ? { kcal: Math.round(kcal * 10) / 10, per, size: size && Math.round(size) } : null,
+      nutrition: kcal > 0 && kcal < 1000 ? {
+        kcal: Math.round(kcal * 10) / 10, per, size: size && Math.round(size),
+        ...(serving ? { serving: Math.round(serving * 10) / 10 } : {}),
+      } : null,
     };
   }
 
