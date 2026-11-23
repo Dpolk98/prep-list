@@ -25,7 +25,7 @@ function renderSupplies(page) {
       <h3>${escapeHtml(label)}</h3>
       <ul class="supplies">
         ${list.map((s) => {
-          const have = canAdd && inInventory(s.name, page.cat);
+          const have = canAdd && ownsSupply(s, state.items);
           const action = !canAdd ? ''
             : have ? '<span class="have">In inventory</span>'
             : `<button type="button" class="add-supply" data-add="${escapeHtml(s.name)}" aria-label="Add ${escapeHtml(s.name)} to inventory">Add</button>`;

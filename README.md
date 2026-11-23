@@ -22,7 +22,7 @@ On first use you choose how long you're preparing for. You can change it any tim
 | 1 Year | Long-term self-reliance: renewable water, bulk staples, generated power, skills | $26,071 | $39,107 | $65,178 |
 | Beyond | Sustainable living: production, skills, and community | $500/week × years you choose | 1.5 × cash goal | Both together |
 
-Each tier builds on the ones below it. Every category page has a collapsible **What to buy** list of suggested supplies for your tier, followed by the lower tiers' suggestions as "foundations". Tap **Add** on a suggestion to log it in your inventory; items you already have are marked "In inventory". The weekly savings baseline can be changed. The investment goal is always 1.5 times the emergency cash goal. Tier content lives in `tiers.js`.
+Each tier builds on the ones below it. Every category page has a collapsible **What to buy** list of suggested supplies for your tier, followed by the lower tiers' suggestions as "foundations". Tap **Add** on a suggestion to log it in your inventory; items you already have are marked "In inventory". A suggestion counts as owned once you have at least one matching item in that category: one with the same name, or one whose type fits the suggestion (a can of Spam, typed *Canned meat and fish*, covers "Canned meat, fish, and beans"). The lists are drawn from your saved inventory every time the app opens, and a suggestion goes back to showing **Add** once that item is used up. The type links are the `types` lists in `tiers.js` and `hazards.js`; matching lives in `supply-match.js`. The weekly savings baseline can be changed. The investment goal is always 1.5 times the emergency cash goal. Tier content lives in `tiers.js`.
 
 ## Local Hazards
 

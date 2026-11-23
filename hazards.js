@@ -3,7 +3,7 @@
 // the tier, since they depend on the place rather than how long you're
 // preparing for.
 //
-// supplies: { cat, name, note }, in the same shape as tiers.js. A name that
+// supplies: { cat, name, types, note }, in the same shape as tiers.js. A name that
 // appears under more than one chosen hazard is only listed once.
 // reference: ids of related Quick reference cards (reference.js), shown when
 // a hazard is tapped on the Overview.
@@ -47,7 +47,7 @@ const HAZARDS = [
     supplies: [
       { cat: 'Water', name: 'Bathtub water storage bag', note: 'Fill it before the storm for washing and flushing' },
       { cat: 'Food', name: 'Cooler and ice packs', note: 'Keeps food cold for a day or two after the power goes out' },
-      { cat: 'Light and Power', name: 'Full gas tank and fuel cans', note: 'Fill up early, since stations can close or lose power' },
+      { cat: 'Light and Power', name: 'Full gas tank and fuel cans', types: ['gasoline', 'gas-stab'], note: 'Fill up early, since stations can close or lose power' },
       { cat: 'Documents', name: 'Home inventory photos', note: 'Photos or video of each room, for insurance claims' },
       { cat: 'Other', name: 'Storm shutters or plywood', note: 'Cut and labelled for each window ahead of time' },
       { cat: 'Plans and Skills', name: 'Evacuation zone and routes', note: 'Look up your zone, and plan two ways out' },
@@ -87,7 +87,7 @@ const HAZARDS = [
     reference: ['contact', 'outage'],
     supplies: [
       { cat: 'Medical and First Aid', name: 'Eye drops', note: 'For eyes irritated by smoke' },
-      { cat: 'Other', name: 'N95 masks for smoke', note: 'Cloth and surgical masks don’t filter smoke' },
+      { cat: 'Other', name: 'N95 masks for smoke', types: ['masks'], note: 'Cloth and surgical masks don’t filter smoke' },
       { cat: 'Other', name: 'HEPA air purifier', note: 'Or a box fan with a furnace filter attached, to keep one room’s air clean' },
       { cat: 'Other', name: 'Garden hose that reaches around the house', note: 'Long enough to reach every side of your home' },
       { cat: 'Plans and Skills', name: 'Defensible space', note: 'Clear dry brush, leaves, and firewood from within 30 feet of your home' },
