@@ -5,12 +5,15 @@
 //
 // supplies: { cat, name, note }, in the same shape as tiers.js. A name that
 // appears under more than one chosen hazard is only listed once.
+// reference: ids of related Quick reference cards (reference.js), shown when
+// a hazard is tapped on the Overview.
 
 const HAZARDS = [
   {
     id: 'winter',
     name: 'Winter storms',
     icon: 'snowflake',
+    reference: ['warm', 'co', 'outage'],
     supplies: [
       { cat: 'Other', name: 'Carbon monoxide alarm', note: 'Battery-powered or with a battery backup. Important with any fuel-burning heater or generator' },
       { cat: 'Other', name: 'Warm sleeping bags and blankets', note: 'Rated for cold, one per person, in case the heat goes out' },
@@ -25,6 +28,7 @@ const HAZARDS = [
     id: 'heat',
     name: 'Extreme heat',
     icon: 'sun',
+    reference: ['cool', 'outage'],
     supplies: [
       { cat: 'Water', name: 'Extra water for hot days', note: 'Plan on more than a gallon per person per day in high heat' },
       { cat: 'Light and Power', name: 'Battery-powered fans', note: 'With a damp cloth, they help when the air conditioning is out' },
@@ -39,6 +43,7 @@ const HAZARDS = [
     id: 'hurricane',
     name: 'Hurricanes',
     icon: 'wind',
+    reference: ['outage', 'water', 'food', 'co'],
     supplies: [
       { cat: 'Water', name: 'Bathtub water storage bag', note: 'Fill it before the storm for washing and flushing' },
       { cat: 'Food', name: 'Cooler and ice packs', note: 'Keeps food cold for a day or two after the power goes out' },
@@ -52,6 +57,7 @@ const HAZARDS = [
     id: 'tornado',
     name: 'Tornadoes',
     icon: 'tornado',
+    reference: ['firstaid', 'contact'],
     supplies: [
       { cat: 'Other', name: 'Helmets for everyone', note: 'Bike or sports helmets help protect against head injuries' },
       { cat: 'Other', name: 'Sturdy shoes in your shelter spot', note: 'Broken glass and debris are common afterward' },
@@ -64,6 +70,7 @@ const HAZARDS = [
     id: 'flood',
     name: 'Floods',
     icon: 'waves',
+    reference: ['water', 'sanitation', 'utilities'],
     supplies: [
       { cat: 'Light and Power', name: 'Sump pump battery backup', note: 'Keeps the pump running in an outage' },
       { cat: 'Documents', name: 'Flood insurance policy', note: 'Most home policies don’t cover floods, and new flood policies often take 30 days to start' },
@@ -77,6 +84,7 @@ const HAZARDS = [
     id: 'wildfire',
     name: 'Wildfire',
     icon: 'flame',
+    reference: ['contact', 'outage'],
     supplies: [
       { cat: 'Medical and First Aid', name: 'Eye drops', note: 'For eyes irritated by smoke' },
       { cat: 'Other', name: 'N95 masks for smoke', note: 'Cloth and surgical masks don’t filter smoke' },
@@ -90,6 +98,7 @@ const HAZARDS = [
     id: 'earthquake',
     name: 'Earthquakes',
     icon: 'activity',
+    reference: ['utilities', 'firstaid', 'water'],
     supplies: [
       { cat: 'Water', name: 'Strapped water heater', note: 'Its 30 to 50 gallons can be used in an emergency, if it stays upright' },
       { cat: 'Other', name: 'Furniture straps and anchors', note: 'Secure tall furniture, TVs, and the water heater' },

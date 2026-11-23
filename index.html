@@ -480,6 +480,26 @@
     </form>
   </dialog>
 
+  <!-- What a Local Hazard adds, from its chip on the Overview -->
+  <dialog id="hazard-info" class="hazard-info" aria-labelledby="hazard-info-title">
+    <div class="hazard-info-head">
+      <span class="hazard-info-icon" id="hazard-info-icon" aria-hidden="true"></span>
+      <div>
+        <p class="setup-step">Local Hazards</p>
+        <h2 id="hazard-info-title"></h2>
+      </div>
+      <button type="button" class="icon-btn" id="hazard-info-close" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="hint" id="hazard-info-intro"></p>
+    <div id="hazard-info-body"></div>
+    <div class="actions hazard-info-actions">
+      <button type="button" class="link-btn" id="hazard-info-settings">Change Local Hazards</button>
+      <button type="button" class="primary" id="hazard-info-done">Done</button>
+    </div>
+  </dialog>
+
   <!-- First-use setup: three short questions, answered once -->
   <dialog id="setup-dialog" class="setup-dialog" aria-labelledby="setup-title">
     <div class="setup-progress" id="setup-progress" aria-hidden="true"><span></span><span></span><span></span></div>
