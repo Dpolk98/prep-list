@@ -345,21 +345,21 @@ input:disabled, select:disabled { cursor: not-allowed; }
 .bar .fill.complete { background: var(--ok); }
 
 .supplies-card { padding: 0; }
-.supplies-card summary {
+.supplies-card #supplies-details > summary {
   display: flex; align-items: center; gap: 10px;
   padding: 16px; cursor: pointer; list-style: none;
 }
-.supplies-card summary::-webkit-details-marker { display: none; }
-.supplies-card summary::before {
+.supplies-card #supplies-details > summary::-webkit-details-marker { display: none; }
+.supplies-card #supplies-details > summary::before {
   content: ''; width: 8px; height: 8px; flex-shrink: 0;
   border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
   transform: rotate(-45deg); transition: transform .15s ease;
 }
-.supplies-card details[open] summary::before { transform: rotate(45deg); }
+.supplies-card #supplies-details[open] > summary::before { transform: rotate(45deg); }
 .supplies-title { font-weight: 600; font-size: 1.1rem; flex: 1; }
-.supplies-card summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--radius); }
-.supplies-card details > :not(summary) { margin-left: 16px; margin-right: 16px; }
-.supplies-card details[open] { padding-bottom: 8px; }
+.supplies-card #supplies-details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--radius); }
+#supplies-details > :not(summary) { margin-left: 16px; margin-right: 16px; }
+#supplies-details[open] { padding-bottom: 8px; }
 #supplies-intro { margin-top: -4px; margin-bottom: 4px; }
 
 /* Subsection headings sit on a lightly shaded strip, like the inventory
@@ -369,6 +369,26 @@ input:disabled, select:disabled { cursor: not-allowed; }
   font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
   color: var(--muted); margin: 16px 0 4px; padding: 8px 10px; border-radius: 8px; background: var(--bg);
 }
+/* Above the first tier each section collapses. Its heading keeps the
+   shaded-strip look of the plain headings above, plus a chevron and a
+   count of what's still to buy. */
+.supply-section { margin: 12px 0 0; }
+.supply-section > summary {
+  display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none;
+  font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
+  padding: 8px 10px; border-radius: 8px; background: var(--bg);
+}
+.supply-section > summary::-webkit-details-marker { display: none; }
+.supply-section > summary::before {
+  content: ''; width: 6px; height: 6px; flex-shrink: 0;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg); transition: transform .15s ease;
+}
+.supply-section[open] > summary::before { transform: translateY(-2px) rotate(45deg); }
+.supply-section > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.supply-section-label { flex: 1; }
+.supply-section-count { text-transform: none; letter-spacing: 0; font-weight: 600; white-space: nowrap; }
+.supply-section[open] > .supplies { margin-top: 4px; }
 .supplies { list-style: none; margin: 0; padding: 0; }
 .supplies li {
   display: flex; align-items: center; justify-content: space-between; gap: 12px;

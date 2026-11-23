@@ -16,7 +16,7 @@ function load() {
     vm.runInContext(code, context, { filename: file });
   }
   return vm.runInContext(`({
-    BARCODE, TIERS, HAZARDS, supplyNameKey, ownsSupply,
+    BARCODE, TIERS, HAZARDS, supplyNameKey, ownsSupply, supplySections,
     ITEM_TYPES, TYPE_RULES, typesFor, findType, guessType, addToDate, toIsoDate, describeShelfLife, estimateExpiry,
     dropAbbreviationDots, unitKey, parseUnitSize, gallonsPerUnit, WEIGHT_IN_LB, VOLUME_IN_CUPS,
     FOOD_CALORIES, MEASURES, calorieProfile, caloriesPerUnit, labelCaloriesPerUnit, estimateCalories, estimateServings,

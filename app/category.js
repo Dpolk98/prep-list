@@ -7,25 +7,16 @@ function renderSupplies(page) {
   const canAdd = !page.noInventory;
   let total = 0;
 
-  // Your tier first, then your local hazards, then the foundations
-  // the tier builds on, nearest first. A name is only listed once.
-  const [own, ...foundations] = [...includedTiers()].reverse();
-  const sections = [
-    { label: `${own.name} · your tier`, supplies: own.supplies },
-    ...chosenHazards().map((h) => ({ label: `${h.name} · Local Hazards`, supplies: h.supplies })),
-    ...foundations.map((t) => ({ label: `${t.name} · foundation`, supplies: t.supplies })),
-  ];
-  const seen = new Set();
-  const html = sections.map(({ label, supplies }) => {
-    const list = supplies.filter((s) => s.cat === page.cat && !seen.has(s.name));
-    list.forEach((s) => seen.add(s.name));
-    if (!list.length) return '';
-    total += list.length;
-    return `
-      <h3>${escapeHtml(label)}</h3>
+  // Sections, their order, and which start open come from supplySections
+  // (supply-match.js). Above the first tier each section is a collapsible
+  // <details>; a section the user opened or closed stays that way while
+  // the app is open, even as the list redraws after an Add.
+  const sections = supplySections(includedTiers(), chosenHazards(), page.cat, canAdd ? state.items : null);
+  const html = sections.map(({ label, entries, toBuy, collapsible, open }) => {
+    total += entries.length;
+    const list = `
       <ul class="supplies">
-        ${list.map((s) => {
-          const have = canAdd && ownsSupply(s, state.items);
+        ${entries.map(({ supply: s, have }) => {
           const action = !canAdd ? ''
             : have ? '<span class="have">In inventory</span>'
             : `<button type="button" class="add-supply" data-add="${escapeHtml(s.name)}" aria-label="Add ${escapeHtml(s.name)} to inventory">Add</button>`;
@@ -39,6 +30,16 @@ function renderSupplies(page) {
             </li>`;
         }).join('')}
       </ul>`;
+    if (!collapsible) return `<h3>${escapeHtml(label)}</h3>${list}`;
+    const key = `${page.cat}|${label}`;
+    const isOpen = sectionOpen.has(key) ? sectionOpen.get(key) : open;
+    const status = !canAdd ? plural(entries.length, 'idea')
+      : toBuy ? `${toBuy} to buy` : 'All in inventory';
+    return `
+      <details class="supply-section" data-section="${escapeHtml(key)}"${isOpen ? ' open' : ''}>
+        <summary><span class="supply-section-label">${escapeHtml(label)}</span><span class="supply-section-count">${status}</span></summary>
+        ${list}
+      </details>`;
   }).join('');
 
   // With no hazards chosen, a pointer to where they're chosen.
@@ -59,6 +60,17 @@ function renderSupplies(page) {
     `Ideas for your shopping list at the ${tier.name} tier${plusHazards}. Tap Add once you have something to log it in your inventory.`;
   $('supplies').innerHTML = html + hazardTip;
   $('plans-list').innerHTML = '';
+}
+
+// Sections the user has opened or closed, by "category|label". Kept in
+// memory only: the next visit starts from the defaults again.
+const sectionOpen = new Map();
+for (const id of ['supplies', 'plans-list']) {
+  // toggle doesn't bubble, so listen in the capture phase.
+  $(id).addEventListener('toggle', (e) => {
+    const section = e.target.closest?.('.supply-section');
+    if (section === e.target) sectionOpen.set(section.dataset.section, section.open);
+  }, true);
 }
 
 // "Add" on a suggestion fills the add-item form with its name.
