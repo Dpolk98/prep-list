@@ -831,5 +831,9 @@ div.grab-body { cursor: default; }
 /* On the printed summary: the two lists side by side when there's room */
 .pd-grab { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px 24px; }
 .pd-grab h4 { margin: 0 0 6px; font-size: .95rem; }
-.pd-grab ol { margin: 0; padding-left: 22px; font-size: .9rem; }
-.pd-grab li { margin-bottom: 4px; break-inside: avoid; }
+.pd-grab ol { margin: 0; padding: 0; list-style: none; font-size: .9rem; }
+.pd-grab li { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; break-inside: avoid; }
+/* A box to tick with a pen */
+.pd-box { flex: none; width: 14px; height: 14px; margin-top: 2px; border: 1.5px solid var(--text); border-radius: 2px; }
+.pd-grab-num { flex: none; min-width: 16px; color: var(--muted); }
+.pd-grab .pd-muted { font-size: .82rem; }

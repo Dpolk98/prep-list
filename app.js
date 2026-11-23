@@ -1935,9 +1935,10 @@ function renderPrint() {
         ${GRAB_LISTS.filter(({ key }) => state.grab[key].length).map(({ key, title }) => `
           <div>
             <h4>${title}</h4>
-            <ol>${state.grab[key].map((e) => {
-              const where = grabWhere(e);
-              return `<li><strong>${escapeHtml(e.name)}</strong>${where ? ` <span class="pd-muted">· ${escapeHtml(where)}</span>` : ''}</li>`;
+            <ol class="pd-grab-list">${state.grab[key].map((e, i) => {
+              // An empty box to tick by hand, then the entry and where it's kept.
+              const where = grabWhere(e) || grabCategoryWhere(e);
+              return `<li><span class="pd-box" aria-hidden="true"></span><span class="pd-grab-num">${i + 1}.</span><span><strong>${escapeHtml(e.name)}</strong>${where ? `<br><span class="pd-muted">${escapeHtml(where)}</span>` : ''}</span></li>`;
             }).join('')}</ol>
           </div>`).join('')}
       </div>
