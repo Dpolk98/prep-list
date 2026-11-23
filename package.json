@@ -1,0 +1,8 @@
+{
+  "name": "prep-tracker",
+  "private": true,
+  "description": "Offline-first tracker for emergency supplies. No build step; this file only holds the test command.",
+  "scripts": {
+    "test": "node --test \"tests/*.test.js\""
+  }
+}

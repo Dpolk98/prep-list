@@ -120,6 +120,16 @@ python3 -m http.server 8000
 
 Then visit http://localhost:8000.
 
+## Tests
+
+Unit tests cover the estimates in `units.js`, `calories.js`, `shelf-life.js`, and `barcode.js`. They use Node's built-in test runner (Node 22 or later), so there is nothing to install:
+
+```bash
+npm test
+```
+
+`tests/load.js` loads the app's scripts into one sandbox, in the same order as `index.html`, so the tests call the same functions the page does. The barcode tests draw their own scanlines from the published bar widths, so no image files are needed.
+
 ## Data
 
 Everything is saved in the browser's `localStorage` under the key `prep-tracker:v1`. Which inventory groups you've opened is kept separately under `prep-tracker:open-groups`, the backup reminder's details (last export, first change since then, item changes since then, and "remind me later") under `prep-tracker:backup`, and the last Year in review celebrated under `prep-tracker:review`. None of these are part of backups. Data is per browser and per device, so use **Export backup** on the Settings page to keep a copy or move it to another device.
