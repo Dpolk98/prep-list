@@ -20,16 +20,16 @@ const FEATURES = { grabList: true };
 const PAGES = [
   { slug: '', name: 'Overview', icon: 'home', blurb: 'Your readiness across every category.' },
   { slug: 'savings', name: 'Savings', icon: 'dollar', blurb: 'Your emergency cash and investments: the most flexible part of being prepared.' },
-  { slug: 'water', name: 'Water', cat: 'Water', icon: 'droplet', blurb: 'Stored water, purification, and sources.' },
-  { slug: 'food', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking fuel, and long-term staples.' },
-  { slug: 'medical', name: 'Medical and First Aid', cat: 'Medical and First Aid', icon: 'medkit', blurb: 'First aid, medications, and medical skills.' },
-  { slug: 'hygiene', name: 'Toiletries and Hygiene', cat: 'Toiletries and Hygiene', icon: 'soap', blurb: 'Toiletries, cleaning, and sanitation.' },
-  { slug: 'power', name: 'Light and Power', cat: 'Light and Power', icon: 'zap', blurb: 'Lighting, batteries, charging, and generation.' },
-  { slug: 'documents', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies, and records.' },
-  { slug: 'other', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets, and anything else.' },
-  { slug: 'plans', name: 'Plans and Skills', cat: 'Plans and Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training, and community.' },
-  ...(FEATURES.grabList ? [{ slug: 'grab', name: 'Grab list', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
-  { slug: 'reference', name: 'Quick reference', icon: 'book', blurb: 'Short how-tos for when the power or water is out. Saved on this device, so they work offline.' },
+  { slug: 'water', group: 'preps', name: 'Water', cat: 'Water', icon: 'droplet', blurb: 'Stored water, purification, and sources.' },
+  { slug: 'food', group: 'preps', name: 'Food', cat: 'Food', icon: 'utensils', blurb: 'Shelf-stable food, cooking fuel, and long-term staples.' },
+  { slug: 'medical', group: 'preps', name: 'Medical and First Aid', cat: 'Medical and First Aid', icon: 'medkit', blurb: 'First aid, medications, and medical skills.' },
+  { slug: 'hygiene', group: 'preps', name: 'Toiletries and Hygiene', cat: 'Toiletries and Hygiene', icon: 'soap', blurb: 'Toiletries, cleaning, and sanitation.' },
+  { slug: 'power', group: 'preps', name: 'Light and Power', cat: 'Light and Power', icon: 'zap', blurb: 'Lighting, batteries, charging, and generation.' },
+  { slug: 'documents', group: 'preps', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies, and records.' },
+  { slug: 'other', group: 'preps', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets, and anything else.' },
+  { slug: 'plans', group: 'resources', name: 'Plans and Skills', cat: 'Plans and Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training, and community.' },
+  ...(FEATURES.grabList ? [{ slug: 'grab', group: 'resources', name: 'Grab list', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
+  { slug: 'reference', group: 'resources', name: 'Quick reference', icon: 'book', blurb: 'Short how-tos for when the power or water is out. Saved on this device, so they work offline.' },
   { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, and backups.' },
   { slug: 'print', name: 'Print summary', icon: 'printer', blurb: 'Your supplies on paper, for when a phone is dead or the power is out.' },
 ];
@@ -612,21 +612,62 @@ function alertsFor(cat) {
 
 // ---------- Navigation ----------
 
-function renderNav(page) {
-  $('nav-list').innerHTML = PAGES.map((p) => {
-    const a = p.cat ? alertsFor(p.cat) : { expired: 0, soon: 0 };
-    const n = a.expired + a.soon;
-    const alert = n
-      ? `<span class="nav-alert ${a.expired ? 'bad' : 'warn'}" title="${a.expired} expired, ${a.soon} expiring soon">${n}</span>`
-      : '';
-    return `
-      <li class="${['water', 'plans', 'settings'].includes(p.slug) ? 'sep' : ''}">
-        <a class="nav-link" href="#/${p.slug}" ${p === page ? 'aria-current="page"' : ''}>
-          ${icon(p.icon)}<span>${escapeHtml(p.name)}</span>${alert}
-        </a>
-      </li>`;
-  }).join('');
+// Menu groups. Pages tagged with a group are nested under its heading, which
+// opens and closes; the choice is remembered in this browser. Pages without a
+// group (Overview, Savings, Settings, and Print summary) sit on their own.
+const NAV_GROUPS = { preps: 'Preps', resources: 'Resources' };
+const NAV_GROUPS_KEY = 'prep-tracker:nav-groups';
+let navGroupChoices = {};
+try { navGroupChoices = JSON.parse(localStorage.getItem(NAV_GROUPS_KEY)) || {}; } catch { /* no storage */ }
+
+function navAlert(pages) {
+  const a = pages.reduce((sum, p) => {
+    const n = p.cat ? alertsFor(p.cat) : { expired: 0, soon: 0 };
+    return { expired: sum.expired + n.expired, soon: sum.soon + n.soon };
+  }, { expired: 0, soon: 0 });
+  const n = a.expired + a.soon;
+  return n
+    ? `<span class="nav-alert ${a.expired ? 'bad' : 'warn'}" title="${a.expired} expired, ${a.soon} expiring soon">${n}</span>`
+    : '';
 }
+
+function navLink(p, page) {
+  return `
+    <a class="nav-link" href="#/${p.slug}" ${p === page ? 'aria-current="page"' : ''}>
+      ${icon(p.icon)}<span>${escapeHtml(p.name)}</span>${navAlert([p])}
+    </a>`;
+}
+
+function renderNav(page) {
+  const html = [];
+  PAGES.forEach((p, i) => {
+    if (!p.group) {
+      html.push(`<li class="${['settings'].includes(p.slug) ? 'sep' : ''}">${navLink(p, page)}</li>`);
+      return;
+    }
+    if (PAGES[i - 1]?.group === p.group) return; // already drawn with its group
+    const pages = PAGES.filter((q) => q.group === p.group);
+    // Open unless the user closed it, and always open around the current page.
+    const open = pages.includes(page) || navGroupChoices[p.group] !== false;
+    html.push(`
+      <li class="sep">
+        <details class="nav-group" data-group="${p.group}" ${open ? 'open' : ''}>
+          <summary><span>${NAV_GROUPS[p.group]}</span><span class="nav-group-alert">${navAlert(pages)}</span></summary>
+          <ul>${pages.map((q) => `<li>${navLink(q, page)}</li>`).join('')}</ul>
+        </details>
+      </li>`);
+  });
+  $('nav-list').innerHTML = html.join('');
+}
+
+// Saved on the tap itself rather than the "toggle" event, which arrives later.
+$('nav-list').addEventListener('click', (e) => {
+  const summary = e.target.closest('.nav-group > summary');
+  if (!summary) return;
+  const details = summary.parentElement;
+  navGroupChoices[details.dataset.group] = !details.open;
+  try { localStorage.setItem(NAV_GROUPS_KEY, JSON.stringify(navGroupChoices)); } catch { /* no storage */ }
+});
 
 function openDrawer() {
   $('drawer').inert = false;
