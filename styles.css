@@ -478,7 +478,11 @@ button.hazard-chip::after { content: '›'; margin-left: 2px; font-weight: 700; 
 .hazard-info-icon svg { width: 24px; height: 24px; }
 .hazard-info .setup-step { margin: 0; }
 #hazard-info-body section { margin-top: 14px; }
-#hazard-info-body h3 { margin: 0 0 6px; font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+/* Section headings on a lightly shaded strip, like the inventory groups */
+#hazard-info-body h3 {
+  margin: 0 0 6px; padding: 8px 10px; border-radius: 8px; background: var(--bg);
+  font-size: .78rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--muted);
+}
 #hazard-info-body h4 { margin: 10px 0 2px; }
 .hazard-info-cat { display: inline-flex; align-items: center; gap: 6px; font-size: .92rem; }
 .hazard-info-cat svg { width: 16px; height: 16px; }
