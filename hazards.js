@@ -1,4 +1,4 @@
-// Hazards where you live. Chosen on the Settings page; each one adds a few
+// Local Hazards. Chosen during onboarding or on the Settings page; each one adds a few
 // suggestions to the What to buy lists (and to Plans and Skills), whatever
 // the tier, since they depend on the place rather than how long you're
 // preparing for.

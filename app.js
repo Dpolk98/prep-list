@@ -644,12 +644,12 @@ function renderSupplies(page) {
   const canAdd = !page.noInventory;
   let total = 0;
 
-  // Your tier first, then the hazards where you live, then the foundations
+  // Your tier first, then your local hazards, then the foundations
   // the tier builds on, nearest first. A name is only listed once.
   const [own, ...foundations] = [...includedTiers()].reverse();
   const sections = [
     { label: `${own.name} · your tier`, supplies: own.supplies },
-    ...chosenHazards().map((h) => ({ label: `${h.name} · where you live`, supplies: h.supplies })),
+    ...chosenHazards().map((h) => ({ label: `${h.name} · Local Hazards`, supplies: h.supplies })),
     ...foundations.map((t) => ({ label: `${t.name} · foundation`, supplies: t.supplies })),
   ];
   const seen = new Set();
@@ -680,8 +680,8 @@ function renderSupplies(page) {
 
   // With no hazards chosen, a pointer to where they're chosen.
   const hazardTip = state.hazards.length ? '' :
-    '<p class="hint hazard-tip">You can add suggestions for hazards where you live, such as winter storms or wildfire, on the <a href="#/settings">Settings</a> page.</p>';
-  const plusHazards = state.hazards.length ? `, plus a few for ${hazardList()}` : '';
+    '<p class="hint hazard-tip">You can add suggestions for Local Hazards, such as winter storms or wildfire, on the <a href="#/settings">Settings</a> page.</p>';
+  const plusHazards = state.hazards.length ? `, plus a few for your Local Hazards: ${hazardList()}` : '';
 
   $('plans-card').hidden = !page.noInventory || total === 0;
   $('supplies-card').hidden = Boolean(page.noInventory) || total === 0;
@@ -703,6 +703,7 @@ $('supplies').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-add]');
   if (!btn) return;
   resetForm();
+  openManualEntry();
   $('name').value = btn.dataset.add;
   suggestType();
   updateExpiresHint();
@@ -907,11 +908,25 @@ function renderInventory(page) {
   $('empty').hidden = visible.length > 0;
   $('empty').textContent = items.length
     ? 'No items match your filters.'
-    : `No ${page.name.toLowerCase()} items yet. Add one below.`;
+    : `No ${page.name.toLowerCase()} items yet. Add one ${page.cat === 'Food' ? 'above' : 'below'}.`;
+}
+
+// On the Food page, adding comes first: the (folded) add form sits above
+// the inventory. Other pages keep it below, where their open form is out of
+// the way of the list.
+function placeFormCard(page) {
+  const form = $('form-card');
+  const list = $('inventory-card');
+  if (page.cat === 'Food') {
+    if (form.nextElementSibling !== list) list.before(form);
+  } else if (list.nextElementSibling !== form) {
+    list.after(form);
+  }
 }
 
 function renderCategory(page, wd) {
   const tier = currentTier();
+  placeFormCard(page);
 
   // Water gets a headline "days stored" panel.
   $('water-panel').hidden = page.slug !== 'water';
@@ -955,7 +970,7 @@ function renderFoodPanel(tier) {
   $('food-bar').style.width = `${Math.min(100, Math.round((days / goal) * 100))}%`;
   $('food-bar').classList.toggle('complete', days >= goal);
   $('food-panel-hint').innerHTML = count === 0
-    ? 'Add food to your inventory below to see an estimate.'
+    ? 'Add food to your inventory to see an estimate.'
     : `About ${formatDays(shownDays)} ${shownDays === 1 ? 'day' : 'days'} of food for ${people} ` +
       `(change in <a href="#/settings">Settings</a>). ` +
       `Goal: ${CALORIES_PER_DAY.toLocaleString('en-US')} calories per person per day for ${goal} days.`;
@@ -1838,14 +1853,19 @@ function tierOptions() {
   }).join('');
 }
 
-function renderSettings() {
-  if (document.activeElement !== $('people')) $('people').value = state.people;
-  $('settings-tiers').innerHTML = tierOptions();
-  $('settings-hazards').innerHTML = HAZARDS.map((h) => `
+// One checkbox per hazard, used on the Settings page and in onboarding.
+function hazardOptions() {
+  return HAZARDS.map((h) => `
     <label class="hazard-option">
       <input type="checkbox" value="${h.id}" ${state.hazards.includes(h.id) ? 'checked' : ''}>
       ${icon(h.icon)}<span>${escapeHtml(h.name)}</span>
     </label>`).join('');
+}
+
+function renderSettings() {
+  if (document.activeElement !== $('people')) $('people').value = state.people;
+  $('settings-tiers').innerHTML = tierOptions();
+  $('settings-hazards').innerHTML = hazardOptions();
 
   const info = backupInfo();
   $('backup-last').textContent = info.last
@@ -1878,12 +1898,29 @@ $('tier-dialog').addEventListener('cancel', (e) => {
 });
 
 $('tier-dialog').addEventListener('close', () => {
+  const firstChoice = !state.tier;
   const choice = $('tier-dialog').returnValue;
   if (TIERS.some((t) => t.id === choice)) {
     state.tier = choice;
   } else if (!state.tier) {
     state.tier = TIERS[0].id; // dismissed on first use: start at the first tier
   }
+  saveState();
+  render();
+  // Onboarding continues with local hazards (skippable, and in Settings later).
+  if (firstChoice && !state.hazards.length) openHazardPicker();
+});
+
+function openHazardPicker() {
+  $('hazard-dialog-options').innerHTML = hazardOptions();
+  $('hazard-dialog').returnValue = '';
+  $('hazard-dialog').showModal();
+}
+
+$('hazard-dialog').addEventListener('close', () => {
+  if ($('hazard-dialog').returnValue !== 'save') return;
+  const checked = [...$('hazard-dialog-options').querySelectorAll('input:checked')].map((el) => el.value);
+  state.hazards = HAZARDS.map((h) => h.id).filter((id) => checked.includes(id));
   saveState();
   render();
 });
@@ -2071,11 +2108,35 @@ for (const id of ['name', 'type', 'expires']) {
 // here until the item is added. `pendingScan` = { barcode, nutrition, source }.
 let pendingScan = null;
 
-// The line under the form that says what a scan filled in, and the Scan
-// button, which is offered on the Food page while adding (not editing).
+// On the Food page, adding starts with two buttons, Scan a barcode and
+// Enter manually, and the form itself stays folded away until one is used
+// (or an item is being edited, or a What to buy suggestion is added).
+// Other pages have no scanner, so their form is always open.
+let manualOpen = false;
+
+const formFolds = () => currentPage().cat === 'Food' && !$('item-id').value;
+
+function renderEntryMode() {
+  const folds = formFolds();
+  $('scan-row').hidden = !folds;
+  $('item-form').hidden = folds && !manualOpen;
+  $('manual-toggle').setAttribute('aria-expanded', String(folds && manualOpen));
+}
+
+function openManualEntry() {
+  manualOpen = true;
+  renderEntryMode();
+}
+
+$('manual-toggle').addEventListener('click', () => {
+  manualOpen = !manualOpen;
+  renderEntryMode();
+  if (manualOpen) $('name').focus();
+});
+
+// The line under the buttons that says what a scan filled in.
 function renderScanInfo(item = null) {
-  const page = currentPage();
-  $('scan-row').hidden = page.cat !== 'Food' || Boolean($('item-id').value);
+  renderEntryMode();
   const info = item || pendingScan;
   const parts = [];
   if (info?.barcode) parts.push(`Barcode ${BARCODE.display(info.barcode)}`);
@@ -2099,6 +2160,7 @@ $('scan-clear').addEventListener('click', () => {
 
 function resetForm() {
   pendingScan = null;
+  manualOpen = false;
   editingAddedDate = null;
   typeTouched = false;
   $('item-form').reset();

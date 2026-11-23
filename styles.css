@@ -433,6 +433,7 @@ dialog .hint { margin: 0 0 14px; display: block; }
   padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px;
   background: var(--bg); color: var(--text); font-size: .92rem; line-height: 1.25; cursor: pointer;
 }
+.hazard-actions { justify-content: flex-end; margin-top: 16px; }
 .hazard-option input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); flex-shrink: 0; }
 .hazard-option svg { width: 18px; height: 18px; color: var(--accent); }
 .hazard-option:hover { border-color: var(--accent); }
@@ -597,8 +598,19 @@ body.low-power *, body.low-power *::before, body.low-power *::after { animation:
 
 /* ---------- Barcode scanning ---------- */
 
-.scan-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 0 0 12px; }
-.scan-row .hint { margin: 0; }
+/* Two equal tiles, icon above label, so they sit side by side on any phone. */
+.scan-row { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 8px; margin: 0 0 12px; }
+.scan-row .hint { margin: 2px 0 0; grid-column: 1 / -1; }
+.scan-row .scan-btn { flex-direction: column; justify-content: center; gap: 6px; padding: 12px 8px; text-align: center; }
+.scan-row .scan-btn svg { width: 22px; height: 22px; }
+.btn-label { display: inline-flex; align-items: center; gap: 6px; }
+.manual-toggle .chevron {
+  width: 7px; height: 7px; margin-left: 2px;
+  border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg); transition: transform .15s ease;
+}
+.manual-toggle[aria-expanded="true"] { border-color: var(--accent); background: var(--ok-bg); }
+.manual-toggle[aria-expanded="true"] .chevron { transform: translateY(2px) rotate(-135deg); }
 .scan-btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--accent); }
 .scan-btn svg { width: 18px; height: 18px; }
 .scan-btn:hover { border-color: var(--accent); }

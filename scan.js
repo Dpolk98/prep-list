@@ -421,6 +421,7 @@
   function useDetails(code, d) {
     dialog.close();
     resetForm();
+    openManualEntry();
     if (d) {
       $('name').value = d.name || '';
       // The type from the product's categories, or else its name. If neither
@@ -435,10 +436,15 @@
       if (unit) setUnit(unit);
       updateExpiresHint();
     }
+    // A scanned item starts at 1, ready to add as it is.
+    $('quantity').value = 1;
     pendingScan = { barcode: code, nutrition: d?.nutrition || null };
     renderScanInfo();
     $('form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    ($('type').value ? $('quantity') : $('name')).focus({ preventScroll: true });
+    // Focus what still needs filling in; with a name and type, that's
+    // nothing, so Add item (which doesn't bring up the keyboard).
+    const next = !$('name').value ? 'name' : !$('type').value ? 'type' : 'submit-btn';
+    $(next).focus({ preventScroll: true });
   }
 
   // ----- Opening and closing -----
