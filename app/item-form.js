@@ -3,6 +3,8 @@
 // The date an item was added, used as the starting point for shelf-life
 // estimates. For a new item that's today; when editing, it's the original date.
 let editingAddedDate = null;
+// The What to buy suggestion whose Add button opened the form, if any.
+let addingSupply = null;
 
 function formatLongDate(iso) {
   const [y, m, d] = iso.split('-').map(Number);
@@ -232,6 +234,7 @@ function resetForm() {
   pendingScan = null;
   manualOpen = false;
   editingAddedDate = null;
+  addingSupply = null;
   typeTouched = false;
   $('item-form').reset();
   $('item-id').value = '';
@@ -314,7 +317,8 @@ $('item-form').addEventListener('submit', (e) => {
   } else {
     // A scan's barcode and label figures go with the new item.
     const scanned = pendingScan ? { barcode: pendingScan.barcode, ...(pendingScan.nutrition ? { nutrition: pendingScan.nutrition } : {}) } : {};
-    state.items.push({ id: newId(), added: toIsoDate(new Date()), ...data, ...scanned });
+    const fromSupply = addingSupply ? { supply: addingSupply } : {};
+    state.items.push({ id: newId(), added: toIsoDate(new Date()), ...data, ...scanned, ...fromSupply });
   }
   // Open the item's group so you can see where it went.
   setGroupOpen(category, groupOf(data).key, true);

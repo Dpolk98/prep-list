@@ -80,6 +80,9 @@ $('supplies').addEventListener('click', (e) => {
   resetForm();
   openManualEntry();
   $('name').value = btn.dataset.add;
+  // Remembered on the new item, so it keeps counting toward this
+  // suggestion even if it's renamed or given another type.
+  addingSupply = btn.dataset.add;
   suggestType();
   updateExpiresHint();
   $('form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -144,7 +144,7 @@ function renderReview() {
   const seen = new Set();
   const suggestions = [...includedTiers(), ...chosenHazards()].flatMap((t) => t.supplies)
     .filter((s) => CATEGORIES.includes(s.cat) && !seen.has(s.name) && seen.add(s.name));
-  const have = suggestions.filter((s) => inInventory(s.name, s.cat)).length;
+  const have = suggestions.filter((s) => inInventory(s.name, s.cat) || state.items.some((i) => addedFrom(i, s))).length;
   const earliestTier = state.history.find((h) => h.month >= first && h.tier)?.tier;
   const movedUp = earliestTier && TIERS.findIndex((t) => t.id === earliestTier) < TIERS.indexOf(tier);
   const highlights = [
