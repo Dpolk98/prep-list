@@ -1217,7 +1217,11 @@ const lowPowerOpen = new Set();
 
 const lpItem = (i) => {
   const s = statusOf(i);
-  const flag = s === 'ok' ? '' : ` <span class="lp-flag ${s}">${s === 'expired' ? 'Expired' : 'Soon'}</span>`;
+  // The actual date, so there's no guessing what "soon" means.
+  const [y, m, d] = (i.expires || '').split('-').map(Number);
+  const date = i.expires ? new Date(y, m - 1, d).toLocaleDateString('en-US',
+    y === new Date().getFullYear() ? { month: 'short', day: 'numeric' } : { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+  const flag = s === 'ok' ? '' : ` <span class="lp-flag ${s}">${s === 'expired' ? 'Expired' : 'Expires'} ${date}</span>`;
   return `<li><span>${escapeHtml(i.name)}${flag}</span><span class="lp-qty">${escapeHtml(`${i.quantity} ${i.unit || ''}`.trim())}</span></li>`;
 };
 

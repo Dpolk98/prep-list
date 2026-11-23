@@ -636,7 +636,7 @@ body.low-power *, body.low-power *::before, body.low-power *::after { animation:
 .lp-list li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 0; border-top: 1px solid var(--border); font-size: .92rem; }
 .lp-list li:first-child { border-top: none; }
 .lp-qty { color: var(--muted); white-space: nowrap; }
-.lp-flag { font-size: .72rem; font-weight: 700; margin-left: 6px; }
+.lp-flag { font-size: .72rem; font-weight: 700; margin-left: 6px; white-space: nowrap; }
 .lp-flag.expired { color: var(--bad); }
 .lp-flag.soon { color: var(--warn); }
 .lp-grab { margin: 0; padding-left: 22px; }
