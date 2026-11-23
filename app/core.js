@@ -222,8 +222,10 @@ function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     noteChange();
+    return true;
   } catch (err) {
     alert('Could not save. Your browser storage may be full or disabled.');
+    return false;
   }
 }
 
