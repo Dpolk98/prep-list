@@ -53,3 +53,24 @@ test('every linked type exists in its category', () => {
     }
   }
 });
+
+test('an item added from a suggestion still counts after it is renamed and retyped', () => {
+  const items = [{ name: 'Grandma’s chili', category: 'Food', type: 'canned-soup', quantity: 1, supply: 'Canned meat, fish, and beans' }];
+  assert.equal(ownsSupply(cannedMeat, items), true);
+});
+
+test('a suggestion link only counts toward that suggestion', () => {
+  const items = [{ name: 'Peaches', category: 'Food', type: 'canned-fruit', quantity: 1, supply: 'Canned fruit and vegetables' }];
+  assert.equal(ownsSupply(cannedMeat, items), false);
+});
+
+test('a linked item that is used up does not count', () => {
+  const items = [{ name: 'Chili', category: 'Food', type: 'canned-soup', quantity: 0, supply: 'Canned meat, fish, and beans' }];
+  assert.equal(ownsSupply(cannedMeat, items), false);
+});
+
+test('a suggestion with no linked types counts an item added from it', () => {
+  const opener = supply('Manual can opener');
+  const items = [{ name: 'Swing-A-Way', category: 'Food', type: 'food-gear', quantity: 1, supply: 'Manual can opener' }];
+  assert.equal(ownsSupply(opener, items), true);
+});

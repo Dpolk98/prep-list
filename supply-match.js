@@ -2,6 +2,8 @@
 //
 // A suggestion counts as owned once the inventory holds at least one of it
 // (quantity above 0) in the suggestion's category, either:
+//   - an item added with that suggestion's Add button (its `supply` field
+//     holds the suggestion's name), however it has been renamed or retyped,
 //   - an item with the same name (commas ignored, "&" read as "and"), or
 //   - an item of one of the suggestion's `types` (ids from shelf-life.js),
 //     so a can of Spam (type "Canned meat and fish") covers
@@ -25,8 +27,15 @@ function ownsSupply(supply, items) {
   const types = supply.types || [];
   return items.some((i) => {
     if (i.category !== supply.cat || !(Number(i.quantity) > 0)) return false;
-    return supplyNameKey(i.name) === name || (types.length > 0 && types.includes(itemTypeId(i)));
+    return addedFrom(i, supply) || supplyNameKey(i.name) === name ||
+      (types.length > 0 && types.includes(itemTypeId(i)));
   });
+}
+
+// True if the item was added with this suggestion's Add button.
+function addedFrom(item, supply) {
+  return typeof item.supply === 'string' && item.category === supply.cat &&
+    supplyNameKey(item.supply) === supplyNameKey(supply.name);
 }
 
 // The What to buy (or Plans and Skills) list for one category, split into
