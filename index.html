@@ -32,6 +32,9 @@
       </button>
     </div>
     <ul id="nav-list"></ul>
+    <div class="drawer-extra">
+      <button type="button" class="nav-link nav-button" id="low-power-on"><span>Low-battery mode</span></button>
+    </div>
   </nav>
 
   <main>
@@ -50,6 +53,15 @@
         <a class="stat warn stat-link" href="#/expiring"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 days</span></a>
         <a class="stat bad stat-link" href="#/expired"><span class="num" id="stat-expired">0</span><span class="label">Expired</span></a>
         <div class="stat"><span class="num" id="stat-water">0</span><span class="label">Days of water stored</span></div>
+      </section>
+
+      <section class="card battery-card" id="battery-card" aria-labelledby="battery-title" hidden>
+        <h2 id="battery-title">Battery running low</h2>
+        <p id="battery-text"></p>
+        <div class="data-tools">
+          <button type="button" class="primary" id="battery-switch">Switch to low-battery mode</button>
+          <button type="button" id="battery-later">Not now</button>
+        </div>
       </section>
 
       <section class="card celebrate-card" id="celebrate-card" aria-labelledby="celebrate-title" hidden>
@@ -243,6 +255,14 @@
         </div>
       </section>
 
+      <section class="card">
+        <h2>Low-battery mode</h2>
+        <p class="settings-text">For a power outage: one plain, black screen with just the essentials, which uses less battery. It shows your water and food, what to use first, where things are, the quick reference, and tips for making the battery last. It stays on until you leave it, even if the app is closed.</p>
+        <div class="data-tools">
+          <button type="button" id="low-power-settings">Switch to low-battery mode</button>
+        </div>
+      </section>
+
       <section class="card" id="about">
         <h2>About the app</h2>
         <p class="settings-text">Prep Tracker was developed with the help of AI. It’s free to use, has no ads, and keeps your data on your device.</p>
@@ -260,6 +280,18 @@
       <!-- Hidden for now (FEATURES.grabList in app.js). -->
       <p class="hint grab-intro">Keep each list short, and put things in the order you’d grab them. Link an entry to your inventory to always see where it’s kept. The grab list is also on the printed summary, so a copy can live by the door.</p>
       <div id="grab-lists"></div>
+    </div>
+
+    <!-- ===== Low-battery mode (replaces every page while it's on) ===== -->
+    <div id="view-low-power" class="view" hidden>
+      <div class="lp-head">
+        <div>
+          <h1>Low-battery mode</h1>
+          <p class="lp-sub">Just the essentials, on a black screen that uses less power.</p>
+        </div>
+        <button type="button" id="low-power-off">Leave</button>
+      </div>
+      <div id="low-power-content"></div>
     </div>
 
     <!-- ===== Year in review (from the Overview each year, and from Settings) ===== -->
@@ -309,7 +341,7 @@
           <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them. On the Settings page, you can also choose hazards where you live, like winter storms or wildfire, for a few more suggestions.</li>
           <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash and investments, each with a goal sized to how long you’re preparing for.</li>
           <li><strong>Celebrates your progress.</strong> Once a year, on the anniversary of when you started, the Overview offers a look back at how your supplies and savings have grown. You can open it any time from the Settings page.</li>
-          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. Quick reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection.</li>
+          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. Quick reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection. During an outage, low-battery mode (in the ☰ menu) shows just the essentials on a black screen that uses less power.</li>
         </ul>
       </section>
 
