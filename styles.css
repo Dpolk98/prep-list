@@ -1407,7 +1407,7 @@ div.grab-body { cursor: default; }
   :where(html[data-theme="night"] body:not(.low-power)) dialog::backdrop { background: rgb(0 0 0 / .75); }
   :where(html[data-theme="night"] body:not(.low-power)) :is(img, video) { filter: grayscale(1) sepia(1) hue-rotate(-50deg) saturate(4) brightness(.6); }
 
-  /* ----- Field manual: bold plain type on grid paper, olive covers ----- */
+  /* ----- Field manual: bold plain type, grid-paper panels, olive header ----- */
   html[data-theme="field"] {
     --bg: #e2dcc2; --surface: #f1edda; --text: #23251a; --muted: #55583e; --border: #9b9a74;
     --accent: #4b5320; --accent-text: #f4f0db;
@@ -1417,13 +1417,10 @@ div.grab-body { cursor: default; }
   }
   html[data-theme="field"] body:not(.low-power) {
     font-family: "PT Barlow", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
-    background-color: var(--bg);
-    background-image:
-      linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 16px 16px;
+    background: var(--bg);
   }
-  /* Pages: lighter grid paper, with a heavier line every fifth square */
+  /* Grid paper on the raised panels only (like the lines in Paper), with a
+     heavier line every fifth square */
   :where(html[data-theme="field"] body:not(.low-power)) :is(.card, .stat, .cat-card, dialog, .print-doc) {
     background-color: var(--surface);
     background-image:
