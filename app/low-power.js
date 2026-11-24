@@ -25,9 +25,11 @@ function setLowPower(on) {
 }
 
 // The phone's status bar matches the black screen while it's on.
-const THEME_COLORS = [...document.querySelectorAll('meta[name="theme-color"]')].map((m) => [m, m.content]);
+// Otherwise it matches the chosen theme, in light or dark mode.
+const THEME_COLORS = [...document.querySelectorAll('meta[name="theme-color"]')];
 function setThemeColor(low) {
-  THEME_COLORS.forEach(([m, color]) => { m.content = low ? '#000000' : color; });
+  const [light, dark] = currentTheme().status;
+  THEME_COLORS.forEach((m) => { m.content = low ? '#000000' : m.media.includes('dark') ? dark : light; });
   document.documentElement.style.colorScheme = low ? 'dark' : '';
 }
 

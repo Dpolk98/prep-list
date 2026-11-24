@@ -88,10 +88,7 @@ $('hazard-info-done').addEventListener('click', () => $('hazard-info').close());
 $('hazard-info-close').addEventListener('click', () => $('hazard-info').close());
 $('hazard-info-settings').addEventListener('click', () => {
   $('hazard-info').close();
-  goToAfter('#/settings', () => {
-    $('settings-hazards').closest('section').scrollIntoView({ block: 'start' });
-    window.scrollBy(0, -70);
-  });
+  location.hash = '#/settings/hazards';
 });
 
 // "winter storms, floods, and wildfire"

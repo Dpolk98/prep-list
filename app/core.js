@@ -39,7 +39,7 @@ const PAGES = [
   ...(FEATURES.grabList ? [{ slug: 'grab', group: 'resources', name: 'Grab list', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
   { slug: 'go-bag', group: 'resources', name: 'Go-Bag', icon: 'rucksack', blurb: 'Bags of 30 liters or less, packed to get you home, get you out, or both.' },
   { slug: 'reference', group: 'resources', name: 'Quick reference', icon: 'book', blurb: 'Short how-tos for when the power or water is out. Saved on this device, so they work offline.' },
-  { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, and backups.' },
+  { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, the app’s look, and backups.' },
   { slug: 'print', name: 'Print summary', icon: 'printer', blurb: 'Your supplies on paper, for when a phone is dead or the power is out.' },
 ];
 
@@ -57,6 +57,21 @@ const WELCOME_PAGE = { slug: 'welcome', name: 'Welcome', icon: 'info', blurb: 'A
 // The Year in review: celebrated on the Overview once a year, and opened any
 // time from Settings (not in the menu).
 const REVIEW_PAGE = { slug: 'review', name: 'Year in review', icon: 'sparkles', blurb: 'A look back at how your supplies and savings have grown.' };
+
+// Settings is a short list of titles, each opening its own page with a back
+// button to the list. `section` matches a data-settings section in index.html;
+// `group` splits the list into a few cards.
+const SETTINGS_PAGES = [
+  { section: 'household', group: 1, name: 'Household', icon: 'users' },
+  { section: 'tier', group: 1, name: 'How long you’re preparing for', icon: 'calendar' },
+  { section: 'hazards', group: 1, name: 'Local Hazards', icon: 'alert' },
+  { section: 'theme', group: 2, name: 'Theme', icon: 'palette' },
+  { section: 'review', group: 3, name: 'Year in review', icon: 'sparkles' },
+  { section: 'backup', group: 3, name: 'Backup', icon: 'save' },
+  { section: 'low-power', group: 3, name: 'Low-battery mode', icon: 'battery' },
+  { section: 'setup', group: 4, name: 'Setup', icon: 'refresh' },
+  { section: 'about', group: 4, name: 'About the app', icon: 'info' },
+].map((p) => ({ ...p, slug: `settings/${p.section}`, parent: 'settings', blurb: '' }));
 
 const CATEGORIES = PAGES.filter((p) => p.cat && !p.noInventory).map((p) => p.cat);
 
@@ -76,7 +91,7 @@ const OTHER_UNIT = '__other__';
 function currentPage() {
   const slug = location.hash.replace(/^#\/?/, '');
   return PAGES.find((p) => p.slug === slug) || STATUS_PAGES.find((p) => p.slug === slug)
-    || [WELCOME_PAGE, REVIEW_PAGE].find((p) => p.slug === slug) || PAGES[0];
+    || [WELCOME_PAGE, REVIEW_PAGE, ...SETTINGS_PAGES].find((p) => p.slug === slug) || PAGES[0];
 }
 
 // ---------- State ----------

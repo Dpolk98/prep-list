@@ -44,7 +44,7 @@ function renderSupplies(page) {
 
   // With no hazards chosen, a pointer to where they're chosen.
   const hazardTip = state.hazards.length ? '' :
-    '<p class="hint hazard-tip">You can add suggestions for Local Hazards, such as winter storms or wildfire, on the <a href="#/settings">Settings</a> page.</p>';
+    '<p class="hint hazard-tip">You can add suggestions for Local Hazards, such as winter storms or wildfire, on the <a href="#/settings/hazards">Local Hazards</a> page in Settings.</p>';
   const plusHazards = state.hazards.length ? `, plus a few for your Local Hazards: ${hazardList()}` : '';
 
   $('plans-card').hidden = !page.noInventory || total === 0;
@@ -321,7 +321,7 @@ function renderCategory(page, wd) {
     $('water-bar').style.width = `${pct}%`;
     $('water-bar').classList.toggle('complete', pct >= 100);
     $('water-panel-hint').innerHTML =
-      `For ${state.people} ${state.people === 1 ? 'person' : 'people'} (change in <a href="#/settings">Settings</a>). ${escapeHtml(waterHint(tier))}`;
+      `For ${state.people} ${state.people === 1 ? 'person' : 'people'} (change in <a href="#/settings/household">Settings</a>). ${escapeHtml(waterHint(tier))}`;
     const { uncounted } = waterSummary();
     $('water-uncounted').hidden = uncounted.length === 0;
     if (uncounted.length) {
@@ -356,7 +356,7 @@ function renderFoodPanel(tier) {
   $('food-panel-hint').innerHTML = count === 0
     ? 'Add food to your inventory to see an estimate.'
     : `About ${formatDays(shownDays)} ${shownDays === 1 ? 'day' : 'days'} of food for ${people} ` +
-      `(change in <a href="#/settings">Settings</a>). ` +
+      `(change in <a href="#/settings/household">Settings</a>). ` +
       `Goal: ${CALORIES_PER_DAY.toLocaleString('en-US')} calories per person per day for ${goal} days.`;
 
   // Name the items left out, so they can be fixed.

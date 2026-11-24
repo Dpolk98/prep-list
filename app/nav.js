@@ -21,7 +21,7 @@ function navAlert(pages) {
 
 function navLink(p, page) {
   return `
-    <a class="nav-link" href="#/${p.slug}" ${p === page ? 'aria-current="page"' : ''}>
+    <a class="nav-link" href="#/${p.slug}" ${p === page || p.slug === page.parent ? 'aria-current="page"' : ''}>
       ${icon(p.icon)}<span>${escapeHtml(p.name)}</span>${navAlert([p])}
     </a>`;
 }
