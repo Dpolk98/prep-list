@@ -16,9 +16,7 @@ function useTag(use) {
 }
 
 function gearRow({ gear: g, packed }) {
-  const space = g.container ? 'The bag itself'
-    : g.outside ? 'Clips outside'
-    : litersText(g.liters);
+  const space = g.outside ? 'Clips outside' : litersText(g.liters);
   return `
     <li class="gear ${packed ? 'packed' : ''}">
       <div class="gear-body">

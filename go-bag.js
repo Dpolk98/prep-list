@@ -3,12 +3,11 @@
 // or two) and a "get out" bag (you need to leave home quickly and get by for
 // about 72 hours, the Red Cross's evacuation guideline).
 //
-// gear: { name, use, liters, lb, note, outside?, container? }
+// gear: { name, use, liters, lb, note, outside? }
 //   use:       'home' (get home), 'out' (get out), or 'both'
 //   liters:    rough space it takes up in the bag
 //   lb:        rough weight, in pounds
 //   outside:   clipped to the outside, so it doesn't count toward the liters
-//   container: the bag itself
 // The bag is tracked on its own, separately from the inventory on the Preps
 // pages: packing something here never adds to or counts against them.
 //
@@ -25,14 +24,6 @@ const GO_BAG_USES = {
 };
 
 const GO_BAG = [
-  {
-    id: 'bag',
-    name: 'The bag',
-    icon: 'rucksack',
-    gear: [
-      { name: 'Backpack, 30 L or smaller', use: 'both', liters: 0, lb: 2, container: true, note: 'A hip belt and chest strap move weight off your shoulders. Check that it fits your torso length' },
-    ],
-  },
   {
     id: 'water',
     name: 'Water',
@@ -124,7 +115,7 @@ const GO_BAG_HAZARDS = {
     { name: 'Electrolyte packets', use: 'both', liters: 0.1, lb: 0.1, note: 'Replace the salts lost in sweat' },
     { name: 'Sunscreen', use: 'both', liters: 0.1, lb: 0.2, note: 'Travel size' },
     { name: 'Wide-brim sun hat', use: 'both', liters: 0.6, lb: 0.2, note: 'Packable, for walking in full sun' },
-    { name: 'Cooling towel', use: 'both', liters: 0.2, lb: 0.1, note: 'Soak, wring out, and drape over the neck' },
+    { name: 'Instant cold packs', use: 'both', liters: 0.4, lb: 0.6, note: 'Squeeze to activate, for cooling someone down quickly. No water or freezer needed' },
   ],
   hurricane: [
     { name: 'Dry bags or a pack liner', use: 'both', liters: 0.3, lb: 0.2, note: 'Keeps clothes, documents, and electronics dry in heavy rain' },
@@ -150,7 +141,7 @@ const GO_BAG_HAZARDS = {
 };
 
 // Space a piece of gear takes up inside the bag.
-const gearLiters = (g) => (g.outside || g.container ? 0 : g.liters || 0);
+const gearLiters = (g) => (g.outside ? 0 : g.liters || 0);
 
 // The Go-Bag list, split into sections: your Local Hazards first (like the
 // What to buy lists), then the core sections. A name is only listed once.
