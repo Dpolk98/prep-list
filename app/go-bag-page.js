@@ -120,9 +120,10 @@ function renderGoBag() {
 // "Expand all" or "Collapse all", as on the inventory lists.
 function renderGoBagToggle() {
   const all = [...$('gobag-list').querySelectorAll('.gobag-section')];
-  const allOpen = all.length > 0 && all.every((d) => d.open);
-  $('gobag-toggle-all').textContent = allOpen ? 'Collapse all' : 'Expand all';
-  $('gobag-toggle-all').dataset.open = String(!allOpen);
+  // With any section open the button collapses them all; otherwise it expands.
+  const anyOpen = all.some((d) => d.open);
+  $('gobag-toggle-all').textContent = anyOpen ? 'Collapse all' : 'Expand all';
+  $('gobag-toggle-all').dataset.open = String(!anyOpen);
 }
 
 $('gobag-toggle-all').addEventListener('click', () => {

@@ -288,10 +288,11 @@ function renderInventory(page) {
         </details>`;
     }).join('');
 
-    const allOpen = list.every((g) => isGroupOpen(page.cat, g));
+    // With any group open the button collapses them all; otherwise it expands.
+    const anyOpen = list.some((g) => isGroupOpen(page.cat, g));
     $('group-tools').hidden = filtering;
-    $('toggle-groups').textContent = allOpen ? 'Collapse all' : 'Expand all';
-    $('toggle-groups').dataset.open = String(!allOpen);
+    $('toggle-groups').textContent = anyOpen ? 'Collapse all' : 'Expand all';
+    $('toggle-groups').dataset.open = String(!anyOpen);
   }
 
   $('empty').hidden = visible.length > 0;
