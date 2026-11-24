@@ -439,7 +439,7 @@
       // gives one, Type is left for you to choose.
       const type = (d.type && findType('Food', d.type) ? d.type : null) || guessType({ name: d.name, category: 'Food' });
       if (type) {
-        $('type').value = type;
+        setTypeValue(type);
         typeTouched = true;
       }
       syncUnitsToType();

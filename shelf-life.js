@@ -13,6 +13,10 @@
 //   group:         optional heading in the dropdown
 //   units:         units offered once this type is chosen, most common first.
 //                  ['value', 'label'] shows a longer label for the same value.
+//   needs:         optional 'meds', 'pets' or 'infants': only offered in the
+//                  dropdown when the household has someone on special
+//                  medications, pets, or an infant
+//                  (see household.js). Items already of that type keep it.
 
 const ITEM_TYPES = {
   Food: [
@@ -50,7 +54,7 @@ const ITEM_TYPES = {
     { id: 'coffee-ground', group: 'Drinks', name: 'Ground coffee', months: 5, units: ['bags', 'cans', 'lbs'] },
     { id: 'coffee-instant', group: 'Drinks', name: 'Instant coffee and tea', months: 24, units: ['jars', 'boxes', 'packets'] },
     { id: 'drink-mix', group: 'Drinks', name: 'Drink mixes and cocoa', months: 24, units: ['canisters', 'packets', 'boxes'] },
-    { id: 'baby', group: 'Drinks', name: 'Infant formula and baby food', months: 12, units: ['cans', 'containers', 'jars', 'pouches'] },
+    { id: 'baby', needs: 'infants', group: 'Drinks', name: 'Infant formula and baby food', months: 12, units: ['cans', 'containers', 'jars', 'pouches'] },
 
     { id: 'bread', group: 'Fresh', name: 'Bread and tortillas', days: 7, units: ['loaves', 'packs'] },
     { id: 'eggs', group: 'Fresh', name: 'Fresh eggs (refrigerated)', days: 35, units: ['dozen', 'eggs'] },
@@ -74,7 +78,7 @@ const ITEM_TYPES = {
   ],
   'Medical and First Aid': [
     { id: 'otc', name: 'Over-the-counter medicine', months: 24, units: ['bottles', 'boxes', 'tablets', 'packs'] },
-    { id: 'rx', name: 'Prescription medicine', months: 12, units: ['bottles', 'tablets', 'days’ supply'] },
+    { id: 'rx', needs: 'meds', name: 'Prescription medicine', months: 12, units: ['bottles', 'tablets', 'days’ supply'] },
     { id: 'ointment', name: 'Ointments and creams', months: 24, units: ['tubes', 'jars', 'packets'] },
     { id: 'antiseptic', name: 'Antiseptics and alcohol wipes', months: 24, units: ['bottles', 'wipes', 'packets', 'boxes'] },
     { id: 'bandages', name: 'Bandages, gauze, and dressings', months: 60, units: ['boxes', 'rolls', 'packs', 'pieces'] },
@@ -127,9 +131,9 @@ const ITEM_TYPES = {
     { id: 'masks', group: 'Tools and gear', name: 'Masks and respirators', months: 60, units: ['masks', 'boxes', 'packs'] },
     { id: 'extinguisher', group: 'Tools and gear', name: 'Fire extinguishers', months: 144, units: ['units'] },
 
-    { id: 'pet-food', group: 'Family and pets', name: 'Pet food (dry)', months: 12, units: ['bags', 'lbs', 'cans'] },
-    { id: 'pet-supplies', group: 'Family and pets', name: 'Pet supplies', none: true, units: ['pieces', 'packs', 'units'] },
-    { id: 'baby-supplies', group: 'Family and pets', name: 'Baby supplies', none: true, units: ['packs', 'pieces', 'boxes'] },
+    { id: 'pet-food', needs: 'pets', group: 'Family and pets', name: 'Pet food (dry)', months: 12, units: ['bags', 'lbs', 'cans'] },
+    { id: 'pet-supplies', needs: 'pets', group: 'Family and pets', name: 'Pet supplies', none: true, units: ['pieces', 'packs', 'units'] },
+    { id: 'baby-supplies', needs: 'infants', group: 'Family and pets', name: 'Baby supplies', none: true, units: ['packs', 'pieces', 'boxes'] },
     { id: 'entertainment', group: 'Family and pets', name: 'Books and games', none: true, units: ['books', 'games', 'decks', 'pieces'] },
 
     { id: 'other-other', group: 'Other', name: 'Other', none: true, units: ['pieces', 'packs', 'boxes', 'sets', 'units'] },

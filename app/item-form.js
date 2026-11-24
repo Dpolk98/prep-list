@@ -29,8 +29,11 @@ function currentEstimate() {
 // Once the user picks a type themselves, stop auto-selecting it from the name.
 let typeTouched = false;
 
-function fillTypeOptions() {
-  const types = typesFor($('category').value);
+// Prescription and pet types are only offered when the household has them
+// (Settings, Household), unless the item is already one or its name says it
+// is one (like "dog food").
+function fillTypeOptions(keep = '') {
+  const types = typesFor($('category').value).filter((t) => t.id === keep || householdNeeds(t, state));
   const groups = [];
   for (const t of types) {
     let g = groups.find((x) => x.name === (t.group || ''));
@@ -38,6 +41,7 @@ function fillTypeOptions() {
     g.types.push(t);
   }
   const opt = (t) => `<option value="${t.id}">${escapeHtml(t.name)}</option>`;
+  $('type').dataset.keep = keep;
   $('type').innerHTML = '<option value="">Choose a type…</option>' + groups.map((g) => g.name
     ? `<optgroup label="${escapeHtml(g.name)}">${g.types.map(opt).join('')}</optgroup>`
     : g.types.map(opt).join('')).join('');
@@ -112,8 +116,15 @@ $('unit-select').addEventListener('change', () => {
 // Pre-selects the most likely type from the name, until the user picks one.
 function suggestType() {
   if (typeTouched) return;
-  $('type').value = guessType({ name: $('name').value, category: $('category').value }) || '';
+  setTypeValue(guessType({ name: $('name').value, category: $('category').value }) || '');
   syncUnitsToType();
+}
+
+// Selects a type, first adding it to the list if it's one that's hidden.
+function setTypeValue(id) {
+  if (id && !$('type').querySelector(`option[value="${CSS.escape(id)}"]`)) fillTypeOptions(id);
+  else if (!id && $('type').dataset.keep) fillTypeOptions();
+  $('type').value = id;
 }
 
 // Tells the user what expiration date the chosen type implies.
@@ -264,7 +275,7 @@ function startEdit(item) {
   for (const key of ['name', 'quantity', 'expires', 'location', 'notes']) {
     $(key).value = item[key] ?? '';
   }
-  fillTypeOptions();
+  fillTypeOptions(item.type || '');
   // Items saved before types existed get a suggested type.
   typeTouched = Boolean(findType(item.category, item.type));
   if (typeTouched) $('type').value = item.type;

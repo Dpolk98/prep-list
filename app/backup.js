@@ -66,6 +66,11 @@ function validateBackup(data) {
   if (data.people !== undefined && !(Number.isFinite(Number(data.people)) && Number(data.people) >= 1)) {
     problems.push('Its household size isn’t a number of people.');
   }
+  for (const [key, min, word] of [['adults', 1, 'adults'], ['children', 0, 'children']]) {
+    if (data[key] !== undefined && !(Number.isFinite(Number(data[key])) && Number(data[key]) >= min)) {
+      problems.push(`Its number of ${word} isn’t a number.`);
+    }
+  }
   if (data.savings !== undefined && data.savings !== null) {
     if (!isPlainObject(data.savings) || Object.keys(DEFAULT_SAVINGS).some((k) => !isNumberLike(data.savings[k] ?? ''))) {
       problems.push('Its savings amounts are damaged.');

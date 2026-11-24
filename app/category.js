@@ -321,7 +321,7 @@ function renderCategory(page, wd) {
     $('water-bar').style.width = `${pct}%`;
     $('water-bar').classList.toggle('complete', pct >= 100);
     $('water-panel-hint').innerHTML =
-      `For ${state.people} ${state.people === 1 ? 'person' : 'people'} (change in <a href="#/settings/household">Settings</a>). ${escapeHtml(waterHint(tier))}`;
+      `For ${householdNow()} (change in <a href="#/settings/household">Settings</a>). ${escapeHtml(waterHint(tier))}`;
     const { uncounted } = waterSummary();
     $('water-uncounted').hidden = uncounted.length === 0;
     if (uncounted.length) {
@@ -348,7 +348,7 @@ function renderFoodPanel(tier) {
   const goal = foodGoalDays(tier);
   // Rounded down, like the calories, so the estimate never reads high.
   const shownDays = Math.floor(days * 10) / 10;
-  const people = `${state.people} ${state.people === 1 ? 'person' : 'people'}`;
+  const people = householdNow();
 
   $('food-calories').textContent = roughCalories(calories);
   $('food-bar').style.width = `${Math.min(100, Math.round((days / goal) * 100))}%`;

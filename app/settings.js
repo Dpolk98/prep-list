@@ -25,6 +25,80 @@ function hazardOptions(chosen = state.hazards) {
     </label>`).join('');
 }
 
+// ---------- Household ----------
+// Adults and children with − and + buttons, then a checkbox each for
+// special medications and pets. Used on Settings and in onboarding; `get`
+// and `set` read and change the answers each one is working on.
+const HOUSEHOLD_COUNTS = [
+  { key: 'adults', name: 'Adults', note: '18 and over', min: 1, one: 'adult', many: 'adults' },
+  { key: 'children', name: 'Children', note: 'Under 18', min: 0, one: 'child', many: 'children' },
+];
+// `children: true` marks a box that only shows when there are children.
+const HOUSEHOLD_CHECKS = [
+  { key: 'infants', icon: 'babyBottle', name: 'One or more of the children is an infant', note: 'Shows baby supplies, like formula and bottles.', children: true },
+  { key: 'meds', icon: 'pill', name: 'Someone needs prescription or special medications', note: 'Shows prescription suggestions, like extra refills.' },
+  { key: 'pets', icon: 'paw', name: 'We have pets', note: 'Shows pet food and supply suggestions.' },
+];
+
+function householdForm(h) {
+  return `
+    <div class="household-counts">
+      ${HOUSEHOLD_COUNTS.map((c) => `
+        <div class="count-row">
+          <span class="count-label"><strong>${c.name}</strong><span>${c.note}</span></span>
+          <button type="button" class="step-btn" data-step="${c.key}" data-by="-1" aria-label="One fewer ${c.one}" ${h[c.key] <= c.min ? 'disabled' : ''}>−</button>
+          <input type="number" data-count="${c.key}" min="${c.min}" max="${HOUSEHOLD_MAX}" step="1" inputmode="numeric" pattern="[0-9]*" value="${h[c.key]}" aria-label="${c.name}">
+          <button type="button" class="step-btn" data-step="${c.key}" data-by="1" aria-label="One more ${c.one}" ${h[c.key] >= HOUSEHOLD_MAX ? 'disabled' : ''}>+</button>
+        </div>`).join('')}
+    </div>
+    <div class="household-checks">
+      ${HOUSEHOLD_CHECKS.map((c) => `
+        <label class="hazard-option household-check" data-check-row="${c.key}" ${c.children && !(h.children > 0) ? 'hidden' : ''}>
+          <input type="checkbox" data-check="${c.key}" ${h[c.key] ? 'checked' : ''}>
+          ${icon(c.icon)}<span><span class="check-name">${c.name}</span><span class="check-note">${c.note}</span></span>
+        </label>`).join('')}
+    </div>`;
+}
+
+function bindHouseholdForm(box, get, set) {
+  const update = (key, value) => {
+    const c = HOUSEHOLD_COUNTS.find((x) => x.key === key);
+    const n = clampCount(value, c.min);
+    box.querySelector(`[data-count="${key}"]`).value = n;
+    box.querySelector(`[data-step="${key}"][data-by="-1"]`).disabled = n <= c.min;
+    box.querySelector(`[data-step="${key}"][data-by="1"]`).disabled = n >= HOUSEHOLD_MAX;
+    if (n !== get()[key]) set({ [key]: n });
+    // The infant box pops in once there are children, and out with none.
+    if (key === 'children') {
+      for (const c of HOUSEHOLD_CHECKS.filter((x) => x.children)) {
+        const row = box.querySelector(`[data-check-row="${c.key}"]`);
+        if (row.hidden !== !(n > 0)) animateSize(row, () => { row.hidden = !(n > 0); });
+      }
+    }
+  };
+  box.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-step]');
+    if (btn) update(btn.dataset.step, get()[btn.dataset.step] + Number(btn.dataset.by));
+  });
+  box.addEventListener('change', (e) => {
+    const { count, check } = e.target.dataset;
+    if (count) update(count, e.target.value);
+    if (check) set({ [check]: e.target.checked });
+  });
+  // Enter or Done only closes the keyboard.
+  box.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target.dataset.count) { e.preventDefault(); e.target.blur(); }
+  });
+}
+
+// Settings saves each change straight away.
+bindHouseholdForm($('settings-household'), () => state, (change) => {
+  Object.assign(state, change);
+  state.people = state.adults + state.children;
+  saveState();
+  render();
+});
+
 // ---------- Themes ----------
 // How the app looks, kept per device (in this browser only, not in backups).
 // The page's <head> applies the saved theme before anything is drawn, so
@@ -93,7 +167,7 @@ function renderSettings(page) {
   if (!section) $('settings-menu').innerHTML = settingsMenu();
   $('view-settings').querySelectorAll('[data-settings]').forEach((el) => { el.hidden = el.dataset.settings !== section; });
 
-  if (section === 'household' && document.activeElement !== $('people')) $('people').value = state.people;
+  if (section === 'household' && !$('settings-household').contains(document.activeElement)) $('settings-household').innerHTML = householdForm(state);
   if (section === 'tier') $('settings-tiers').innerHTML = tierOptions();
   if (section === 'hazards') $('settings-hazards').innerHTML = hazardOptions();
   if (section === 'theme') $('settings-themes').innerHTML = themeOptions();
@@ -160,19 +234,19 @@ for (const [id, key] of [['settings-age', 'ageRange'], ['settings-income', 'inco
 // ---------- Tier picker ----------
 
 // ---------- First-use setup ----------
-// Four short questions, answered once: how long you're preparing for, how
-// many people, your Local Hazards, and age and income ranges for the
+// Four short questions, answered once: how long you're preparing for, who's
+// in your household, your Local Hazards, and age and income ranges for the
 // investment goal. Nothing is saved until Finish, so if
 // the app is closed partway through, setup simply starts again next time.
 
-let setup = null; // { step, tier, people, hazards, ageRange, incomeBracket } while setup is open
+let setup = null; // { step, tier, household, hazards, ageRange, incomeBracket } while setup is open
 const SETUP_STEPS = [
   {
     title: 'How long are you preparing for?',
     hint: 'Each tier builds on the ones before it. You can change this any time in Settings.',
   },
   {
-    title: 'How many people are you preparing for?',
+    title: 'Who are you preparing for?',
     hint: 'Count everyone in your household, including yourself. It sets how much water and food you’ll need.',
   },
   {
@@ -189,15 +263,18 @@ const SETUP_STEPS = [
 // can be cancelled, which leaves everything as it was.
 function openSetup() {
   setup = {
-    step: 1, tier: state.tier, people: state.people || 2, hazards: [...state.hazards], again: Boolean(state.tier),
+    step: 1, tier: state.tier, hazards: [...state.hazards], again: Boolean(state.tier),
+    // A first run starts with both boxes clear; a run from Settings starts
+    // from your current answers.
+    household: state.tier
+      ? { adults: state.adults, children: state.children, infants: state.infants, meds: state.meds, pets: state.pets }
+      : { adults: state.adults, children: state.children, infants: false, meds: false, pets: false },
     ageRange: Number(state.savings.ageRange) || 0, incomeBracket: Number(state.savings.incomeBracket) || 0,
   };
   renderSetup();
   $('setup-dialog').showModal();
   focusSetup();
 }
-
-const clampPeople = (n) => Math.min(99, Math.max(1, Math.round(Number(n) || 1)));
 
 function renderSetup() {
   const { step } = setup;
@@ -210,11 +287,11 @@ function renderSetup() {
   $('setup-title').textContent = info.title;
   $('setup-hint').textContent = info.hint;
   $('setup-tier').hidden = step !== 1;
-  $('setup-people').hidden = step !== 2;
+  $('setup-household').hidden = step !== 2;
   $('setup-hazards').hidden = step !== 3;
   $('setup-savings').hidden = step !== 4;
   if (step === 1) $('setup-tier').innerHTML = tierOptions(setup.tier);
-  if (step === 2) renderPeople();
+  if (step === 2) $('setup-household').innerHTML = householdForm(setup.household);
   if (step === 3) $('setup-hazards').innerHTML = hazardOptions(setup.hazards);
   if (step === 4) {
     $('setup-age').innerHTML = rangeOptions(AGE_RANGES, setup.ageRange);
@@ -227,18 +304,12 @@ function renderSetup() {
   $('setup-next').textContent = step === SETUP_STEPS.length ? 'Finish' : 'Continue';
 }
 
-function renderPeople() {
-  $('setup-people-count').value = setup.people;
-  $('setup-people-word').textContent = setup.people === 1 ? 'person' : 'people';
-  $('people-minus').disabled = setup.people <= 1;
-}
-
 // Focus lands on what's useful for each step, without bringing up a
-// phone's keyboard: the chosen (or first) tier, then the + button, then the
-// first hazard.
+// phone's keyboard: the chosen (or first) tier, then the adults + button,
+// then the first hazard.
 function focusSetup() {
   const target = setup.step === 1 ? ($('setup-tier').querySelector('.selected') || $('setup-tier').querySelector('button'))
-    : setup.step === 2 ? $('people-plus')
+    : setup.step === 2 ? $('setup-household').querySelector('[data-by="1"]')
     : setup.step === 3 ? $('setup-hazards').querySelector('input')
     : $('setup-age');
   target?.focus();
@@ -246,7 +317,10 @@ function focusSetup() {
 
 // What's been entered on the current step.
 function readSetupStep() {
-  if (setup.step === 2) setup.people = clampPeople($('setup-people-count').value);
+  if (setup.step === 2) {
+    const box = $('setup-household');
+    for (const c of HOUSEHOLD_COUNTS) setup.household[c.key] = clampCount(box.querySelector(`[data-count="${c.key}"]`).value, c.min);
+  }
   if (setup.step === 3) {
     const checked = [...$('setup-hazards').querySelectorAll('input:checked')].map((el) => el.value);
     setup.hazards = HAZARDS.map((h) => h.id).filter((id) => checked.includes(id));
@@ -267,7 +341,8 @@ function goToSetupStep(step) {
 function finishSetup() {
   readSetupStep();
   state.tier = setup.tier || TIERS[0].id;
-  state.people = setup.people;
+  Object.assign(state, setup.household);
+  state.people = state.adults + state.children;
   state.hazards = setup.hazards;
   state.savings.ageRange = setup.ageRange;
   state.savings.incomeBracket = setup.incomeBracket;
@@ -299,12 +374,7 @@ function cancelSetup() {
 }
 
 $('setup-again').addEventListener('click', openSetup);
-$('people-minus').addEventListener('click', () => { setup.people = clampPeople(setup.people - 1); renderPeople(); });
-$('people-plus').addEventListener('click', () => { setup.people = clampPeople(setup.people + 1); renderPeople(); });
-$('setup-people-count').addEventListener('change', () => { setup.people = clampPeople($('setup-people-count').value); renderPeople(); });
-$('setup-people-count').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); goToSetupStep(3); }
-});
+bindHouseholdForm($('setup-household'), () => setup.household, (change) => Object.assign(setup.household, change));
 // First-use setup needs its answers, so Escape doesn't close it; a run
 // from Settings can be cancelled with Escape.
 $('setup-dialog').addEventListener('cancel', (e) => {

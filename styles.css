@@ -162,9 +162,6 @@ h2 { font-size: 1.1rem; margin: 0 0 12px; }
 .stat-link::after { content: "›"; position: absolute; top: 8px; right: 12px; font-size: 1.2rem; color: var(--muted); }
 .goal { font-size: 1rem; font-weight: 500; color: var(--muted); }
 
-.household { display: flex; align-items: center; font-size: .9rem; }
-.household label { flex-direction: row; align-items: center; gap: 6px; }
-.household input { width: 70px; }
 .hint { color: var(--muted); font-size: .8rem; }
 
 .card {
@@ -696,20 +693,29 @@ dialog .hint { margin: 0 0 14px; display: block; }
 .setup-dialog h2:focus { outline: none; }
 .setup-actions { justify-content: space-between; margin-top: 18px; }
 .setup-actions #setup-next { margin-left: auto; min-width: 110px; }
-.people-picker { display: flex; align-items: center; justify-content: center; gap: 18px; padding: 10px 0 4px; }
 .step-btn {
   width: 52px; height: 52px; border-radius: 50%; padding: 0;
   font-size: 1.6rem; line-height: 1; font-weight: 600; color: var(--accent);
 }
 .step-btn:hover:not(:disabled) { border-color: var(--accent); }
 .step-btn:disabled { opacity: .4; cursor: default; }
-.people-count { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-.people-count input {
-  width: 96px; text-align: center; font-size: 2rem; font-weight: 700; padding: 6px 4px;
+/* Household: adults and children with − and +, then medications and pets */
+.household-form { display: grid; gap: 14px; padding-top: 4px; }
+.household-counts { display: grid; gap: 10px; }
+.count-row { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 10px; }
+.count-label { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.count-label span { font-size: .8rem; color: var(--muted); }
+.count-row .step-btn { width: 44px; height: 44px; font-size: 1.4rem; }
+.count-row input {
+  width: 64px; text-align: center; font-size: 1.5rem; font-weight: 700; padding: 4px;
   font-variant-numeric: tabular-nums; -moz-appearance: textfield;
 }
-.people-count input::-webkit-outer-spin-button, .people-count input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.people-count span { font-size: .85rem; color: var(--muted); }
+.count-row input::-webkit-outer-spin-button, .count-row input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.household-checks { display: grid; gap: 8px; }
+.household-check { align-items: flex-start; }
+.household-check input, .household-check svg { margin-top: 1px; }
+.household-check > span { display: flex; flex-direction: column; gap: 2px; }
+.check-note { font-size: .8rem; color: var(--muted); }
 
 /* Hazards where you live (Settings), and their chips on the Overview */
 /* One column on phones, more on wider screens, so no name has to wrap. */

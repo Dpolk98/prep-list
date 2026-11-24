@@ -10,6 +10,9 @@
 //                types (optional): item type ids from shelf-life.js. Owning
 //                at least one item of any of them checks the suggestion off
 //                (see supply-match.js).
+//                needs (optional): 'meds', 'pets' or 'infants'. Only listed
+//                when the household has someone on prescription or special
+//                medications, has pets, or has an infant (see household.js).
 
 const TIERS = [
   {
@@ -36,7 +39,7 @@ const TIERS = [
 
       { cat: 'Medical and First Aid', name: 'First aid kit', note: 'Bandages, gauze, tape, antiseptic wipes, tweezers' },
       { cat: 'Medical and First Aid', name: 'Pain and fever reliever', note: 'Ibuprofen and acetaminophen' },
-      { cat: 'Medical and First Aid', name: 'Extra prescriptions', types: ['rx'], note: 'At least a week beyond your normal supply' },
+      { cat: 'Medical and First Aid', name: 'Extra prescriptions', types: ['rx'], needs: 'meds', note: 'At least a week beyond your normal supply' },
       { cat: 'Medical and First Aid', name: 'Antidiarrheal and antacids', note: 'Common problems when routines are disrupted' },
       { cat: 'Medical and First Aid', name: 'Spare glasses or contacts', note: 'Plus contact solution' },
 
@@ -52,7 +55,7 @@ const TIERS = [
       { cat: 'Light and Power', name: 'Power bank', note: 'Keep it charged; enough for a few phone charges' },
 
       { cat: 'Documents', name: 'Waterproof document pouch', note: 'Keeps copies dry and together' },
-      { cat: 'Documents', name: 'Copies of IDs and insurance', types: ['ids'], note: 'Plus prescriptions and pet records' },
+      { cat: 'Documents', name: 'Copies of IDs and insurance', types: ['ids'], note: 'Plus any prescription and pet records' },
       { cat: 'Documents', name: 'Printed contact list', note: 'Your phone may be dead' },
 
       { cat: 'Plans and Skills', name: 'Family meeting place', note: 'One near home and one outside your neighborhood' },
@@ -61,9 +64,9 @@ const TIERS = [
 
       { cat: 'Other', name: 'Multitool and duct tape', note: 'Quick repairs of almost anything' },
       { cat: 'Other', name: 'Go-bag', types: ['bags'], note: 'Packed in case you have to leave, with a whistle and N95 masks' },
-      { cat: 'Other', name: 'Pet food and supplies', types: ['pet-food', 'pet-supplies'], note: 'A week of food, water, and any medications' },
+      { cat: 'Other', name: 'Pet food and supplies', types: ['pet-food', 'pet-supplies'], needs: 'pets', note: 'A week of food, water, and any medications' },
       { cat: 'Other', name: 'Books, cards, and games', types: ['entertainment'], note: 'Entertainment without power' },
-      { cat: 'Other', name: 'Baby supplies', types: ['baby-supplies'], note: 'Formula, bottles, and diapers if needed' },
+      { cat: 'Other', name: 'Baby supplies', types: ['baby-supplies'], needs: 'infants', note: 'Formula, bottles, and diapers if needed' },
     ],
   },
   {
@@ -91,7 +94,7 @@ const TIERS = [
       { cat: 'Food', name: 'Stove fuel', types: ['stove-fuel'], note: 'A 1 lb propane canister cooks for about 1–2 hours' },
       { cat: 'Food', name: 'Cast-iron pot or pan', note: 'Works on a stove, grill, or fire' },
 
-      { cat: 'Medical and First Aid', name: '30-day prescription supply', types: ['rx'], note: 'Ask your doctor or insurer about a refill buffer' },
+      { cat: 'Medical and First Aid', name: '30-day prescription supply', types: ['rx'], needs: 'meds', note: 'Ask your doctor or insurer about a refill buffer' },
       { cat: 'Medical and First Aid', name: 'Wound care supplies', types: ['bandages'], note: 'Gauze rolls, medical tape, butterfly closures' },
       { cat: 'Medical and First Aid', name: 'Antibiotic ointment and hydrocortisone', types: ['ointment'], note: 'For cuts, rashes, and bites' },
       { cat: 'Medical and First Aid', name: 'Electrolyte packets', types: ['electrolytes'], note: 'For illness, heat, and heavy work' },
@@ -119,7 +122,7 @@ const TIERS = [
       { cat: 'Other', name: 'Bedding for any season', note: 'Sleeping bags and wool blankets, plus a battery fan for summer' },
       { cat: 'Other', name: 'Shut-off wrench and work gloves', note: 'For the gas meter, water main, and cleanup' },
       { cat: 'Other', name: 'Fire extinguisher', types: ['extinguisher'], note: 'ABC rated, one per floor' },
-      { cat: 'Other', name: 'A month of pet supplies', note: 'Food, litter, and medications' },
+      { cat: 'Other', name: 'A month of pet supplies', needs: 'pets', note: 'Food, litter, and medications' },
       { cat: 'Other', name: 'Rodent-proof storage bins', note: 'Protect stored food from pests' },
       { cat: 'Other', name: 'Sewing kit', note: 'Mend clothes and gear' },
     ],
@@ -176,7 +179,7 @@ const TIERS = [
       { cat: 'Other', name: 'Hand and garden tools', note: 'Hammer, saws, wrenches, shovel, and rake, none needing power' },
       { cat: 'Other', name: 'Wood stove and firewood tools', note: 'Heat and cooking, plus an axe, saw, and maul' },
       { cat: 'Other', name: 'Repair supplies', note: 'Fasteners, wire, lumber, and tarps' },
-      { cat: 'Other', name: 'Year of pet food', note: 'Or a plan to feed pets from what you produce' },
+      { cat: 'Other', name: 'Year of pet food', needs: 'pets', note: 'Or a plan to feed pets from what you produce' },
       { cat: 'Other', name: 'Spare clothing and shoes', note: 'Including the next size up for kids' },
     ],
   },

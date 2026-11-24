@@ -215,7 +215,8 @@ function normalize(data = {}) {
     history: Array.isArray(data.history)
       ? data.history.filter((h) => h && /^\d{4}-\d{2}$/.test(h.month)).sort((a, b) => a.month.localeCompare(b.month)).slice(-HISTORY_MONTHS)
       : [],
-    people: data.people ?? 2,
+    // adults, children, people (their total), meds and pets: see household.js.
+    ...normalizeHousehold(data),
     tier: TIERS.some((t) => t.id === data.tier) ? data.tier : null,
     savings: { ...DEFAULT_SAVINGS, ...(data.savings || {}) },
     grab: normalizeGrab(data.grab),
@@ -366,12 +367,31 @@ function currentTier() {
   return TIERS.find((t) => t.id === state.tier) || TIERS[0];
 }
 
+// A tier or hazard with only the suggestions this household needs: no
+// prescription suggestions without special medications, and no pet ones
+// without pets (see household.js).
+const withHouseholdSupplies = (t) => ({ ...t, supplies: forHousehold(t.supplies, state) });
+
 // The current tier plus every tier below it.
 function includedTiers() {
-  return TIERS.slice(0, TIERS.indexOf(currentTier()) + 1);
+  return TIERS.slice(0, TIERS.indexOf(currentTier()) + 1).map(withHouseholdSupplies);
 }
 
 // The hazards chosen in Settings, in hazards.js order.
 function chosenHazards() {
-  return HAZARDS.filter((h) => state.hazards.includes(h.id));
+  return HAZARDS.filter((h) => state.hazards.includes(h.id)).map(withHouseholdSupplies);
 }
+
+// "2 adults and 1 child" for the current household.
+const householdNow = () => householdText(state);
+
+// Grab list entries about pets (their types are all pet types) are hidden
+// without pets, and the first starter entry drops "and pets". Nothing is
+// removed from the saved list, so ticking Pets again brings them back.
+function grabNeeded(entry) {
+  if (!entry.cat || !entry.types?.length) return true;
+  return entry.types.some((t) => householdNeeds(findType(entry.cat, t), state));
+}
+const GRAB_EVERYONE = 'Everyone in the household, and pets';
+const grabName = (entry) => (!state.pets && entry.name === GRAB_EVERYONE ? 'Everyone in the household' : entry.name);
+const visibleGrab = (key) => state.grab[key].filter(grabNeeded);

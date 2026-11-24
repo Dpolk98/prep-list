@@ -25,6 +25,7 @@ const FILES = [
   'reference.js',
   'shelf-life.js',
   'supply-match.js',
+  'household.js',
   'units.js',
   'calories.js',
   'icons.js',
