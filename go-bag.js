@@ -15,10 +15,10 @@
 // list plus every Local Hazard's additions stays well under 30 L, leaving
 // room for gaps between things and for personal items.
 //
-// There can be up to three separate bags: Get home, Get out, and Both. Each
-// shows the gear for its job and keeps its own packed list, so packing one
-// never ticks anything off another. The recommended bag size follows each
-// bag's list: see goBagSize.
+// The user keeps one or more bags, each with a name, a type (Get home, Get
+// out, or Both), and where it's kept. A bag shows the gear for its type and
+// keeps its own packed list, so packing one never ticks anything off
+// another. The recommended bag size follows each bag's list: see goBagSize.
 
 const GO_BAG_LIMIT_L = 30;
 
@@ -34,8 +34,8 @@ const GO_BAG_USES = {
   out: { label: 'Get out', long: 'Mainly for getting out' },
 };
 
-// The three bags. Each one lists gear tagged for its job plus gear tagged
-// Both; the Both bag lists everything.
+// Bag types. Each lists gear tagged for its job plus gear tagged Both; a
+// Both bag lists everything.
 const GO_BAG_MODES = {
   both: { label: 'Both', blurb: 'One bag for getting home and getting out. Everything on the list.' },
   home: { label: 'Get home', blurb: 'For getting back from work, school, or the road, maybe on foot, over a day or two.' },
@@ -228,17 +228,38 @@ function goBagSize(liters) {
 }
 
 // Saved Go-Bag data:
-//   bags:  { home, out, both }, each the names of gear packed in that bag.
-//          Only names still on the list are kept, in case gear is renamed.
-//   mode:  which bag the page shows (GO_BAG_MODES).
-//   asked: the "Do you already have a bag?" popup has been answered.
-// Data from before there were separate bags had one `packed` list; it
-// becomes the Both bag, which was the only bag then.
+//   bags:    [{ id, name, type, location, packed }], in the order added.
+//            type is a GO_BAG_MODES key; packed is the names of gear packed
+//            in that bag (only names still on the list are kept, in case
+//            gear is renamed). There's always at least one bag.
+//   current: the id of the bag the page shows.
+//   asked:   the "Do you already have a bag?" popup has been answered.
+// Older data had one `packed` list, which becomes a single Both bag.
+const GO_BAG_NAME_MAX = 40;
+const GO_BAG_LOCATION_MAX = 60;
+const GO_BAG_DEFAULT_NAME = 'My go-bag';
+
 function normalizeGoBag(data) {
   const names = new Set([...GO_BAG.flatMap((s) => s.gear), ...Object.values(GO_BAG_HAZARDS).flat()].map((g) => g.name));
   const clean = (list) => (Array.isArray(list) ? [...new Set(list.filter((n) => names.has(n)))] : []);
-  const saved = data?.bags && typeof data.bags === 'object' ? data.bags : { both: data?.packed };
-  const bags = {};
-  for (const mode of Object.keys(GO_BAG_MODES)) bags[mode] = clean(saved[mode]);
-  return { bags, mode: goBagMode(data?.mode), asked: data?.asked === true };
+  const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  const ids = new Set();
+  const bag = (b) => {
+    let id = text(b.id, 80);
+    for (let n = ids.size + 1; !id || ids.has(id); n++) id = `bag-${n}`;
+    ids.add(id);
+    return {
+      id,
+      name: text(b.name, GO_BAG_NAME_MAX) || GO_BAG_DEFAULT_NAME,
+      type: goBagMode(b.type),
+      location: text(b.location, GO_BAG_LOCATION_MAX),
+      packed: clean(b.packed),
+    };
+  };
+  const bags = Array.isArray(data?.bags)
+    ? data.bags.filter((b) => b && typeof b === 'object').map(bag)
+    : [];
+  if (!bags.length) bags.push(bag({ type: 'both', packed: data?.packed }));
+  const current = bags.some((b) => b.id === data?.current) ? data.current : bags[0].id;
+  return { bags, current, asked: data?.asked === true };
 }

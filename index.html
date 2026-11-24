@@ -292,10 +292,21 @@
 
     <!-- ===== Go-Bag (go-bag.js, app/go-bag-page.js) ===== -->
     <div id="view-gobag" class="view" hidden>
+      <details class="card gobag-bags" id="gobag-bags" open>
+        <summary class="gobag-fold"><h2>Your bags</h2><span class="more" id="gobag-bags-count"></span></summary>
+        <p class="hint gobag-bags-intro">Keep one bag that does both jobs, or several, like one at work to get home and one by the door to get out. Each bag has its own packing list. Tap a bag to pack it.</p>
+        <div class="gobag-grid" id="gobag-grid"></div>
+      </details>
+
       <section class="card gobag-panel">
-        <h2 class="gobag-mode-title" id="gobag-mode-title">Your bags</h2>
-        <p class="hint gobag-mode-intro">Keep one bag that does both jobs, or up to three separate bags. Each bag has its own packing list, so packing one doesn’t tick anything off the others.</p>
-        <div class="gobag-mode" id="gobag-mode" role="group" aria-labelledby="gobag-mode-title"></div>
+        <div class="gobag-current">
+          <div class="gobag-current-text">
+            <p class="setup-step">Packing</p>
+            <h2 id="gobag-current-name"></h2>
+            <p class="gobag-current-meta" id="gobag-current-meta"></p>
+          </div>
+          <button type="button" id="gobag-edit">Edit</button>
+        </div>
         <p class="hint gobag-mode-blurb" id="gobag-mode-blurb"></p>
         <div class="water-big"><span id="gobag-liters">0</span><span class="goal" id="gobag-limit"></span></div>
         <span class="label" id="gobag-size-label">of space packed, estimated</span>
@@ -305,7 +316,7 @@
         <details class="estimate-note">
           <summary><strong>Sizes and weights are estimates.</strong><span class="more">Keeping it light</span></summary>
           <p>Each figure is typical for compact gear, rounded. Real packing leaves gaps, so leave a few liters free.</p>
-          <p>The bag size is the smallest of 20, 25, or 30 L that the list fills no more than three quarters of, leaving the rest for gaps and personal items. Each bag has its own size, and it changes with your Local Hazards.</p>
+          <p>The bag size is the smallest of 20, 25, or 30 L that the list fills no more than three quarters of, leaving the rest for gaps and personal items. It depends on the bag’s type and your Local Hazards.</p>
           <p>A common hiking guideline is to keep a loaded pack under about 20% of your body weight. Water is the heaviest thing in the bag, at about 2.2 lb per liter.</p>
           <p>A 30 L pack is a large daypack: small enough to carry all day, to keep under a desk or in a car, and to grab on the way out the door.</p>
         </details>
@@ -641,6 +652,30 @@
         <button type="button" id="welcome-fresh">Start fresh</button>
       </div>
     </div>
+  </dialog>
+
+  <!-- Go-Bag: add or edit a bag (app/go-bag-page.js) -->
+  <dialog id="gobag-bag-dialog" aria-labelledby="gobag-bag-title">
+    <form id="gobag-bag-form" autocomplete="off">
+      <h2 id="gobag-bag-title">Add a bag</h2>
+      <div class="grid grab-grid">
+        <label class="wide">Name
+          <input id="gobag-bag-name" required maxlength="40" placeholder="e.g. Work bag">
+        </label>
+        <fieldset class="wide gobag-type-field">
+          <legend>Type</legend>
+          <div class="tier-options gobag-type-options" id="gobag-bag-type"></div>
+        </fieldset>
+        <label class="wide">Where it’s kept
+          <input id="gobag-bag-location" maxlength="60" placeholder="e.g. Under my desk at work">
+        </label>
+      </div>
+      <div class="actions grab-actions">
+        <button type="button" class="danger-btn" id="gobag-bag-delete" hidden>Delete bag</button>
+        <button type="button" id="gobag-bag-cancel">Cancel</button>
+        <button type="submit" class="primary" id="gobag-bag-save">Add</button>
+      </div>
+    </form>
   </dialog>
 
   <!-- Go-Bag: asked once, the first time the page is opened (app/go-bag-page.js) -->

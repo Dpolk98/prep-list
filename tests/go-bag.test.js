@@ -73,9 +73,11 @@ test('the bag is separate from the inventory', () => {
   assert.equal('have' in entry, false);
 });
 
-test('saved data keeps only names still on the list, once each', () => {
-  assert.equal(JSON.stringify(normalizeGoBag(undefined)), '{"bags":{"both":[],"home":[],"out":[]},"mode":"both","asked":false}');
-  assert.equal(JSON.stringify(normalizeGoBag({ bags: { home: ['Whistle', 'Whistle', 'Gone', 3] } }).bags.home), '["Whistle"]');
+test('saved data always has at least one bag, with only names still on the list', () => {
+  assert.equal(JSON.stringify(normalizeGoBag(undefined)),
+    '{"bags":[{"id":"bag-1","name":"My go-bag","type":"both","location":"","packed":[]}],"current":"bag-1","asked":false}');
+  const g = normalizeGoBag({ bags: [{ id: 'a', name: '  Work  ', type: 'home', location: 'Desk', packed: ['Whistle', 'Whistle', 'Gone', 3] }] });
+  assert.equal(JSON.stringify(g.bags[0]), '{"id":"a","name":"Work","type":"home","location":"Desk","packed":["Whistle"]}');
   assert.equal(normalizeGoBag({ asked: true }).asked, true);
   assert.equal(normalizeGoBag({ asked: 'yes' }).asked, false);
 });
@@ -106,21 +108,29 @@ test('the bag size follows the list, and never goes past 30 L', () => {
 });
 
 test('each bag keeps its own packed list', () => {
-  const g = normalizeGoBag({ bags: { home: ['Whistle'], out: ['Water filter', 'Gone'] }, mode: 'out' });
-  assert.equal(JSON.stringify(g.bags), '{"both":[],"home":["Whistle"],"out":["Water filter"]}');
-  assert.equal(g.mode, 'out');
-  const home = goBagTotals(goBagSections([], g.bags.home, 'home'));
-  const out = goBagTotals(goBagSections([], g.bags.out, 'out'));
-  const both = goBagTotals(goBagSections([], g.bags.both, 'both'));
-  assert.deepEqual([home.packedCount, out.packedCount, both.packedCount], [1, 1, 0]);
+  const g = normalizeGoBag({ bags: [
+    { id: 'w', name: 'Work', type: 'home', packed: ['Whistle'] },
+    { id: 'h', name: 'Hall closet', type: 'out', packed: ['Water filter', 'Gone'] },
+    { id: 'c', name: 'Car', type: 'out' },
+  ], current: 'h' });
+  assert.equal(g.current, 'h');
+  const counts = g.bags.map((b) => goBagTotals(goBagSections([], b.packed, b.type)).packedCount);
+  assert.deepEqual(counts, [1, 1, 0]);
 });
 
-test('a single packed list from before separate bags becomes the Both bag', () => {
+test('a single packed list from before named bags becomes one Both bag', () => {
   const g = normalizeGoBag({ packed: ['Whistle', 'Hand warmers'] });
-  assert.equal(JSON.stringify(g.bags), '{"both":["Whistle","Hand warmers"],"home":[],"out":[]}');
+  assert.equal(g.bags.length, 1);
+  assert.equal(g.bags[0].type, 'both');
+  assert.equal(JSON.stringify(g.bags[0].packed), '["Whistle","Hand warmers"]');
 });
 
-test('the saved bag type is kept, and anything else falls back to Both', () => {
-  assert.equal(normalizeGoBag({ mode: 'out' }).mode, 'out');
-  assert.equal(normalizeGoBag({ mode: 'sideways' }).mode, 'both');
+test('bags get unique ids, names, and types, and a missing current bag falls back to the first', () => {
+  const g = normalizeGoBag({ bags: [{ id: 'x', type: 'sideways' }, { id: 'x', name: '' }, null], current: 'gone' });
+  assert.equal(g.bags.length, 2);
+  assert.notEqual(g.bags[0].id, g.bags[1].id);
+  assert.equal(g.bags[0].type, 'both');
+  assert.equal(g.bags[1].name, 'My go-bag');
+  assert.equal(g.current, g.bags[0].id);
+  assert.ok(normalizeGoBag({ bags: [{ name: 'x'.repeat(99) }] }).bags[0].name.length <= 40);
 });

@@ -32,29 +32,54 @@ function gearRow({ gear: g, packed }) {
 // (the same as the What to buy sections).
 const goBagOpen = new Map();
 
+// The bag the page shows.
+function currentBag() {
+  return state.goBag.bags.find((b) => b.id === state.goBag.current) || state.goBag.bags[0];
+}
+
+// One bag's list and totals, for the grid and for the page.
+function bagTotals(bag, hazards = chosenHazards()) {
+  const sections = goBagSections(hazards, bag.packed, bag.type);
+  return { sections, t: goBagTotals(sections) };
+}
+
+const packedStatus = (t) => (t.packedCount === 0 ? 'Not started'
+  : t.packedCount === t.count ? 'All packed'
+  : `${t.packedCount} of ${t.count} packed`);
+
+function bagSquare(bag, hazards) {
+  const { t } = bagTotals(bag, hazards);
+  const pct = t.count ? Math.round((t.packedCount / t.count) * 100) : 0;
+  const here = bag.id === state.goBag.current;
+  return `
+    <button type="button" class="gobag-bag ${here ? 'selected' : ''}" data-bag="${escapeHtml(bag.id)}" aria-pressed="${here}">
+      <span class="gobag-bag-name">${escapeHtml(bag.name)}</span>
+      ${useTag(bag.type)}
+      <span class="gobag-bag-where ${bag.location ? '' : 'none'}">${bag.location ? escapeHtml(bag.location) : 'No location yet'}</span>
+      <span class="gobag-bag-bar" aria-hidden="true"><span style="width:${pct}%"></span></span>
+      <span class="gobag-bag-status">${packedStatus(t)} · ${goBagSize(t.liters)} L</span>
+    </button>`;
+}
+
 function renderGoBag() {
-  const mode = goBagMode(state.goBag.mode);
   const hazards = chosenHazards();
-  const sections = goBagSections(hazards, state.goBag.bags[mode], mode);
-  const t = goBagTotals(sections);
+  const bag = currentBag();
+  const mode = bag.type;
+  const { sections, t } = bagTotals(bag, hazards);
   const limit = goBagSize(t.liters);
 
-  // Your bags: Get home, Get out, and Both, each with its own progress.
-  $('gobag-mode').innerHTML = Object.entries(GO_BAG_MODES).map(([id, m]) => {
-    const bt = id === mode ? t : goBagTotals(goBagSections(hazards, state.goBag.bags[id], id));
-    const size = goBagSize(bt.liters);
-    const status = bt.packedCount === 0 ? 'Not started'
-      : bt.packedCount === bt.count ? 'All packed'
-      : `${bt.packedCount} of ${bt.count} packed`;
-    const pct = bt.count ? Math.round((bt.packedCount / bt.count) * 100) : 0;
-    return `
-      <button type="button" class="gobag-bag ${id === mode ? 'selected' : ''}" data-gobag-mode="${id}" aria-pressed="${id === mode}">
-        <span class="gobag-bag-name">${m.label}</span>
-        <span class="gobag-bag-size">${size} L bag</span>
-        <span class="gobag-bag-bar" aria-hidden="true"><span style="width:${pct}%"></span></span>
-        <span class="gobag-bag-status">${status}</span>
-      </button>`;
-  }).join('');
+  // Your bags: a square for each bag, then one for adding another.
+  const n = state.goBag.bags.length;
+  $('gobag-bags-count').textContent = n === 1 ? '1 bag' : `${n} bags`;
+  $('gobag-grid').innerHTML = state.goBag.bags.map((b) => bagSquare(b, hazards)).join('') + `
+    <button type="button" class="gobag-bag gobag-add" id="gobag-add">
+      <span class="gobag-add-plus" aria-hidden="true">+</span>
+      <span class="gobag-bag-name">Add a bag</span>
+    </button>`;
+
+  // The bag being packed.
+  $('gobag-current-name').textContent = bag.name;
+  $('gobag-current-meta').innerHTML = `${useTag(mode)}<span>${bag.location ? escapeHtml(bag.location) : 'No location yet'}</span>`;
   $('gobag-mode-blurb').textContent = GO_BAG_MODES[mode].blurb;
   $('gobag-size-label').textContent = `of space packed in a ${limit} L bag, estimated`;
 
@@ -100,10 +125,9 @@ $('gobag-list').addEventListener('change', (e) => {
   const box = e.target.closest('[data-gear-pack]');
   if (!box) return;
   const name = box.dataset.gearPack;
-  const mode = goBagMode(state.goBag.mode);
-  const packed = state.goBag.bags[mode].filter((n) => n !== name);
-  if (box.checked) packed.push(name);
-  state.goBag.bags[mode] = packed;
+  const bag = currentBag();
+  bag.packed = bag.packed.filter((n) => n !== name);
+  if (box.checked) bag.packed.push(name);
   // Keep each section as it is while ticking things off.
   for (const d of $('gobag-list').querySelectorAll('.gobag-section')) goBagOpen.set(d.dataset.section, d.open);
   saveState();
@@ -111,14 +135,87 @@ $('gobag-list').addEventListener('change', (e) => {
   [...$('gobag-list').querySelectorAll('[data-gear-pack]')].find((b) => b.dataset.gearPack === name)?.focus();
 });
 
-$('gobag-mode').addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-gobag-mode]');
-  if (!btn || btn.dataset.gobagMode === state.goBag.mode) return;
-  state.goBag.mode = btn.dataset.gobagMode;
-  goBagOpen.clear(); // the sections change, so start them fresh
+// Show a bag's list, keeping the grid where it was.
+function showBag(id) {
+  if (id === state.goBag.current) return;
+  state.goBag.current = id;
+  goBagOpen.clear(); // a different list, so its sections start fresh
   saveState();
   renderGoBag();
-  $('gobag-mode').querySelector(`[data-gobag-mode="${state.goBag.mode}"]`)?.focus();
+  $('gobag-grid').querySelector(`[data-bag="${CSS.escape(id)}"]`)?.focus();
+}
+
+$('gobag-grid').addEventListener('click', (e) => {
+  if (e.target.closest('#gobag-add')) return openBagDialog();
+  const btn = e.target.closest('[data-bag]');
+  if (btn) showBag(btn.dataset.bag);
+});
+
+$('gobag-edit').addEventListener('click', () => openBagDialog(currentBag()));
+
+// ---------- Add or edit a bag ----------
+let editingBagId = null;
+
+function openBagDialog(bag = null) {
+  editingBagId = bag?.id || null;
+  $('gobag-bag-title').textContent = bag ? 'Edit bag' : 'Add a bag';
+  $('gobag-bag-save').textContent = bag ? 'Save' : 'Add';
+  // A bag can be deleted as long as another one is left.
+  $('gobag-bag-delete').hidden = !bag || state.goBag.bags.length < 2;
+  $('gobag-bag-delete').textContent = 'Delete bag';
+  delete $('gobag-bag-delete').dataset.confirm;
+  $('gobag-bag-name').value = bag?.name || '';
+  $('gobag-bag-location').value = bag?.location || '';
+  const type = bag?.type || 'both';
+  $('gobag-bag-type').innerHTML = Object.entries(GO_BAG_MODES).map(([id, m]) => `
+    <label class="tier-option gobag-type-option">
+      <input type="radio" name="gobag-type" value="${id}" ${id === type ? 'checked' : ''}>
+      <strong>${m.label}</strong>
+      <span class="tier-title">${m.blurb}</span>
+    </label>`).join('');
+  $('gobag-bag-dialog').showModal();
+  $('gobag-bag-name').focus();
+}
+
+$('gobag-bag-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = $('gobag-bag-name').value.trim().slice(0, GO_BAG_NAME_MAX);
+  if (!name) return;
+  const type = goBagMode($('gobag-bag-form').elements['gobag-type'].value);
+  const location = $('gobag-bag-location').value.trim().slice(0, GO_BAG_LOCATION_MAX);
+  const bag = editingBagId && state.goBag.bags.find((b) => b.id === editingBagId);
+  if (bag) {
+    // Changing the type keeps everything packed: gear the new type doesn't
+    // list is hidden, and comes back if the type is changed back.
+    if (bag.type !== type) goBagOpen.clear();
+    Object.assign(bag, { name, type, location });
+  } else {
+    const id = newId();
+    state.goBag.bags.push({ id, name, type, location, packed: [] });
+    state.goBag.current = id;
+    goBagOpen.clear();
+  }
+  saveState();
+  $('gobag-bag-dialog').close();
+  renderGoBag();
+});
+
+$('gobag-bag-cancel').addEventListener('click', () => $('gobag-bag-dialog').close());
+
+// Deleting takes a second tap, since the bag's packing list goes with it.
+$('gobag-bag-delete').addEventListener('click', (e) => {
+  const btn = e.currentTarget;
+  if (!btn.dataset.confirm) {
+    btn.dataset.confirm = '1';
+    btn.textContent = 'Tap again to delete';
+    return;
+  }
+  state.goBag.bags = state.goBag.bags.filter((b) => b.id !== editingBagId);
+  if (state.goBag.current === editingBagId) state.goBag.current = state.goBag.bags[0].id;
+  goBagOpen.clear();
+  saveState();
+  $('gobag-bag-dialog').close();
+  renderGoBag();
 });
 
 // ---------- First visit: "Do you already have a bag set up?" ----------
