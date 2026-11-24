@@ -192,19 +192,58 @@ function tierWeeks(tier) {
 }
 
 // The emergency cash goal is the weekly baseline times the tier's length.
-// Investments aim for 1.5 times that, and the Overview shows both together.
-const INVEST_MULTIPLIER = 1.5;
-
 function cashGoal(tier) {
   return Math.round(tierWeeks(tier) * (Number(state.savings.weekly) || 0));
 }
 
-function investGoal(tier) {
-  return Math.round(cashGoal(tier) * INVEST_MULTIPLIER);
+// The investment goal is a rough guide based on Fidelity's savings-by-age
+// guideline (fidelity.com/viewpoints/retirement/how-much-do-i-need): at least
+// 1x your yearly income by 30, 3x by 40, 6x by 50, 8x by 60, and 10x by 67.
+// The app aims a little lower, at 80% of those milestones (8x by 67). That
+// matches the 8x Fidelity gives for a smaller lifestyle in retirement (35% of
+// income replaced instead of 45%) or for retiring at 70 instead of 67.
+// You pick an age range and an income bracket rather than exact numbers.
+// Each age range uses the middle of the range, read off a straight line
+// between the milestones. Each income bracket uses its midpoint, or its edge
+// for the open-ended ones. Index 0 means not chosen.
+const AGE_RANGES = [
+  null,
+  { label: 'Under 30', multiple: 0.8 },
+  { label: '30 to 39', multiple: 1.6 },
+  { label: '40 to 49', multiple: 3.6 },
+  { label: '50 to 59', multiple: 5.6 },
+  { label: '60 to 66', multiple: 7.2 },
+  { label: '67 or older', multiple: 8 },
+];
+const INCOME_BRACKETS = [
+  null,
+  { label: 'Under $25,000', income: 20000 },
+  { label: '$25,000 to $50,000', income: 37500 },
+  { label: '$50,000 to $75,000', income: 62500 },
+  { label: '$75,000 to $100,000', income: 87500 },
+  { label: '$100,000 to $150,000', income: 125000 },
+  { label: '$150,000 to $200,000', income: 175000 },
+  { label: 'Over $200,000', income: 200000 },
+];
+
+// <option>s for an age or income picker, with `selected` (an index) chosen.
+function rangeOptions(list, selected) {
+  return list.map((o, i) => `<option value="${i}"${i === Number(selected) ? ' selected' : ''}>${o ? escapeHtml(o.label) : 'Choose a range'}</option>`).join('');
+}
+
+const ageRange = () => AGE_RANGES[Number(state.savings.ageRange) || 0] || null;
+const incomeBracket = () => INCOME_BRACKETS[Number(state.savings.incomeBracket) || 0] || null;
+
+// 0 until both are chosen. Rounded to the nearest $1,000, since it's an estimate.
+function investGoal() {
+  const age = ageRange();
+  const bracket = incomeBracket();
+  if (!age || !bracket) return 0;
+  return Math.round((age.multiple * bracket.income) / 1000) * 1000;
 }
 
 function savingsGoal(tier) {
-  return cashGoal(tier) + investGoal(tier);
+  return cashGoal(tier) + investGoal();
 }
 
 function totalSaved() {

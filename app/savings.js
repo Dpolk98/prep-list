@@ -1,13 +1,14 @@
 // ---------- Rendering: savings ----------
 
 // Fills in one card on the Savings page: the amount, goal, bar, and math line.
-function renderFund(prefix, current, goal, math) {
+function renderFund(prefix, current, goal, math, noGoalText) {
   const pct = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0;
   $(`${prefix}-current-display`).textContent = money.format(current);
   $(`${prefix}-goal`).textContent = money.format(goal);
   $(`${prefix}-bar`).style.width = `${pct}%`;
   $(`${prefix}-bar`).classList.toggle('complete', goal > 0 && current >= goal);
   const remaining = Math.max(0, goal - current);
+  if (!goal && noGoalText) { $(`${prefix}-math`).textContent = noGoalText; return; }
   $(`${prefix}-math`).textContent =
     `${math} ` + (remaining > 0 ? `${money.format(remaining)} to go.` : 'Goal reached.');
 }
@@ -26,8 +27,11 @@ function renderSavings() {
     : weeksText;
   renderFund('savings', cash, cashGoal(tier),
     `${tier.name} tier: ${span} × ${money.format(Number(state.savings.weekly) || 0)}/week.`);
-  renderFund('invest', invested, investGoal(tier),
-    `1.5 times your ${money.format(cashGoal(tier))} emergency cash goal.`);
+  const age = ageRange();
+  const bracket = incomeBracket();
+  renderFund('invest', invested, investGoal(),
+    age && bracket ? `Age ${age.label.toLowerCase()}: about ${age.multiple}× a yearly income of ${money.format(bracket.income)}.` : '',
+    'No goal yet. Choose your age and income ranges in Settings.');
 
   // Don't overwrite a field while the user is typing in it.
   const fields = {
@@ -68,3 +72,4 @@ $('beyond-years').addEventListener('input', (e) => {
     renderSavings();
   }
 });
+

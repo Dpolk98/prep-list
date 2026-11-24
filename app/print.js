@@ -86,7 +86,9 @@ function renderPrint() {
   if ($('print-savings').checked) {
     glance.push(
       ['Emergency cash', `${money.format(Number(state.savings.current) || 0)} of ${money.format(cashGoal(tier))}`],
-      ['Investments', `${money.format(Number(state.savings.invested) || 0)} of ${money.format(investGoal(tier))}`],
+      ['Investments', investGoal()
+        ? `${money.format(Number(state.savings.invested) || 0)} of ${money.format(investGoal())}`
+        : money.format(Number(state.savings.invested) || 0)],
     );
   }
 
