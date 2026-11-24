@@ -1636,3 +1636,15 @@ div.grab-body { cursor: default; }
 .settings-subhead { margin: 16px 0 6px; font-size: 1rem; }
 #settings-invest-goal { margin-top: 12px; }
 @media (max-width: 560px) { .invest-ranges { grid-template-columns: 1fr; } }
+
+/* Settings > Savings goal: the goal level slider (25% to 200%), with "Suggested" under 100%. */
+.invest-level { margin-top: 16px; }
+.invest-level label { display: flex; flex-direction: row; justify-content: space-between; align-items: baseline; font-weight: 600; }
+.invest-level output { font-variant-numeric: tabular-nums; color: var(--accent); }
+.invest-level input[type="range"] { width: 100%; margin: 10px 0 2px; padding: 0; accent-color: var(--accent); min-height: 32px; }
+.invest-level-scale { position: relative; height: 1.2em; font-size: .8rem; color: var(--muted); }
+.invest-level-scale span { position: absolute; top: 0; }
+.invest-level-scale span:first-child { left: 0; }
+.invest-level-scale span:nth-child(2) { left: 42.86%; transform: translateX(-50%); }
+.invest-level-scale span:last-child { right: 0; }
+.invest-level .settings-hint { margin: 8px 0; }

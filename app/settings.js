@@ -120,12 +120,34 @@ $('settings-tiers').addEventListener('click', (e) => {
 function renderSavingsSettings() {
   $('settings-age').innerHTML = rangeOptions(AGE_RANGES, state.savings.ageRange);
   $('settings-income').innerHTML = rangeOptions(INCOME_BRACKETS, state.savings.incomeBracket);
+  renderInvestLevel();
   const age = ageRange();
   const bracket = incomeBracket();
   $('settings-invest-goal').textContent = age && bracket
-    ? `Your investment goal: ${money.format(investGoal())} (about ${age.multiple}× a yearly income of ${money.format(bracket.income)}).`
+    ? `Your investment goal: ${money.format(investGoal())} (about ${age.multiple}× a yearly income of ${money.format(bracket.income)}${investLevel() === INVEST_LEVEL.suggested ? '' : `, at ${investLevel()}%`}).`
     : 'Choose both to see your investment goal.';
 }
+
+// The goal level slider: its value, the % beside it, and the reset button.
+function renderInvestLevel() {
+  const level = investLevel();
+  if (document.activeElement !== $('settings-level')) $('settings-level').value = level;
+  $('settings-level-value').textContent = `${level}%`;
+  $('settings-level-reset').hidden = level === INVEST_LEVEL.suggested;
+}
+
+$('settings-level').addEventListener('input', (e) => {
+  state.savings.investLevel = Number(e.target.value) || INVEST_LEVEL.suggested;
+  saveState();
+  renderSavingsSettings();
+});
+
+$('settings-level-reset').addEventListener('click', () => {
+  state.savings.investLevel = INVEST_LEVEL.suggested;
+  saveState();
+  renderSavingsSettings();
+  $('settings-level').focus();
+});
 
 for (const [id, key] of [['settings-age', 'ageRange'], ['settings-income', 'incomeBracket']]) {
   $(id).addEventListener('change', (e) => {

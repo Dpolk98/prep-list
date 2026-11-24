@@ -26,17 +26,17 @@ function renderSavings() {
     ? `${state.savings.beyondYears} year${state.savings.beyondYears === 1 ? '' : 's'} (${weeksText})`
     : weeksText;
   renderFund('savings', cash, cashGoal(tier),
-    `${tier.name} tier: ${span} × ${money.format(Number(state.savings.weekly) || 0)}/week.`);
+    `${tier.name} tier: ${span} × ${money.format(CASH_PER_WEEK)}/week.`);
   const age = ageRange();
   const bracket = incomeBracket();
   renderFund('invest', invested, investGoal(),
-    age && bracket ? `Age ${age.label.toLowerCase()}: about ${age.multiple}× a yearly income of ${money.format(bracket.income)}.` : '',
+    age && bracket ? `Age ${age.label.toLowerCase()}: about ${age.multiple}× a yearly income of ${money.format(bracket.income)}${investLevel() === INVEST_LEVEL.suggested ? '' : `, at your ${investLevel()}% goal level`}.` : '',
     'No goal yet. Choose your age and income ranges in Settings.');
 
   // Don't overwrite a field while the user is typing in it.
   const fields = {
     'savings-current': cash, 'invest-current': invested,
-    'savings-weekly': state.savings.weekly, 'beyond-years': state.savings.beyondYears,
+    'beyond-years': state.savings.beyondYears,
   };
   for (const [id, val] of Object.entries(fields)) {
     if (document.activeElement !== $(id)) $(id).value = val;
@@ -54,12 +54,6 @@ $('savings-current').addEventListener('input', (e) => {
 
 $('invest-current').addEventListener('input', (e) => {
   state.savings.invested = Math.max(0, Number(e.target.value) || 0);
-  saveState();
-  renderSavings();
-});
-
-$('savings-weekly').addEventListener('input', (e) => {
-  state.savings.weekly = Math.max(0, Number(e.target.value) || 0);
   saveState();
   renderSavings();
 });

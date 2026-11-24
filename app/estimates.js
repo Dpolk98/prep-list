@@ -191,9 +191,11 @@ function tierWeeks(tier) {
   return days / 7;
 }
 
-// The emergency cash goal is the weekly baseline times the tier's length.
+// The emergency cash goal is a fixed $500 a week times the tier's length.
+const CASH_PER_WEEK = 500;
+
 function cashGoal(tier) {
-  return Math.round(tierWeeks(tier) * (Number(state.savings.weekly) || 0));
+  return Math.round(tierWeeks(tier) * CASH_PER_WEEK);
 }
 
 // The investment goal is a rough guide based on Fidelity's savings-by-age
@@ -234,12 +236,20 @@ function rangeOptions(list, selected) {
 const ageRange = () => AGE_RANGES[Number(state.savings.ageRange) || 0] || null;
 const incomeBracket = () => INCOME_BRACKETS[Number(state.savings.incomeBracket) || 0] || null;
 
-// 0 until both are chosen. Rounded to the nearest $1,000, since it's an estimate.
+// The goal level slider in Settings scales the suggested goal, from 25% to 200%.
+const INVEST_LEVEL = { min: 25, max: 200, step: 5, suggested: 100 };
+
+function investLevel() {
+  const n = Math.round(Number(state.savings.investLevel));
+  return Number.isFinite(n) && n > 0 ? Math.min(INVEST_LEVEL.max, Math.max(INVEST_LEVEL.min, n)) : INVEST_LEVEL.suggested;
+}
+
+// 0 until both ranges are chosen. Rounded to the nearest $1,000, since it's an estimate.
 function investGoal() {
   const age = ageRange();
   const bracket = incomeBracket();
   if (!age || !bracket) return 0;
-  return Math.round((age.multiple * bracket.income) / 1000) * 1000;
+  return Math.round((age.multiple * bracket.income * investLevel()) / 100 / 1000) * 1000;
 }
 
 function savingsGoal(tier) {
