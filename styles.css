@@ -198,6 +198,12 @@ input, select, button {
   padding: 8px 10px;
   min-width: 0;
 }
+/* Phones zoom in on a focused field whose text is under 16px, which then
+   has to be zoomed back out. On touch screens, fields use 16px text so
+   focusing one never zooms. Fields with larger text keep it. */
+@media (pointer: coarse) {
+  input, select, textarea { font-size: 16px; }
+}
 /* iOS Safari gives date inputs a fixed intrinsic width; let them shrink. */
 input[type=date] { -webkit-appearance: none; appearance: none; min-height: 2.4em; }
 input:focus, select:focus, button:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
@@ -591,6 +597,9 @@ dialog {
 }
 @media (max-height: 640px) { dialog { overflow-y: auto; } }
 dialog::backdrop { background: rgb(0 0 0 / .45); }
+/* While a popup or the menu is open, the page behind it doesn't scroll. */
+html:has(dialog[open]), html:has(#drawer.open) { overflow: hidden; }
+dialog { overscroll-behavior: contain; }
 dialog h2 { margin-bottom: 4px; }
 dialog .hint { margin: 0 0 14px; display: block; }
 .tier-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
