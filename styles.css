@@ -792,7 +792,9 @@ button.hazard-chip::after { content: '›'; margin-left: 2px; font-weight: 700; 
 
 /* ---------- Low-battery mode ---------- */
 
-.drawer-extra { padding: 0 8px 8px; }
+/* Room below the button, so it isn't pressed against the bottom edge when the
+   menu groups are open and the menu scrolls. */
+.drawer-extra { padding: 0 8px calc(32px + env(safe-area-inset-bottom, 0px)); }
 .drawer-extra .nav-button { width: 100%; border: 1px solid var(--border); background: transparent; text-align: left; }
 .battery-card { border-color: var(--warn); background: var(--warn-bg); }
 .battery-card h2 { color: var(--warn); }
