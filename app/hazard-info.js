@@ -31,12 +31,32 @@ function openHazardInfo(id) {
     (!supplies.length ? ''
       : have ? ` You have ${have} of its ${plural(supplies.length, 'supply suggestion')} so far.`
       : ` It adds ${plural(supplies.length, 'supply suggestion')}.`);
-  $('hazard-info-body').innerHTML = `
-    ${supplies.length ? `<section><h3>Supplies added to What to buy</h3>${byCategory}</section>` : ''}
-    ${plans.length ? `<section><h3>Plans and skills</h3><ul class="supplies">${plans.map((s) => item(s, false)).join('')}</ul>
-      <button type="button" class="link-btn hazard-info-cat" data-page="plans">${icon('clipboard')}Open Plans and Skills<span aria-hidden="true">›</span></button></section>` : ''}
-    ${cards.length ? `<section><h3>Quick reference</h3><div class="hazard-info-refs">${cards.map((c) =>
-      `<button type="button" class="hazard-info-ref" data-ref="${c.id}">${icon(c.icon)}<span>${escapeHtml(c.title)}</span><span aria-hidden="true">›</span></button>`).join('')}</div></section>` : ''}`;
+  // Each section collapses, using the What to buy section style. Every time
+  // the pop-up opens, only the first section starts open.
+  const sections = [
+    supplies.length && {
+      label: 'Supplies added to What to buy',
+      count: have ? `${have} of ${supplies.length} in inventory` : plural(supplies.length, 'item'),
+      body: byCategory,
+    },
+    plans.length && {
+      label: 'Plans and skills',
+      count: plural(plans.length, 'item'),
+      body: `<ul class="supplies">${plans.map((s) => item(s, false)).join('')}</ul>
+        <button type="button" class="link-btn hazard-info-cat" data-page="plans">${icon('clipboard')}Open Plans and Skills<span aria-hidden="true">›</span></button>`,
+    },
+    cards.length && {
+      label: 'Quick reference',
+      count: plural(cards.length, 'card'),
+      body: `<div class="hazard-info-refs">${cards.map((c) =>
+        `<button type="button" class="hazard-info-ref" data-ref="${c.id}">${icon(c.icon)}<span>${escapeHtml(c.title)}</span><span aria-hidden="true">›</span></button>`).join('')}</div>`,
+    },
+  ].filter(Boolean);
+  $('hazard-info-body').innerHTML = sections.map((sec, i) => `
+    <details class="supply-section hazard-info-section"${i === 0 ? ' open' : ''}>
+      <summary><span class="supply-section-label">${sec.label}</span><span class="supply-section-count">${sec.count}</span></summary>
+      <div class="hazard-info-section-body">${sec.body}</div>
+    </details>`).join('');
   $('hazard-info').showModal();
   // Start at the top, with focus on the close button there.
   $('hazard-info').scrollTop = 0;
