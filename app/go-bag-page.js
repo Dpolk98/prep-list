@@ -87,3 +87,39 @@ $('gobag-list').addEventListener('change', (e) => {
   renderGoBag();
   [...$('gobag-list').querySelectorAll('[data-gear-pack]')].find((b) => b.dataset.gearPack === name)?.focus();
 });
+
+// ---------- First visit: "Do you already have a bag set up?" ----------
+// Asked once (saved as state.goBag.asked, so it's part of backups). "Not yet"
+// opens the Choosing a bag section as a popup; it also stays at the bottom of
+// the page. Waits while another popup, such as first-use setup, is open.
+function askAboutBagIfNeeded() {
+  if (state.goBag.asked || !state.tier) return;
+  if (document.querySelector('dialog[open]')) return;
+  $('gobag-ask-dialog').showModal();
+}
+
+// Any way of closing it, Escape included, counts as answered.
+$('gobag-ask-dialog').addEventListener('close', () => {
+  if (state.goBag.asked) return;
+  state.goBag.asked = true;
+  saveState();
+});
+
+$('gobag-ask-yes').addEventListener('click', () => $('gobag-ask-dialog').close());
+
+$('gobag-ask-no').addEventListener('click', () => {
+  $('gobag-ask-dialog').close();
+  openChooseBag();
+});
+
+// The popup shows a copy of the section at the bottom of the page.
+function openChooseBag() {
+  const body = $('gobag-choose-dialog-body');
+  body.replaceChildren(...[...$('gobag-choose-body').children].map((el) => el.cloneNode(true)));
+  $('gobag-choose-dialog').showModal();
+  // Start at the top, even on a phone where the button is below the fold.
+  $('gobag-choose-done').focus({ preventScroll: true });
+  $('gobag-choose-dialog').scrollTop = 0;
+}
+
+$('gobag-choose-done').addEventListener('click', () => $('gobag-choose-dialog').close());

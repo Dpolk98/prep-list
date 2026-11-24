@@ -35,7 +35,7 @@ function render() {
   if (view === 'settings') renderSettings();
   if (view === 'print') renderPrint();
   if (view === 'grab') renderGrab();
-  if (view === 'gobag') renderGoBag();
+  if (view === 'gobag') { renderGoBag(); askAboutBagIfNeeded(); }
   if (view === 'reference') renderReference();
   if (view === 'review') renderReview();
 }

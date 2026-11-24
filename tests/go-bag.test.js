@@ -75,6 +75,8 @@ test('the bag is separate from the inventory', () => {
 });
 
 test('saved data keeps only names still on the list, once each', () => {
-  assert.equal(JSON.stringify(normalizeGoBag(undefined)), '{"packed":[]}');
-  assert.equal(JSON.stringify(normalizeGoBag({ packed: ['Whistle', 'Whistle', 'Gone', 3] })), '{"packed":["Whistle"]}');
+  assert.equal(JSON.stringify(normalizeGoBag(undefined)), '{"packed":[],"asked":false}');
+  assert.equal(JSON.stringify(normalizeGoBag({ packed: ['Whistle', 'Whistle', 'Gone', 3] })), '{"packed":["Whistle"],"asked":false}');
+  assert.equal(normalizeGoBag({ asked: true }).asked, true);
+  assert.equal(normalizeGoBag({ asked: 'yes' }).asked, false);
 });

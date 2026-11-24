@@ -199,5 +199,6 @@ function goBagTotals(sections) {
 function normalizeGoBag(data) {
   const names = new Set([...GO_BAG.flatMap((s) => s.gear), ...Object.values(GO_BAG_HAZARDS).flat()].map((g) => g.name));
   const packed = Array.isArray(data?.packed) ? data.packed.filter((n) => names.has(n)) : [];
-  return { packed: [...new Set(packed)] };
+  // asked: the "Do you already have a bag?" popup has been answered.
+  return { packed: [...new Set(packed)], asked: data?.asked === true };
 }

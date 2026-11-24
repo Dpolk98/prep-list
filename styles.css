@@ -422,7 +422,27 @@ input:disabled, select:disabled { cursor: not-allowed; }
 }
 .warn-text { color: var(--warn); }
 
-.gobag-choose h2 { margin-bottom: 6px; }
+/* Collapsible Choosing a bag card, and One bag, two jobs inside it */
+.gobag-fold { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; }
+.gobag-fold::-webkit-details-marker { display: none; }
+.gobag-fold::before {
+  content: ''; width: 7px; height: 7px; flex-shrink: 0; margin: 0 2px;
+  border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+  transform: rotate(-45deg); transition: transform .15s ease;
+}
+details[open] > .gobag-fold::before { transform: translateY(-2px) rotate(45deg); }
+.gobag-fold:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.gobag-fold h2, .gobag-fold h3 { margin: 0; flex: 1; }
+.gobag-fold .more { color: var(--accent); font-size: .82rem; white-space: nowrap; }
+.gobag-choose[open] > .gobag-fold { margin-bottom: 10px; }
+.gobag-uses { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
+.gobag-uses > .gobag-fold h3 { font-size: 1rem; }
+.gobag-uses[open] > .gobag-fold { margin-bottom: 10px; }
+@media (max-width: 480px) { .gobag-fold .more { display: none; } }
+.gobag-choose-dialog { width: min(680px, calc(100vw - 32px)); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+.gobag-choose-dialog h2 { margin-bottom: 8px; }
+.gobag-choose-dialog .gobag-choose-later { margin: 14px 0 0; }
+.gobag-choose-dialog .actions { justify-content: flex-end; margin-top: 12px; }
 .gobag-feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 4px 20px; }
 .gobag-feature-grid h3 {
   font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted);
@@ -433,7 +453,6 @@ input:disabled, select:disabled { cursor: not-allowed; }
 .gobag-budget { margin-top: 12px; padding: 12px 14px; border-radius: 8px; background: var(--warn-bg); border: 1px solid var(--warn); }
 .gobag-budget strong { color: var(--warn); }
 .gobag-budget p { margin: 4px 0 0; font-size: .9rem; max-width: 62ch; }
-.gobag-uses h2 { margin-bottom: 10px; }
 .gobag-use-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px 16px; }
 .gobag-use-grid p { margin: 6px 0 0; font-size: .9rem; }
 .gobag-uses > .hint { margin: 12px 0 0; }
@@ -458,7 +477,7 @@ input:disabled, select:disabled { cursor: not-allowed; }
 .gear .grab-check { margin-top: 2px; }
 .gear.packed .supply-name { text-decoration: line-through; color: var(--muted); }
 
-.gobag-tips { padding: 0; margin-top: 0; font-size: .9rem; }
+.gobag-tips { margin: 10px 0 4px; font-size: .9rem; }
 .gobag-tips ul { margin: 0 16px 14px; padding-left: 18px; max-width: 62ch; }
 .gobag-tips li { margin-bottom: 6px; }
 

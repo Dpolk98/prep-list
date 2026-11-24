@@ -292,36 +292,6 @@
 
     <!-- ===== Go-Bag (go-bag.js, app/go-bag-page.js) ===== -->
     <div id="view-gobag" class="view" hidden>
-      <section class="card gobag-choose">
-        <h2>Choosing a bag</h2>
-        <p class="settings-text">Any sturdy backpack of 30 liters or less can do the job. What matters most is that it fits you and carries comfortably for hours.</p>
-        <div class="gobag-feature-grid">
-          <div>
-            <h3>Worth having</h3>
-            <ul class="reasons">
-              <li><strong>Padded shoulder straps</strong> and a padded back panel.</li>
-              <li><strong>A hip belt and chest strap</strong>, which move weight off your shoulders.</li>
-              <li><strong>Durable fabric and sturdy zippers</strong>, the parts most likely to fail.</li>
-              <li><strong>Water resistance</strong>, from the fabric or a rain cover.</li>
-              <li><strong>A fit that suits your torso length.</strong> Try it on loaded if you can.</li>
-            </ul>
-          </div>
-          <div>
-            <h3>Nice to have</h3>
-            <ul class="reasons">
-              <li>Outside pockets for things you reach for often.</li>
-              <li>Compression straps to keep a part-full bag from shifting.</li>
-              <li>A hydration sleeve, attachment loops, or webbing.</li>
-              <li>Lighter or tougher specialty materials, and a long warranty.</li>
-            </ul>
-          </div>
-        </div>
-        <div class="gobag-budget">
-          <strong>Don’t chase features past your budget.</strong>
-          <p>Each added feature tends to raise the price, and often the weight, while adding less and less to what the bag can do. A basic daypack that fits well and holds up is enough. If a feature would push a bag outside your budget, skip it and put the money toward what goes inside.</p>
-        </div>
-      </section>
-
       <section class="card gobag-panel">
         <div class="water-big"><span id="gobag-liters">0</span><span class="goal" id="gobag-limit"></span></div>
         <span class="label">of space packed, estimated</span>
@@ -336,36 +306,66 @@
         </details>
       </section>
 
-      <section class="card gobag-uses">
-        <h2>One bag, two jobs</h2>
-        <div class="gobag-use-grid">
-          <div>
-            <span class="use-tag home">Get home</span>
-            <p>You’re at work, school, or on the road when something happens, and need to make it back, maybe on foot, over a day or two.</p>
-          </div>
-          <div>
-            <span class="use-tag out">Get out</span>
-            <p>You need to leave home quickly and get by on your own for about 72 hours, the Red Cross’s guideline for an evacuation kit.</p>
-          </div>
-        </div>
-        <p class="hint">Most of the list does both jobs, marked <span class="use-tag both">Both</span>. The rest is tagged with the job it’s mainly for. One bag means one set of gear to buy, pack, and keep up to date.</p>
-      </section>
-
       <section class="card gobag-list-card">
         <h2>Packing list</h2>
         <p class="hint">Tick things off as they go in the bag. Your Local Hazards come first. The bag is tracked on its own, so nothing here changes your inventory on the Preps pages.</p>
+        <details class="estimate-note gobag-tips">
+          <summary><strong>Packing tips</strong><span class="more">Show</span></summary>
+          <ul>
+            <li>Put heavy things, like water and food, in the middle of the bag and close to your back.</li>
+            <li>Keep what you’ll reach for often, like the headlamp, first aid kit, map, and rain jacket, near the top or in outside pockets.</li>
+            <li>Keep the bag where you spend your days: at work or in the car for getting home, and by the door when you’re home. Moving it between them is part of the plan.</li>
+            <li>Check it every 6 months. Replace food, water, medications, and batteries before they expire, and swap clothing for the season.</li>
+            <li>Walk part of your route home with the bag on once, to check that it’s comfortable and how long it takes.</li>
+          </ul>
+        </details>
         <div id="gobag-list"></div>
       </section>
 
-      <details class="card estimate-note gobag-tips">
-        <summary><strong>Packing tips</strong><span class="more">Show</span></summary>
-        <ul>
-          <li>Put heavy things, like water and food, in the middle of the bag and close to your back.</li>
-          <li>Keep what you’ll reach for often, like the headlamp, first aid kit, map, and rain jacket, near the top or in outside pockets.</li>
-          <li>Keep the bag where you spend your days: at work or in the car for getting home, and by the door when you’re home. Moving it between them is part of the plan.</li>
-          <li>Check it every 6 months. Replace food, water, medications, and batteries before they expire, and swap clothing for the season.</li>
-          <li>Walk part of your route home with the bag on once, to check that it’s comfortable and how long it takes.</li>
-        </ul>
+      <details class="card gobag-choose" id="gobag-choose">
+        <summary class="gobag-fold"><h2>Choosing a bag</h2><span class="more">Features, budget, and the two jobs</span></summary>
+        <div id="gobag-choose-body">
+          <p class="settings-text">Any sturdy backpack of 30 liters or less can do the job. What matters most is that it fits you and carries comfortably for hours.</p>
+          <div class="gobag-feature-grid">
+            <div>
+              <h3>Worth having</h3>
+              <ul class="reasons">
+                <li><strong>Padded shoulder straps</strong> and a padded back panel.</li>
+                <li><strong>A hip belt and chest strap</strong>, which move weight off your shoulders.</li>
+                <li><strong>Durable fabric and sturdy zippers</strong>, the parts most likely to fail.</li>
+                <li><strong>Water resistance</strong>, from the fabric or a rain cover.</li>
+                <li><strong>A fit that suits your torso length.</strong> Try it on loaded if you can.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Nice to have</h3>
+              <ul class="reasons">
+                <li>Outside pockets for things you reach for often.</li>
+                <li>Compression straps to keep a part-full bag from shifting.</li>
+                <li>A hydration sleeve, attachment loops, or webbing.</li>
+                <li>Lighter or tougher specialty materials, and a long warranty.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="gobag-budget">
+            <strong>Don’t chase features past your budget.</strong>
+            <p>Each added feature tends to raise the price, and often the weight, while adding less and less to what the bag can do. A basic daypack that fits well and holds up is enough. If a feature would push a bag outside your budget, skip it and put the money toward what goes inside.</p>
+          </div>
+          <details class="gobag-uses">
+            <summary class="gobag-fold"><h3>One bag, two jobs</h3><span class="more">Get home and get out</span></summary>
+            <div class="gobag-use-grid">
+              <div>
+                <span class="use-tag home">Get home</span>
+                <p>You’re at work, school, or on the road when something happens, and need to make it back, maybe on foot, over a day or two.</p>
+              </div>
+              <div>
+                <span class="use-tag out">Get out</span>
+                <p>You need to leave home quickly and get by on your own for about 72 hours, the Red Cross’s guideline for an evacuation kit.</p>
+              </div>
+            </div>
+            <p class="hint">Most of the list does both jobs, marked <span class="use-tag both">Both</span>. The rest is tagged with the job it’s mainly for. One bag means one set of gear to buy, pack, and keep up to date.</p>
+          </details>
+        </div>
       </details>
     </div>
 
@@ -635,6 +635,33 @@
         </label>
         <button type="button" id="welcome-fresh">Start fresh</button>
       </div>
+    </div>
+  </dialog>
+
+  <!-- Go-Bag: asked once, the first time the page is opened (app/go-bag-page.js) -->
+  <dialog id="gobag-ask-dialog" aria-labelledby="gobag-ask-title">
+    <p class="setup-step">Go-Bag</p>
+    <h2 id="gobag-ask-title">Do you already have a bag set up?</h2>
+    <p class="hint">A backpack of 30 liters or less that you use as your go-bag.</p>
+    <div class="tier-options welcome-choices">
+      <button type="button" class="tier-option" id="gobag-ask-yes">
+        <strong>Yes, I have a bag</strong>
+        <span class="tier-title">Go straight to the packing list.</span>
+      </button>
+      <button type="button" class="tier-option" id="gobag-ask-no">
+        <strong>Not yet</strong>
+        <span class="tier-title">See what to look for in a bag first.</span>
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Go-Bag: the Choosing a bag section, shown as a popup -->
+  <dialog id="gobag-choose-dialog" class="gobag-choose-dialog" aria-labelledby="gobag-choose-dialog-title">
+    <h2 id="gobag-choose-dialog-title">Choosing a bag</h2>
+    <div id="gobag-choose-dialog-body"></div>
+    <p class="hint gobag-choose-later">You can find this again at the bottom of the Go-Bag page.</p>
+    <div class="actions">
+      <button type="button" class="primary" id="gobag-choose-done">Got it</button>
     </div>
   </dialog>
 
