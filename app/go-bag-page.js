@@ -57,7 +57,7 @@ function bagSquare(bag, hazards) {
       ${useTag(bag.type)}
       <span class="gobag-bag-where ${bag.location ? '' : 'none'}">${bag.location ? escapeHtml(bag.location) : 'No location yet'}</span>
       <span class="gobag-bag-bar" aria-hidden="true"><span style="width:${pct}%"></span></span>
-      <span class="gobag-bag-status${t.count && t.packedCount === t.count ? ' all-packed' : ''}">${packedStatus(t)} · ${goBagSize(t.liters)} L</span>
+      <span class="gobag-bag-status">${t.count && t.packedCount === t.count ? `<span class="all-packed">${packedStatus(t)}</span>` : packedStatus(t)} · ${goBagSize(t.liters)} L</span>
     </button>`;
 }
 
@@ -110,7 +110,7 @@ function renderGoBag() {
       <details class="supply-section gobag-section" data-section="${s.id}"${open ? ' open' : ''}>
         <summary>
           <span class="supply-section-label">${escapeHtml(s.label)}</span>
-          <span class="supply-section-count${done ? ' all-packed' : ''}">${status}${s.liters ? ` · ${litersText(s.liters)}` : ''}</span>
+          <span class="supply-section-count">${done ? `<span class="all-packed">${status}</span>` : status}${s.liters ? ` · ${litersText(s.liters)}` : ''}</span>
         </summary>
         <ul class="supplies gear-list">${s.entries.map(gearRow).join('')}</ul>
       </details>`;
