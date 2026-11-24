@@ -34,12 +34,27 @@ const goBagOpen = new Map();
 
 function renderGoBag() {
   const mode = goBagMode(state.goBag.mode);
-  const sections = goBagSections(chosenHazards(), state.goBag.packed, mode);
+  const hazards = chosenHazards();
+  const sections = goBagSections(hazards, state.goBag.bags[mode], mode);
   const t = goBagTotals(sections);
   const limit = goBagSize(t.liters);
 
-  // Bag type: Get home, Get out, or Both.
-  for (const b of $('gobag-mode').querySelectorAll('[data-gobag-mode]')) b.setAttribute('aria-pressed', String(b.dataset.gobagMode === mode));
+  // Your bags: Get home, Get out, and Both, each with its own progress.
+  $('gobag-mode').innerHTML = Object.entries(GO_BAG_MODES).map(([id, m]) => {
+    const bt = id === mode ? t : goBagTotals(goBagSections(hazards, state.goBag.bags[id], id));
+    const size = goBagSize(bt.liters);
+    const status = bt.packedCount === 0 ? 'Not started'
+      : bt.packedCount === bt.count ? 'All packed'
+      : `${bt.packedCount} of ${bt.count} packed`;
+    const pct = bt.count ? Math.round((bt.packedCount / bt.count) * 100) : 0;
+    return `
+      <button type="button" class="gobag-bag ${id === mode ? 'selected' : ''}" data-gobag-mode="${id}" aria-pressed="${id === mode}">
+        <span class="gobag-bag-name">${m.label}</span>
+        <span class="gobag-bag-size">${size} L bag</span>
+        <span class="gobag-bag-bar" aria-hidden="true"><span style="width:${pct}%"></span></span>
+        <span class="gobag-bag-status">${status}</span>
+      </button>`;
+  }).join('');
   $('gobag-mode-blurb').textContent = GO_BAG_MODES[mode].blurb;
   $('gobag-size-label').textContent = `of space packed in a ${limit} L bag, estimated`;
 
@@ -85,9 +100,10 @@ $('gobag-list').addEventListener('change', (e) => {
   const box = e.target.closest('[data-gear-pack]');
   if (!box) return;
   const name = box.dataset.gearPack;
-  const packed = state.goBag.packed.filter((n) => n !== name);
+  const mode = goBagMode(state.goBag.mode);
+  const packed = state.goBag.bags[mode].filter((n) => n !== name);
   if (box.checked) packed.push(name);
-  state.goBag.packed = packed;
+  state.goBag.bags[mode] = packed;
   // Keep each section as it is while ticking things off.
   for (const d of $('gobag-list').querySelectorAll('.gobag-section')) goBagOpen.set(d.dataset.section, d.open);
   saveState();
@@ -102,6 +118,7 @@ $('gobag-mode').addEventListener('click', (e) => {
   goBagOpen.clear(); // the sections change, so start them fresh
   saveState();
   renderGoBag();
+  $('gobag-mode').querySelector(`[data-gobag-mode="${state.goBag.mode}"]`)?.focus();
 });
 
 // ---------- First visit: "Do you already have a bag set up?" ----------

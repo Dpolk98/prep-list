@@ -15,8 +15,10 @@
 // list plus every Local Hazard's additions stays well under 30 L, leaving
 // room for gaps between things and for personal items.
 //
-// The page can show the list for one job only (Get home or Get out) or for
-// both. The recommended bag size follows the list shown: see goBagSize.
+// There can be up to three separate bags: Get home, Get out, and Both. Each
+// shows the gear for its job and keeps its own packed list, so packing one
+// never ticks anything off another. The recommended bag size follows each
+// bag's list: see goBagSize.
 
 const GO_BAG_LIMIT_L = 30;
 
@@ -32,8 +34,8 @@ const GO_BAG_USES = {
   out: { label: 'Get out', long: 'Mainly for getting out' },
 };
 
-// Which list the page shows. Each mode keeps gear tagged for its job plus
-// gear tagged Both.
+// The three bags. Each one lists gear tagged for its job plus gear tagged
+// Both; the Both bag lists everything.
 const GO_BAG_MODES = {
   both: { label: 'Both', blurb: 'One bag for getting home and getting out. Everything on the list.' },
   home: { label: 'Get home', blurb: 'For getting back from work, school, or the road, maybe on foot, over a day or two.' },
@@ -225,11 +227,18 @@ function goBagSize(liters) {
   return GO_BAG_SIZES_L.find((size) => liters <= size * GO_BAG_FILL) ?? GO_BAG_LIMIT_L;
 }
 
-// Only names that are still on the list are kept, in case gear is renamed.
+// Saved Go-Bag data:
+//   bags:  { home, out, both }, each the names of gear packed in that bag.
+//          Only names still on the list are kept, in case gear is renamed.
+//   mode:  which bag the page shows (GO_BAG_MODES).
+//   asked: the "Do you already have a bag?" popup has been answered.
+// Data from before there were separate bags had one `packed` list; it
+// becomes the Both bag, which was the only bag then.
 function normalizeGoBag(data) {
   const names = new Set([...GO_BAG.flatMap((s) => s.gear), ...Object.values(GO_BAG_HAZARDS).flat()].map((g) => g.name));
-  const packed = Array.isArray(data?.packed) ? data.packed.filter((n) => names.has(n)) : [];
-  // asked: the "Do you already have a bag?" popup has been answered.
-  // mode: which list the page shows (GO_BAG_MODES).
-  return { packed: [...new Set(packed)], asked: data?.asked === true, mode: goBagMode(data?.mode) };
+  const clean = (list) => (Array.isArray(list) ? [...new Set(list.filter((n) => names.has(n)))] : []);
+  const saved = data?.bags && typeof data.bags === 'object' ? data.bags : { both: data?.packed };
+  const bags = {};
+  for (const mode of Object.keys(GO_BAG_MODES)) bags[mode] = clean(saved[mode]);
+  return { bags, mode: goBagMode(data?.mode), asked: data?.asked === true };
 }

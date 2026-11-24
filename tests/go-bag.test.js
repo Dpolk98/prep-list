@@ -74,8 +74,8 @@ test('the bag is separate from the inventory', () => {
 });
 
 test('saved data keeps only names still on the list, once each', () => {
-  assert.equal(JSON.stringify(normalizeGoBag(undefined)), '{"packed":[],"asked":false,"mode":"both"}');
-  assert.equal(JSON.stringify(normalizeGoBag({ packed: ['Whistle', 'Whistle', 'Gone', 3] })), '{"packed":["Whistle"],"asked":false,"mode":"both"}');
+  assert.equal(JSON.stringify(normalizeGoBag(undefined)), '{"bags":{"both":[],"home":[],"out":[]},"mode":"both","asked":false}');
+  assert.equal(JSON.stringify(normalizeGoBag({ bags: { home: ['Whistle', 'Whistle', 'Gone', 3] } }).bags.home), '["Whistle"]');
   assert.equal(normalizeGoBag({ asked: true }).asked, true);
   assert.equal(normalizeGoBag({ asked: 'yes' }).asked, false);
 });
@@ -103,6 +103,21 @@ test('the bag size follows the list, and never goes past 30 L', () => {
   }
   // A Get out bag without hazards is smaller than the full list's bag with every hazard.
   assert.ok(goBagSize(goBagTotals(goBagSections([], [], 'out')).liters) < goBagSize(goBagTotals(goBagSections(HAZARDS, [], 'both')).liters));
+});
+
+test('each bag keeps its own packed list', () => {
+  const g = normalizeGoBag({ bags: { home: ['Whistle'], out: ['Water filter', 'Gone'] }, mode: 'out' });
+  assert.equal(JSON.stringify(g.bags), '{"both":[],"home":["Whistle"],"out":["Water filter"]}');
+  assert.equal(g.mode, 'out');
+  const home = goBagTotals(goBagSections([], g.bags.home, 'home'));
+  const out = goBagTotals(goBagSections([], g.bags.out, 'out'));
+  const both = goBagTotals(goBagSections([], g.bags.both, 'both'));
+  assert.deepEqual([home.packedCount, out.packedCount, both.packedCount], [1, 1, 0]);
+});
+
+test('a single packed list from before separate bags becomes the Both bag', () => {
+  const g = normalizeGoBag({ packed: ['Whistle', 'Hand warmers'] });
+  assert.equal(JSON.stringify(g.bags), '{"both":["Whistle","Hand warmers"],"home":[],"out":[]}');
 });
 
 test('the saved bag type is kept, and anything else falls back to Both', () => {

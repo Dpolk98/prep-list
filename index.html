@@ -293,14 +293,9 @@
     <!-- ===== Go-Bag (go-bag.js, app/go-bag-page.js) ===== -->
     <div id="view-gobag" class="view" hidden>
       <section class="card gobag-panel">
-        <div class="gobag-mode-row">
-          <span class="gobag-mode-title" id="gobag-mode-title">Bag type</span>
-          <div class="metric-tabs gobag-mode" id="gobag-mode" role="group" aria-labelledby="gobag-mode-title">
-            <button type="button" data-gobag-mode="home" aria-pressed="false">Get home</button>
-            <button type="button" data-gobag-mode="out" aria-pressed="false">Get out</button>
-            <button type="button" data-gobag-mode="both" aria-pressed="true">Both</button>
-          </div>
-        </div>
+        <h2 class="gobag-mode-title" id="gobag-mode-title">Your bags</h2>
+        <p class="hint gobag-mode-intro">Keep one bag that does both jobs, or up to three separate bags. Each bag has its own packing list, so packing one doesn’t tick anything off the others.</p>
+        <div class="gobag-mode" id="gobag-mode" role="group" aria-labelledby="gobag-mode-title"></div>
         <p class="hint gobag-mode-blurb" id="gobag-mode-blurb"></p>
         <div class="water-big"><span id="gobag-liters">0</span><span class="goal" id="gobag-limit"></span></div>
         <span class="label" id="gobag-size-label">of space packed, estimated</span>
@@ -310,7 +305,7 @@
         <details class="estimate-note">
           <summary><strong>Sizes and weights are estimates.</strong><span class="more">Keeping it light</span></summary>
           <p>Each figure is typical for compact gear, rounded. Real packing leaves gaps, so leave a few liters free.</p>
-          <p>The bag size is the smallest of 20, 25, or 30 L that the list fills no more than three quarters of, leaving the rest for gaps and personal items. It changes with the bag type and your Local Hazards.</p>
+          <p>The bag size is the smallest of 20, 25, or 30 L that the list fills no more than three quarters of, leaving the rest for gaps and personal items. Each bag has its own size, and it changes with your Local Hazards.</p>
           <p>A common hiking guideline is to keep a loaded pack under about 20% of your body weight. Water is the heaviest thing in the bag, at about 2.2 lb per liter.</p>
           <p>A 30 L pack is a large daypack: small enough to carry all day, to keep under a desk or in a car, and to grab on the way out the door.</p>
         </details>
