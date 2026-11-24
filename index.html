@@ -249,6 +249,13 @@
             <select id="settings-income"></select>
           </label>
         </div>
+        <div class="invest-level">
+          <label for="settings-level">Goal level <output id="settings-level-value" for="settings-level"></output></label>
+          <input type="range" id="settings-level" min="25" max="200" step="5">
+          <div class="invest-level-scale" aria-hidden="true"><span>Lower</span><span>Suggested</span><span>Higher</span></div>
+          <p class="hint settings-hint">100% is the suggested goal. Slide it lower or higher to match what’s realistic for you.</p>
+          <button type="button" id="settings-level-reset" hidden>Back to suggested (100%)</button>
+        </div>
         <p class="settings-text" id="settings-invest-goal"></p>
         <h3 class="settings-subhead">How the goal is worked out</h3>
         <p class="settings-text">It starts from <a href="https://www.fidelity.com/viewpoints/retirement/how-much-do-i-need" target="_blank" rel="noopener">Fidelity’s savings guideline</a>: save at least 1× your yearly income by age 30, 3× by 40, 6× by 50, 8× by 60, and 10× by 67.</p>
@@ -508,9 +515,6 @@
         <div class="grid savings-inputs">
           <label>Saved so far ($)
             <input type="number" id="savings-current" min="0" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0">
-          </label>
-          <label>Baseline per week ($)
-            <input type="number" id="savings-weekly" min="0" step="1" inputmode="numeric" pattern="[0-9]*">
           </label>
           <label id="beyond-years-wrap">Years to cover
             <input type="number" id="beyond-years" min="1" max="50" step="1" inputmode="numeric" pattern="[0-9]*">

@@ -101,7 +101,10 @@ function currentPage() {
 // `current` is emergency cash saved so far, and `invested` is money in investments.
 // `ageRange` and `incomeBracket` index AGE_RANGES and INCOME_BRACKETS in
 // estimates.js and set the investment goal; 0 means not chosen.
-const DEFAULT_SAVINGS = { current: 0, invested: 0, weekly: 500, beyondYears: 2, ageRange: 0, incomeBracket: 0 };
+// `investLevel` is the percent of the suggested investment goal you aim for (100 = as suggested).
+// `weekly` is no longer used: emergency cash is a fixed CASH_PER_WEEK (estimates.js). It stays
+// here so older backups still check out.
+const DEFAULT_SAVINGS = { current: 0, invested: 0, weekly: 500, beyondYears: 2, ageRange: 0, incomeBracket: 0, investLevel: 100 };
 
 // Fills in any missing fields, so data saved by older versions still loads.
 // Categories that were removed or renamed. Saved data and imported backups
