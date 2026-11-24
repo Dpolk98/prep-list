@@ -30,8 +30,10 @@ $('welcome-new').addEventListener('click', () => {
 });
 
 $('welcome-returning').addEventListener('click', () => {
-  $('welcome-ask').hidden = true;
-  $('welcome-back').hidden = false;
+  animateSize($('welcome-dialog'), () => {
+    $('welcome-ask').hidden = true;
+    $('welcome-back').hidden = false;
+  });
   $('welcome-fresh').focus();
 });
 

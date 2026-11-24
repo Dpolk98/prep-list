@@ -39,13 +39,13 @@ function openReferenceCard(id) {
 function updateReferenceToggle() {
   const cards = [...$('reference-list').querySelectorAll('details')];
   // With any card open the button collapses them all; otherwise it expands.
-  $('reference-toggle').textContent = cards.some((d) => d.open) ? 'Collapse all' : 'Expand all';
+  $('reference-toggle').textContent = cards.some(isDetailsOpen) ? 'Collapse all' : 'Expand all';
 }
 
 $('reference-toggle').addEventListener('click', () => {
   const cards = [...$('reference-list').querySelectorAll('details')];
-  const open = !cards.some((d) => d.open);
-  cards.forEach((d) => { d.open = open; });
+  const open = !cards.some(isDetailsOpen);
+  cards.forEach((d) => setDetailsOpen(d, open));
   updateReferenceToggle();
 });
 $('reference-list').addEventListener('toggle', updateReferenceToggle, true);

@@ -5,7 +5,7 @@ function closeItemMenu({ focus = false } = {}) {
   const row = document.querySelector(`.item[data-id="${openMenuId}"]`);
   openMenuId = null;
   if (!row) return;
-  row.querySelector('.menu').hidden = true;
+  hideWithMotion(row.querySelector('.menu'));
   const btn = row.querySelector('.menu-btn');
   btn.setAttribute('aria-expanded', 'false');
   if (focus) btn.focus();
@@ -26,7 +26,7 @@ function onItemAction(e) {
       openMenuId = id;
       btn.setAttribute('aria-expanded', 'true');
       const menu = btn.nextElementSibling;
-      menu.hidden = false;
+      showWithMotion(menu);
       menu.querySelector('button').focus();
     }
     return;
@@ -79,7 +79,7 @@ function renderToggleLabel() {
   const all = [...document.querySelectorAll('#items .item-group')];
   // Read after the browser has toggled the group.
   requestAnimationFrame(() => {
-    const anyOpen = all.some((d) => d.open);
+    const anyOpen = all.some(isDetailsOpen);
     $('toggle-groups').textContent = anyOpen ? 'Collapse all' : 'Expand all';
     $('toggle-groups').dataset.open = String(!anyOpen);
   });
@@ -88,8 +88,13 @@ function renderToggleLabel() {
 $('toggle-groups').addEventListener('click', () => {
   const open = $('toggle-groups').dataset.open === 'true';
   const cat = currentPage().cat;
-  for (const d of document.querySelectorAll('#items .item-group')) setGroupOpen(cat, d.dataset.group, open);
-  render();
+  // Each group folds or unfolds where it is; nothing else needs redrawing.
+  for (const d of document.querySelectorAll('#items .item-group')) {
+    setGroupOpen(cat, d.dataset.group, open);
+    setDetailsOpen(d, open);
+  }
+  $('toggle-groups').textContent = open ? 'Collapse all' : 'Expand all';
+  $('toggle-groups').dataset.open = String(!open);
 });
 
 // ---------- Filters and household ----------

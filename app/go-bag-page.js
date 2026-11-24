@@ -122,7 +122,7 @@ function renderGoBag() {
 function renderGoBagToggle() {
   const all = [...$('gobag-list').querySelectorAll('.gobag-section')];
   // With any section open the button collapses them all; otherwise it expands.
-  const anyOpen = all.some((d) => d.open);
+  const anyOpen = all.some(isDetailsOpen);
   $('gobag-toggle-all').textContent = anyOpen ? 'Collapse all' : 'Expand all';
   $('gobag-toggle-all').dataset.open = String(!anyOpen);
 }
@@ -130,7 +130,7 @@ function renderGoBagToggle() {
 $('gobag-toggle-all').addEventListener('click', () => {
   const open = $('gobag-toggle-all').dataset.open === 'true';
   for (const d of $('gobag-list').querySelectorAll('.gobag-section')) {
-    d.open = open;
+    setDetailsOpen(d, open);
     goBagOpen.set(d.dataset.section, open);
   }
   renderGoBagToggle();
