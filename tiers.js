@@ -10,9 +10,9 @@
 //                types (optional): item type ids from shelf-life.js. Owning
 //                at least one item of any of them checks the suggestion off
 //                (see supply-match.js).
-//                needs (optional): 'meds' or 'pets'. Only listed when the
-//                household has someone on prescription or special
-//                medications, or has pets (see household.js).
+//                needs (optional): 'meds', 'pets' or 'infants'. Only listed
+//                when the household has someone on prescription or special
+//                medications, has pets, or has an infant (see household.js).
 
 const TIERS = [
   {
@@ -66,7 +66,7 @@ const TIERS = [
       { cat: 'Other', name: 'Go-bag', types: ['bags'], note: 'Packed in case you have to leave, with a whistle and N95 masks' },
       { cat: 'Other', name: 'Pet food and supplies', types: ['pet-food', 'pet-supplies'], needs: 'pets', note: 'A week of food, water, and any medications' },
       { cat: 'Other', name: 'Books, cards, and games', types: ['entertainment'], note: 'Entertainment without power' },
-      { cat: 'Other', name: 'Baby supplies', types: ['baby-supplies'], note: 'Formula, bottles, and diapers if needed' },
+      { cat: 'Other', name: 'Baby supplies', types: ['baby-supplies'], needs: 'infants', note: 'Formula, bottles, and diapers if needed' },
     ],
   },
   {

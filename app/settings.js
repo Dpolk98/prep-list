@@ -33,7 +33,9 @@ const HOUSEHOLD_COUNTS = [
   { key: 'adults', name: 'Adults', note: '18 and over', min: 1, one: 'adult', many: 'adults' },
   { key: 'children', name: 'Children', note: 'Under 18', min: 0, one: 'child', many: 'children' },
 ];
+// `children: true` marks a box that only shows when there are children.
 const HOUSEHOLD_CHECKS = [
+  { key: 'infants', icon: 'babyBottle', name: 'One or more of the children is an infant', note: 'Shows baby supplies, like formula and bottles.', children: true },
   { key: 'meds', icon: 'pill', name: 'Someone needs prescription or special medications', note: 'Shows prescription suggestions, like extra refills.' },
   { key: 'pets', icon: 'paw', name: 'We have pets', note: 'Shows pet food and supply suggestions.' },
 ];
@@ -51,7 +53,7 @@ function householdForm(h) {
     </div>
     <div class="household-checks">
       ${HOUSEHOLD_CHECKS.map((c) => `
-        <label class="hazard-option household-check">
+        <label class="hazard-option household-check" data-check-row="${c.key}" ${c.children && !(h.children > 0) ? 'hidden' : ''}>
           <input type="checkbox" data-check="${c.key}" ${h[c.key] ? 'checked' : ''}>
           ${icon(c.icon)}<span><span class="check-name">${c.name}</span><span class="check-note">${c.note}</span></span>
         </label>`).join('')}
@@ -66,6 +68,13 @@ function bindHouseholdForm(box, get, set) {
     box.querySelector(`[data-step="${key}"][data-by="-1"]`).disabled = n <= c.min;
     box.querySelector(`[data-step="${key}"][data-by="1"]`).disabled = n >= HOUSEHOLD_MAX;
     if (n !== get()[key]) set({ [key]: n });
+    // The infant box pops in once there are children, and out with none.
+    if (key === 'children') {
+      for (const c of HOUSEHOLD_CHECKS.filter((x) => x.children)) {
+        const row = box.querySelector(`[data-check-row="${c.key}"]`);
+        if (row.hidden !== !(n > 0)) animateSize(row, () => { row.hidden = !(n > 0); });
+      }
+    }
   };
   box.addEventListener('click', (e) => {
     const btn = e.target.closest('[data-step]');
@@ -258,8 +267,8 @@ function openSetup() {
     // A first run starts with both boxes clear; a run from Settings starts
     // from your current answers.
     household: state.tier
-      ? { adults: state.adults, children: state.children, meds: state.meds, pets: state.pets }
-      : { adults: state.adults, children: state.children, meds: false, pets: false },
+      ? { adults: state.adults, children: state.children, infants: state.infants, meds: state.meds, pets: state.pets }
+      : { adults: state.adults, children: state.children, infants: false, meds: false, pets: false },
     ageRange: Number(state.savings.ageRange) || 0, incomeBracket: Number(state.savings.incomeBracket) || 0,
   };
   renderSetup();

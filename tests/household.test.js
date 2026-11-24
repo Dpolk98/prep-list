@@ -5,13 +5,13 @@ const { normalizeHousehold, householdNeeds, forHousehold, householdText, TIERS, 
 const plain = (x) => JSON.parse(JSON.stringify(x));
 
 test('saved data from before the split counts everyone as adults, with medications and pets on', () => {
-  assert.deepEqual(plain(normalizeHousehold({ people: 4 })), { adults: 4, children: 0, people: 4, meds: true, pets: true });
-  assert.deepEqual(plain(normalizeHousehold({})), { adults: 2, children: 0, people: 2, meds: true, pets: true });
+  assert.deepEqual(plain(normalizeHousehold({ people: 4 })), { adults: 4, children: 0, people: 4, infants: false, meds: true, pets: true });
+  assert.deepEqual(plain(normalizeHousehold({})), { adults: 2, children: 0, people: 2, infants: false, meds: true, pets: true });
 });
 
 test('split data is kept, and people is their total', () => {
-  assert.deepEqual(plain(normalizeHousehold({ people: 9, adults: 2, children: 3, meds: false, pets: true })),
-    { adults: 2, children: 3, people: 5, meds: false, pets: true });
+  assert.deepEqual(plain(normalizeHousehold({ people: 9, adults: 2, children: 3, infants: true, meds: false, pets: true })),
+    { adults: 2, children: 3, people: 5, infants: true, meds: false, pets: true });
 });
 
 test('counts are whole numbers within range: at least one adult, no fewer than zero children', () => {
@@ -34,7 +34,7 @@ test('suggestions marked meds or pets only show when the household has them', ()
 
 test('every tagged suggestion and item type uses a known need', () => {
   const all = [...TIERS.flatMap((t) => t.supplies), ...Object.values(ITEM_TYPES).flat()];
-  for (const s of all.filter((x) => x.needs)) assert.ok(['meds', 'pets'].includes(s.needs), s.name);
+  for (const s of all.filter((x) => x.needs)) assert.ok(['meds', 'pets', 'infants'].includes(s.needs), s.name);
   assert.equal(householdNeeds({ name: 'x' }, { meds: false, pets: false }), true);
   assert.equal(householdNeeds(null, { meds: false, pets: false }), true);
 });
@@ -43,4 +43,12 @@ test('household text names adults and children', () => {
   assert.equal(householdText({ adults: 1, children: 0 }), '1 adult');
   assert.equal(householdText({ adults: 2, children: 1 }), '2 adults and 1 child');
   assert.equal(householdText({ adults: 1, children: 3 }), '1 adult and 3 children');
+});
+
+test('baby suggestions only show with children and the infant box ticked', () => {
+  const baby = TIERS[0].supplies.find((s) => s.name === 'Baby supplies');
+  assert.equal(baby.needs, 'infants');
+  assert.equal(householdNeeds(baby, { children: 2, infants: true }), true);
+  assert.equal(householdNeeds(baby, { children: 2, infants: false }), false);
+  assert.equal(householdNeeds(baby, { children: 0, infants: true }), false);
 });

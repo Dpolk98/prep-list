@@ -13,8 +13,9 @@
 //   group:         optional heading in the dropdown
 //   units:         units offered once this type is chosen, most common first.
 //                  ['value', 'label'] shows a longer label for the same value.
-//   needs:         optional 'meds' or 'pets': only offered in the dropdown when
-//                  the household has someone on special medications, or pets
+//   needs:         optional 'meds', 'pets' or 'infants': only offered in the
+//                  dropdown when the household has someone on special
+//                  medications, pets, or an infant
 //                  (see household.js). Items already of that type keep it.
 
 const ITEM_TYPES = {
@@ -53,7 +54,7 @@ const ITEM_TYPES = {
     { id: 'coffee-ground', group: 'Drinks', name: 'Ground coffee', months: 5, units: ['bags', 'cans', 'lbs'] },
     { id: 'coffee-instant', group: 'Drinks', name: 'Instant coffee and tea', months: 24, units: ['jars', 'boxes', 'packets'] },
     { id: 'drink-mix', group: 'Drinks', name: 'Drink mixes and cocoa', months: 24, units: ['canisters', 'packets', 'boxes'] },
-    { id: 'baby', group: 'Drinks', name: 'Infant formula and baby food', months: 12, units: ['cans', 'containers', 'jars', 'pouches'] },
+    { id: 'baby', needs: 'infants', group: 'Drinks', name: 'Infant formula and baby food', months: 12, units: ['cans', 'containers', 'jars', 'pouches'] },
 
     { id: 'bread', group: 'Fresh', name: 'Bread and tortillas', days: 7, units: ['loaves', 'packs'] },
     { id: 'eggs', group: 'Fresh', name: 'Fresh eggs (refrigerated)', days: 35, units: ['dozen', 'eggs'] },
@@ -132,7 +133,7 @@ const ITEM_TYPES = {
 
     { id: 'pet-food', needs: 'pets', group: 'Family and pets', name: 'Pet food (dry)', months: 12, units: ['bags', 'lbs', 'cans'] },
     { id: 'pet-supplies', needs: 'pets', group: 'Family and pets', name: 'Pet supplies', none: true, units: ['pieces', 'packs', 'units'] },
-    { id: 'baby-supplies', group: 'Family and pets', name: 'Baby supplies', none: true, units: ['packs', 'pieces', 'boxes'] },
+    { id: 'baby-supplies', needs: 'infants', group: 'Family and pets', name: 'Baby supplies', none: true, units: ['packs', 'pieces', 'boxes'] },
     { id: 'entertainment', group: 'Family and pets', name: 'Books and games', none: true, units: ['books', 'games', 'decks', 'pieces'] },
 
     { id: 'other-other', group: 'Other', name: 'Other', none: true, units: ['pieces', 'packs', 'boxes', 'sets', 'units'] },
