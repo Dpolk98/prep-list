@@ -239,6 +239,23 @@
         <div class="hazard-options" id="settings-hazards"></div>
       </section>
 
+      <section class="card" data-settings="savings">
+        <p class="hint settings-hint">Your age and income ranges set the investment goal on the Savings page. Your answers stay on this device and are never shared.</p>
+        <div class="grid invest-ranges">
+          <label>Your age
+            <select id="settings-age"></select>
+          </label>
+          <label>Yearly income before taxes
+            <select id="settings-income"></select>
+          </label>
+        </div>
+        <p class="settings-text" id="settings-invest-goal"></p>
+        <h3 class="settings-subhead">How the goal is worked out</h3>
+        <p class="settings-text">It starts from <a href="https://www.fidelity.com/viewpoints/retirement/how-much-do-i-need" target="_blank" rel="noopener">Fidelity’s savings guideline</a>: save at least 1× your yearly income by age 30, 3× by 40, 6× by 50, 8× by 60, and 10× by 67.</p>
+        <p class="settings-text">The app aims a little lower, at 80% of those amounts: 8× your income by 67. That’s the amount Fidelity gives for someone who plans to live on a bit less in retirement, or to retire at 70 instead of 67.</p>
+        <p class="settings-text">Each age range uses the middle of the range, and each income range uses its middle amount. So the goal is only a rough guide, not financial advice.</p>
+      </section>
+
       <section class="card" data-settings="theme">
         <p class="hint settings-hint">Changes how the app looks on this device. Your supplies and settings stay the same.</p>
         <div class="theme-options" id="settings-themes"></div>
@@ -459,7 +476,7 @@
           <li><strong>Keeps track of your supplies.</strong> Water, Food, Medical, and the other categories each have their own page in the ☰ menu. Add what you have, with how much, where it’s stored, and when it expires. On the Food page, you can scan a barcode to fill in the details.</li>
           <li><strong>Watches expiration dates for you.</strong> Leave the date blank and the app estimates one from the type of item. The Overview shows anything expired or expiring within 60 days, so you can use it and replace it in time.</li>
           <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them. You can also choose Local Hazards, like winter storms or wildfire, for a few more suggestions.</li>
-          <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash and investments, each with a goal sized to how long you’re preparing for.</li>
+          <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash, with a goal sized to how long you’re preparing for, and your investments, with a rough goal based on your age and income ranges.</li>
           <li><strong>Celebrates your progress.</strong> Once a year, on the anniversary of when you started, the Overview offers a look back at how your supplies and savings have grown. You can open it any time from the Settings page.</li>
           <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. The Grab list keeps an ordered list of what to take if you ever need to leave in a hurry, with boxes to tick off. Quick reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection. During an outage, low-battery mode (in the ☰ menu) shows just the essentials on a black screen that uses less power.</li>
         </ul>
@@ -515,16 +532,7 @@
             <input type="number" id="invest-current" min="0" step="1" inputmode="numeric" pattern="[0-9]*" placeholder="0">
           </label>
         </div>
-        <p class="hint invest-private">To suggest a goal, choose your age and income ranges. Your answers stay on this device and are never shared. Ranges are enough, since the goal is only a rough guide.</p>
-        <div class="grid invest-ranges">
-          <label>Your age
-            <select id="invest-age"></select>
-          </label>
-          <label>Yearly income before taxes
-            <select id="invest-income"></select>
-          </label>
-        </div>
-        <p class="hint invest-source">Based on <a href="https://www.fidelity.com/viewpoints/retirement/how-much-do-i-need" target="_blank" rel="noopener">Fidelity’s guideline</a>: save at least 1× your yearly income by age 30, 3× by 40, 6× by 50, 8× by 60, and 10× by 67.</p>
+        <p class="hint invest-private">The goal comes from the age and income ranges you choose in <a href="#/settings/savings">Settings</a>. Your answers stay on this device and are never shared.</p>
       </section>
 
       <section class="card savings-why">
@@ -635,9 +643,9 @@
     </div>
   </dialog>
 
-  <!-- First-use setup: three short questions, answered once -->
+  <!-- First-use setup: four short questions, answered once -->
   <dialog id="setup-dialog" class="setup-dialog" aria-labelledby="setup-title">
-    <div class="setup-progress" id="setup-progress" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="setup-progress" id="setup-progress" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
     <p class="setup-step" id="setup-step"></p>
     <h2 id="setup-title" tabindex="-1"></h2>
     <p class="hint" id="setup-hint"></p>
@@ -654,6 +662,15 @@
     </div>
 
     <div class="hazard-options" id="setup-hazards" hidden></div>
+
+    <div class="grid invest-ranges" id="setup-savings" hidden>
+      <label>Your age
+        <select id="setup-age"></select>
+      </label>
+      <label>Yearly income before taxes
+        <select id="setup-income"></select>
+      </label>
+    </div>
 
     <div class="actions setup-actions">
       <button type="button" id="setup-back">Back</button>

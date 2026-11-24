@@ -65,6 +65,7 @@ const SETTINGS_PAGES = [
   { section: 'household', group: 1, name: 'Household', icon: 'users' },
   { section: 'tier', group: 1, name: 'How long you’re preparing for', icon: 'calendar' },
   { section: 'hazards', group: 1, name: 'Local Hazards', icon: 'alert' },
+  { section: 'savings', group: 1, name: 'Savings goal', icon: 'dollar' },
   { section: 'theme', group: 2, name: 'Theme', icon: 'palette' },
   { section: 'review', group: 3, name: 'Year in review', icon: 'sparkles' },
   { section: 'backup', group: 3, name: 'Backup', icon: 'save' },

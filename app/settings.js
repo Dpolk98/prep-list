@@ -97,6 +97,7 @@ function renderSettings(page) {
   if (section === 'tier') $('settings-tiers').innerHTML = tierOptions();
   if (section === 'hazards') $('settings-hazards').innerHTML = hazardOptions();
   if (section === 'theme') $('settings-themes').innerHTML = themeOptions();
+  if (section === 'savings') renderSavingsSettings();
 
   if (section === 'backup') {
     const info = backupInfo();
@@ -115,14 +116,34 @@ $('settings-tiers').addEventListener('click', (e) => {
   $('settings-tiers').querySelector(`[data-tier="${state.tier}"]`)?.focus();
 });
 
+// The age and income pickers on the Savings goal settings page, and the goal they give.
+function renderSavingsSettings() {
+  $('settings-age').innerHTML = rangeOptions(AGE_RANGES, state.savings.ageRange);
+  $('settings-income').innerHTML = rangeOptions(INCOME_BRACKETS, state.savings.incomeBracket);
+  const age = ageRange();
+  const bracket = incomeBracket();
+  $('settings-invest-goal').textContent = age && bracket
+    ? `Your investment goal: ${money.format(investGoal())} (about ${age.multiple}× a yearly income of ${money.format(bracket.income)}).`
+    : 'Choose both to see your investment goal.';
+}
+
+for (const [id, key] of [['settings-age', 'ageRange'], ['settings-income', 'incomeBracket']]) {
+  $(id).addEventListener('change', (e) => {
+    state.savings[key] = Number(e.target.value) || 0;
+    saveState();
+    renderSavingsSettings();
+  });
+}
+
 // ---------- Tier picker ----------
 
 // ---------- First-use setup ----------
-// Three short questions, answered once: how long you're preparing for, how
-// many people, and your Local Hazards. Nothing is saved until Finish, so if
+// Four short questions, answered once: how long you're preparing for, how
+// many people, your Local Hazards, and age and income ranges for the
+// investment goal. Nothing is saved until Finish, so if
 // the app is closed partway through, setup simply starts again next time.
 
-let setup = null; // { step, tier, people, hazards } while setup is open
+let setup = null; // { step, tier, people, hazards, ageRange, incomeBracket } while setup is open
 const SETUP_STEPS = [
   {
     title: 'How long are you preparing for?',
@@ -136,12 +157,19 @@ const SETUP_STEPS = [
     title: 'Local Hazards',
     hint: 'Choose any that apply where you live. Each one adds a few suggestions to the What to buy lists. It’s fine to leave these blank, and you can change them any time in Settings.',
   },
+  {
+    title: 'Your savings goal',
+    hint: 'Your age and income ranges suggest a goal for your investments. Your answers stay on this device and are never shared. You can skip this, and change it any time in Settings.',
+  },
 ];
 
 // `again` is a run from Settings: it starts from the current answers and
 // can be cancelled, which leaves everything as it was.
 function openSetup() {
-  setup = { step: 1, tier: state.tier, people: state.people || 2, hazards: [...state.hazards], again: Boolean(state.tier) };
+  setup = {
+    step: 1, tier: state.tier, people: state.people || 2, hazards: [...state.hazards], again: Boolean(state.tier),
+    ageRange: Number(state.savings.ageRange) || 0, incomeBracket: Number(state.savings.incomeBracket) || 0,
+  };
   renderSetup();
   $('setup-dialog').showModal();
   focusSetup();
@@ -162,9 +190,14 @@ function renderSetup() {
   $('setup-tier').hidden = step !== 1;
   $('setup-people').hidden = step !== 2;
   $('setup-hazards').hidden = step !== 3;
+  $('setup-savings').hidden = step !== 4;
   if (step === 1) $('setup-tier').innerHTML = tierOptions(setup.tier);
   if (step === 2) renderPeople();
   if (step === 3) $('setup-hazards').innerHTML = hazardOptions(setup.hazards);
+  if (step === 4) {
+    $('setup-age').innerHTML = rangeOptions(AGE_RANGES, setup.ageRange);
+    $('setup-income').innerHTML = rangeOptions(INCOME_BRACKETS, setup.incomeBracket);
+  }
   $('setup-back').hidden = step === 1 && !setup.again;
   $('setup-back').textContent = step === 1 ? 'Cancel' : 'Back';
   // Choosing a tier moves straight on; Continue is there when coming back.
@@ -184,7 +217,8 @@ function renderPeople() {
 function focusSetup() {
   const target = setup.step === 1 ? ($('setup-tier').querySelector('.selected') || $('setup-tier').querySelector('button'))
     : setup.step === 2 ? $('people-plus')
-    : $('setup-hazards').querySelector('input');
+    : setup.step === 3 ? $('setup-hazards').querySelector('input')
+    : $('setup-age');
   target?.focus();
 }
 
@@ -194,6 +228,10 @@ function readSetupStep() {
   if (setup.step === 3) {
     const checked = [...$('setup-hazards').querySelectorAll('input:checked')].map((el) => el.value);
     setup.hazards = HAZARDS.map((h) => h.id).filter((id) => checked.includes(id));
+  }
+  if (setup.step === 4) {
+    setup.ageRange = Number($('setup-age').value) || 0;
+    setup.incomeBracket = Number($('setup-income').value) || 0;
   }
 }
 
@@ -209,6 +247,8 @@ function finishSetup() {
   state.tier = setup.tier || TIERS[0].id;
   state.people = setup.people;
   state.hazards = setup.hazards;
+  state.savings.ageRange = setup.ageRange;
+  state.savings.incomeBracket = setup.incomeBracket;
   setup = null;
   saveState();
   $('setup-dialog').close();
