@@ -39,7 +39,7 @@ const PAGES = [
   ...(FEATURES.grabList ? [{ slug: 'grab', group: 'resources', name: 'Grab List', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
   { slug: 'go-bag', group: 'resources', name: 'Go-Bags', icon: 'rucksack', blurb: 'Bags of 30 liters or less, packed to get you home, get you out, or both.' },
   { slug: 'reference', group: 'resources', name: 'Quick Reference', icon: 'book', blurb: 'Short how-tos for when the power or water is out. Saved on this device, so they work offline.' },
-  { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, prep length, the app’s look, and backups.' },
+  { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, prep duration, the app’s look, and backups.' },
   { slug: 'print', name: 'Print Summary', icon: 'printer', blurb: 'Your supplies on paper, for when a phone is dead or the power is out.' },
 ];
 
@@ -63,7 +63,7 @@ const REVIEW_PAGE = { slug: 'review', name: 'Year in Review', icon: 'sparkles', 
 // `group` splits the list into a few cards.
 const SETTINGS_PAGES = [
   { section: 'household', group: 1, name: 'Household', icon: 'users' },
-  { section: 'tier', group: 1, name: 'Prep Length', icon: 'calendar' },
+  { section: 'tier', group: 1, name: 'Prep Duration', icon: 'calendar' },
   { section: 'hazards', group: 1, name: 'Local Hazards', icon: 'alert' },
   { section: 'savings', group: 1, name: 'Savings Goal', icon: 'dollar' },
   { section: 'theme', group: 2, name: 'Theme', icon: 'palette' },

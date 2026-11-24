@@ -241,7 +241,7 @@ for (const [id, key] of [['settings-age', 'ageRange'], ['settings-income', 'inco
 // ---------- Tier picker ----------
 
 // ---------- First-use setup ----------
-// Four short questions, answered once: your prep length, who's
+// Four short questions, answered once: your prep duration, who's
 // in your household, your Local Hazards, and age and income ranges for the
 // investment goal. Nothing is saved until Finish, so if
 // the app is closed partway through, setup simply starts again next time.
