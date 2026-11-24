@@ -38,9 +38,7 @@ const GO_BAG = [
     name: 'Water',
     icon: 'droplet',
     gear: [
-      { name: 'Two 1-liter water bottles, filled', use: 'both', liters: 2.3, lb: 4.7, note: 'About 4.4 lb of water. Three days’ worth (about 3 gallons) is too heavy to carry, so plan to treat water along the way' },
-      { name: 'Water filter', use: 'both', liters: 0.3, lb: 0.2, note: 'Squeeze or straw type. Most don’t remove viruses, so carry tablets too' },
-      { name: 'Purification tablets', use: 'both', liters: 0.05, lb: 0.05, note: 'Treat water the filter can’t, and work on their own if it breaks' },
+      { name: 'Two 1-liter water bottles, filled', use: 'both', liters: 2.3, lb: 4.7, note: 'About 4.4 lb of water. Three days’ worth (about 3 gallons) weighs about 25 lb, too much for a 30 L bag' },
     ],
   },
   {
@@ -49,7 +47,6 @@ const GO_BAG = [
     icon: 'utensils',
     gear: [
       { name: 'Ready-to-eat food for 3 days', use: 'both', liters: 1.6, lb: 3.3, note: 'Calorie-dense and no cooking needed, like ration bars, nuts, and jerky. Getting home may take only a day’s worth' },
-      { name: 'Metal cup or small pot', use: 'out', liters: 0.6, lb: 0.4, note: 'For boiling water to purify it, or heating food' },
     ],
   },
   {
@@ -62,8 +59,6 @@ const GO_BAG = [
       { name: 'Rain jacket or poncho', use: 'both', liters: 1, lb: 0.6, note: 'Staying dry is a big part of staying warm' },
       { name: 'Two pairs of wool or synthetic socks', use: 'both', liters: 0.5, lb: 0.3, note: 'Dry socks help prevent blisters on a long walk' },
       { name: 'Work gloves', use: 'both', liters: 0.4, lb: 0.3, note: 'For debris, broken glass, and rough work' },
-      { name: 'Emergency bivy or space blanket', use: 'both', liters: 0.3, lb: 0.3, note: 'Reflects body heat back to you. A bivy is sturdier than a flat blanket' },
-      { name: 'Lightweight tarp', use: 'out', liters: 1.2, lb: 1, note: 'With cord, it makes a shelter from rain or sun' },
     ],
   },
   {
@@ -82,7 +77,6 @@ const GO_BAG = [
     icon: 'flashlight',
     gear: [
       { name: 'Headlamp and spare batteries', use: 'both', liters: 0.3, lb: 0.3, note: 'Keeps your hands free while you walk' },
-      { name: 'Power bank and charging cable', use: 'both', liters: 0.3, lb: 0.6, note: 'Keep it charged, and top it up every few months' },
       { name: 'Compact emergency radio', use: 'out', liters: 0.6, lb: 0.7, note: 'Hand-crank or battery, with NOAA weather bands' },
       { name: 'Whistle', use: 'both', liters: 0.02, lb: 0.02, note: 'Three blasts is a widely recognized call for help' },
     ],
@@ -104,8 +98,6 @@ const GO_BAG = [
     icon: 'wrench',
     gear: [
       { name: 'Multi-tool or knife', use: 'both', liters: 0.15, lb: 0.4, note: 'Check local laws if you carry it to work' },
-      { name: 'Lighter and fire starter', use: 'out', liters: 0.1, lb: 0.1, note: 'Waterproof matches or a ferro rod as a backup' },
-      { name: 'Duct tape and paracord', use: 'out', liters: 0.3, lb: 0.4, note: 'Wrap the tape around a card to save space' },
     ],
   },
   {
@@ -114,8 +106,6 @@ const GO_BAG = [
     icon: 'soap',
     gear: [
       { name: 'Hand sanitizer and wet wipes', use: 'both', liters: 0.4, lb: 0.4, note: 'Travel sizes' },
-      { name: 'Toilet paper and garbage bags', use: 'both', liters: 0.4, lb: 0.3, note: 'A heavy-duty bag doubles as a poncho or ground cover' },
-      { name: 'Toothbrush and travel toothpaste', use: 'out', liters: 0.1, lb: 0.1, note: 'For a few days away from home' },
       { name: 'Menstrual products', use: 'both', liters: 0.2, lb: 0.2, note: 'As needed' },
     ],
   },

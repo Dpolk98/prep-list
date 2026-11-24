@@ -68,8 +68,8 @@ test('packed totals count only packed gear, and outside gear takes no space', ()
 
 test('the bag is separate from the inventory', () => {
   for (const g of allGear()) assert.equal(g.cat, undefined, g.name);
-  const items = [{ name: 'Water filter', category: 'Water', type: 'filter', quantity: 1 }];
-  const entry = goBagSections([], [], items).flatMap((s) => s.entries).find((e) => e.gear.name === 'Water filter');
+  const items = [{ name: 'Whistle', category: 'Other', type: 'hand-tools', quantity: 1 }];
+  const entry = goBagSections([], [], items).flatMap((s) => s.entries).find((e) => e.gear.name === 'Whistle');
   assert.equal(entry.packed, false);
   assert.equal('have' in entry, false);
 });
