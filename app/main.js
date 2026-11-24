@@ -50,7 +50,9 @@ if (hadSavedData) {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch { /* not essential */ }
 }
 
+recordFirstOpened();
 resetForm();
 render();
 if (!hadSavedData) openWelcome();
 else askForTierIfNeeded();
+inviteTipIfDue();

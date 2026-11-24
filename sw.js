@@ -40,6 +40,7 @@ const FILES = [
   'app/list-actions.js',
   'app/backup.js',
   'app/welcome.js',
+  'app/tip.js',
   'app/main.js',
   'barcode.js',
   'scan.js',

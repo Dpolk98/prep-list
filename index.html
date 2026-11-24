@@ -267,7 +267,7 @@
       <section class="card" id="about">
         <h2>About the app</h2>
         <p class="settings-text">Prep Tracker was developed with the help of AI. It’s free to use, has no ads, and keeps your data on your device.</p>
-        <p class="settings-text">If you find it useful and would like to support it, you can leave a tip on Ko-fi. It’s completely optional.</p>
+        <p class="settings-text">If you find it useful and would like to support it, you can <a id="settings-tip-link" href="https://ko-fi.com/DanielPolk" target="_blank" rel="noopener">leave a tip on Ko-fi</a>. It’s completely optional.</p>
         <p class="settings-text" id="offline-status" hidden>Saved on this device, so it opens without a connection.</p>
         <p class="settings-text"><a href="#/welcome">Read the welcome guide again</a></p>
         <div class="data-tools">
@@ -559,6 +559,17 @@
     </div>
   </dialog>
 
+  <!-- Shown at most once, a month after first use (see app/tip.js) -->
+  <dialog id="tip-dialog" class="tip-dialog" aria-labelledby="tip-title">
+    <h2 id="tip-title">Finding Prep Tracker useful?</h2>
+    <p class="settings-text">If it’s been helpful and you’d like to say thanks, you can leave a tip on Ko-fi. Even if you choose not to, this app will remain completely free, forever.</p>
+    <p class="hint">Completely optional, and this won’t pop up again. If you change your mind later, there’s a Ko-fi link in Settings, under About the app.</p>
+    <div class="actions tip-actions">
+      <button type="button" id="tip-later">No thanks</button>
+      <a class="button-link primary" id="tip-link" href="#" target="_blank" rel="noopener">Leave a tip</a>
+    </div>
+  </dialog>
+
   <script src="barcode.js"></script>
   <script src="tiers.js"></script>
   <script src="hazards.js"></script>
@@ -587,6 +598,7 @@
   <script src="app/list-actions.js"></script>
   <script src="app/backup.js"></script>
   <script src="app/welcome.js"></script>
+  <script src="app/tip.js"></script>
   <script src="app/main.js"></script>
   <script src="scan.js"></script>
 </body>
