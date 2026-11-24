@@ -192,19 +192,50 @@ function tierWeeks(tier) {
 }
 
 // The emergency cash goal is the weekly baseline times the tier's length.
-// Investments aim for 1.5 times that, and the Overview shows both together.
-const INVEST_MULTIPLIER = 1.5;
-
 function cashGoal(tier) {
   return Math.round(tierWeeks(tier) * (Number(state.savings.weekly) || 0));
 }
 
-function investGoal(tier) {
-  return Math.round(cashGoal(tier) * INVEST_MULTIPLIER);
+// The investment goal is a rough guide from Fidelity's savings-by-age
+// guideline: at least 1x your yearly income by 30, 3x by 40, 6x by 50, 8x by
+// 60, and 10x by 67 (fidelity.com/viewpoints/retirement/how-much-do-i-need).
+// You pick an age range and an income bracket rather than exact numbers.
+// Each age range uses the multiple for the middle of the range, read off a
+// straight line between Fidelity's milestones. Each income bracket uses its
+// midpoint, or its edge for the open-ended ones. Index 0 means not chosen.
+const AGE_RANGES = [
+  null,
+  { label: 'Under 30', multiple: 1 },
+  { label: '30 to 39', multiple: 2 },
+  { label: '40 to 49', multiple: 4.5 },
+  { label: '50 to 59', multiple: 7 },
+  { label: '60 to 66', multiple: 9 },
+  { label: '67 or older', multiple: 10 },
+];
+const INCOME_BRACKETS = [
+  null,
+  { label: 'Under $25,000', income: 20000 },
+  { label: '$25,000 to $50,000', income: 37500 },
+  { label: '$50,000 to $75,000', income: 62500 },
+  { label: '$75,000 to $100,000', income: 87500 },
+  { label: '$100,000 to $150,000', income: 125000 },
+  { label: '$150,000 to $200,000', income: 175000 },
+  { label: 'Over $200,000', income: 200000 },
+];
+
+const ageRange = () => AGE_RANGES[Number(state.savings.ageRange) || 0] || null;
+const incomeBracket = () => INCOME_BRACKETS[Number(state.savings.incomeBracket) || 0] || null;
+
+// 0 until both are chosen. Rounded to the nearest $1,000, since it's an estimate.
+function investGoal() {
+  const age = ageRange();
+  const bracket = incomeBracket();
+  if (!age || !bracket) return 0;
+  return Math.round((age.multiple * bracket.income) / 1000) * 1000;
 }
 
 function savingsGoal(tier) {
-  return cashGoal(tier) + investGoal(tier);
+  return cashGoal(tier) + investGoal();
 }
 
 function totalSaved() {

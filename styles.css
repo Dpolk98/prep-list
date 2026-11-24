@@ -1629,3 +1629,9 @@ div.grab-body { cursor: default; }
   :where(html[data-theme="pastel"] body:not(.low-power)) :is(.tier-option, .theme-option, .hazard-option).selected,
   :where(html[data-theme="pastel"] body:not(.low-power)) .hazard-option:has(input:checked) { border-color: var(--pink); box-shadow: inset 0 0 0 1px var(--pink); background: var(--pink-soft); }
 }
+
+/* Investments: the age and income pickers, two across, or stacked on phones. */
+.fund .invest-private { margin-bottom: 8px; }
+.invest-ranges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.fund .invest-source { margin: 12px 0 0; }
+@media (max-width: 560px) { .invest-ranges { grid-template-columns: 1fr; } }

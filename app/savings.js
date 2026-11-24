@@ -1,13 +1,14 @@
 // ---------- Rendering: savings ----------
 
 // Fills in one card on the Savings page: the amount, goal, bar, and math line.
-function renderFund(prefix, current, goal, math) {
+function renderFund(prefix, current, goal, math, noGoalText) {
   const pct = goal > 0 ? Math.min(100, Math.round((current / goal) * 100)) : 0;
   $(`${prefix}-current-display`).textContent = money.format(current);
   $(`${prefix}-goal`).textContent = money.format(goal);
   $(`${prefix}-bar`).style.width = `${pct}%`;
   $(`${prefix}-bar`).classList.toggle('complete', goal > 0 && current >= goal);
   const remaining = Math.max(0, goal - current);
+  if (!goal && noGoalText) { $(`${prefix}-math`).textContent = noGoalText; return; }
   $(`${prefix}-math`).textContent =
     `${math} ` + (remaining > 0 ? `${money.format(remaining)} to go.` : 'Goal reached.');
 }
@@ -26,13 +27,17 @@ function renderSavings() {
     : weeksText;
   renderFund('savings', cash, cashGoal(tier),
     `${tier.name} tier: ${span} × ${money.format(Number(state.savings.weekly) || 0)}/week.`);
-  renderFund('invest', invested, investGoal(tier),
-    `1.5 times your ${money.format(cashGoal(tier))} emergency cash goal.`);
+  const age = ageRange();
+  const bracket = incomeBracket();
+  renderFund('invest', invested, investGoal(),
+    age && bracket ? `Age ${age.label.toLowerCase()}: about ${age.multiple}× a yearly income of ${money.format(bracket.income)}.` : '',
+    'Choose your age and income ranges to see a suggested goal.');
 
   // Don't overwrite a field while the user is typing in it.
   const fields = {
     'savings-current': cash, 'invest-current': invested,
     'savings-weekly': state.savings.weekly, 'beyond-years': state.savings.beyondYears,
+    'invest-age': Number(state.savings.ageRange) || 0, 'invest-income': Number(state.savings.incomeBracket) || 0,
   };
   for (const [id, val] of Object.entries(fields)) {
     if (document.activeElement !== $(id)) $(id).value = val;
@@ -67,4 +72,21 @@ $('beyond-years').addEventListener('input', (e) => {
     saveState();
     renderSavings();
   }
+});
+
+// Fills the age and income pickers once, from the lists in estimates.js.
+for (const [id, list, prompt] of [['invest-age', AGE_RANGES, 'Choose a range'], ['invest-income', INCOME_BRACKETS, 'Choose a range']]) {
+  $(id).innerHTML = list.map((o, i) => `<option value="${i}">${o ? escapeHtml(o.label) : prompt}</option>`).join('');
+}
+
+$('invest-age').addEventListener('change', (e) => {
+  state.savings.ageRange = Number(e.target.value) || 0;
+  saveState();
+  renderSavings();
+});
+
+$('invest-income').addEventListener('change', (e) => {
+  state.savings.incomeBracket = Number(e.target.value) || 0;
+  saveState();
+  renderSavings();
 });

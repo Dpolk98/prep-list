@@ -15,14 +15,16 @@ The guide can be read again from the About section on the Settings page.
 
 On first use you choose how long you're preparing for. You can change it any time on the **Settings** page.
 
-| Tier | Focus | Emergency cash goal (at $500/week) | Investment goal | Total |
-| --- | --- | --- | --- | --- |
-| 1 Week | Shelter in place: stored supplies that need no power or running water | $500 | $750 | $1,250 |
-| 1 Month | Extended disruption: cook without power, purify water, handle sanitation | $2,143 | $3,215 | $5,358 |
-| 1 Year | Long-term self-reliance: renewable water, bulk staples, generated power, skills | $26,071 | $39,107 | $65,178 |
-| Beyond | Sustainable living: production, skills, and community | $500/week × years you choose | 1.5 × cash goal | Both together |
+| Tier | Focus | Emergency cash goal (at $500/week) |
+| --- | --- | --- |
+| 1 Week | Shelter in place: stored supplies that need no power or running water | $500 |
+| 1 Month | Extended disruption: cook without power, purify water, handle sanitation | $2,143 |
+| 1 Year | Long-term self-reliance: renewable water, bulk staples, generated power, skills | $26,071 |
+| Beyond | Sustainable living: production, skills, and community | $500/week × years you choose |
 
-Each tier builds on the ones below it. Every category page has a collapsible **What to buy** list of suggested supplies for your tier, followed by the lower tiers' suggestions as "foundations". Tap **Add** on a suggestion to log it in your inventory; items you already have are marked "In inventory". A suggestion counts as owned once you have at least one matching item in that category: one added with that suggestion's **Add** button (it stays linked even if you rename it or change its type), one with the same name, or one whose type fits the suggestion (a can of Spam, typed *Canned meat and fish*, covers "Canned meat, fish, and beans"). The lists are drawn from your saved inventory every time the app opens, and a suggestion goes back to showing **Add** once that item is used up. The type links are the `types` lists in `tiers.js` and `hazards.js`; matching lives in `supply-match.js`. The weekly savings baseline can be changed. The investment goal is always 1.5 times the emergency cash goal. Tier content lives in `tiers.js`.
+The investment goal doesn't depend on the tier. It is a rough guide based on [Fidelity's savings-by-age guideline](https://www.fidelity.com/viewpoints/retirement/how-much-do-i-need): at least 1× your yearly income (before taxes) by age 30, 3× by 40, 6× by 50, 8× by 60, and 10× by 67. On the Investments card you choose an age range and an income bracket rather than exact numbers, with a note that your answers stay on this device and are never shared. Each age range uses the multiple for the middle of the range, read off a straight line between Fidelity's milestones (under 30: 1×, 30 to 39: 2×, 40 to 49: 4.5×, 50 to 59: 7×, 60 to 66: 9×, 67 or older: 10×). Each income bracket uses its midpoint ($20,000 for under $25,000 and $200,000 for over $200,000). The goal is the two multiplied and rounded to the nearest $1,000. Until both are chosen there is no investment goal, and the savings goal is the emergency cash goal alone. The total savings goal is the two goals added together. The ranges live in `AGE_RANGES` and `INCOME_BRACKETS` in `app/estimates.js`.
+
+Each tier builds on the ones below it. Every category page has a collapsible **What to buy** list of suggested supplies for your tier, followed by the lower tiers' suggestions as "foundations". Tap **Add** on a suggestion to log it in your inventory; items you already have are marked "In inventory". A suggestion counts as owned once you have at least one matching item in that category: one added with that suggestion's **Add** button (it stays linked even if you rename it or change its type), one with the same name, or one whose type fits the suggestion (a can of Spam, typed *Canned meat and fish*, covers "Canned meat, fish, and beans"). The lists are drawn from your saved inventory every time the app opens, and a suggestion goes back to showing **Add** once that item is used up. The type links are the `types` lists in `tiers.js` and `hazards.js`; matching lives in `supply-match.js`. The weekly savings baseline can be changed. Tier content lives in `tiers.js`.
 
 ## Local Hazards
 
