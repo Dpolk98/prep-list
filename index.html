@@ -293,14 +293,24 @@
     <!-- ===== Go-Bag (go-bag.js, app/go-bag-page.js) ===== -->
     <div id="view-gobag" class="view" hidden>
       <section class="card gobag-panel">
+        <div class="gobag-mode-row">
+          <span class="gobag-mode-title" id="gobag-mode-title">Bag type</span>
+          <div class="metric-tabs gobag-mode" id="gobag-mode" role="group" aria-labelledby="gobag-mode-title">
+            <button type="button" data-gobag-mode="home" aria-pressed="false">Get home</button>
+            <button type="button" data-gobag-mode="out" aria-pressed="false">Get out</button>
+            <button type="button" data-gobag-mode="both" aria-pressed="true">Both</button>
+          </div>
+        </div>
+        <p class="hint gobag-mode-blurb" id="gobag-mode-blurb"></p>
         <div class="water-big"><span id="gobag-liters">0</span><span class="goal" id="gobag-limit"></span></div>
-        <span class="label">of space packed, estimated</span>
+        <span class="label" id="gobag-size-label">of space packed, estimated</span>
         <div class="bar gobag-bar"><div class="fill" id="gobag-bar"></div><span class="plan-mark" id="gobag-plan-mark" aria-hidden="true"></span></div>
         <p class="hint" id="gobag-weight"></p>
         <p class="hint" id="gobag-plan"></p>
         <details class="estimate-note">
           <summary><strong>Sizes and weights are estimates.</strong><span class="more">Keeping it light</span></summary>
           <p>Each figure is typical for compact gear, rounded. Real packing leaves gaps, so leave a few liters free.</p>
+          <p>The bag size is the smallest of 20, 25, or 30 L that the list fills no more than three quarters of, leaving the rest for gaps and personal items. It changes with the bag type and your Local Hazards.</p>
           <p>A common hiking guideline is to keep a loaded pack under about 20% of your body weight. Water is the heaviest thing in the bag, at about 2.2 lb per liter.</p>
           <p>A 30 L pack is a large daypack: small enough to carry all day, to keep under a desk or in a car, and to grab on the way out the door.</p>
         </details>

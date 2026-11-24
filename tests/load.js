@@ -17,7 +17,7 @@ function load() {
   }
   return vm.runInContext(`({
     BARCODE, TIERS, HAZARDS, supplyNameKey, ownsSupply, addedFrom, supplySections,
-    GO_BAG, GO_BAG_HAZARDS, GO_BAG_LIMIT_L, goBagSections, goBagTotals, normalizeGoBag,
+    GO_BAG, GO_BAG_HAZARDS, GO_BAG_LIMIT_L, GO_BAG_SIZES_L, goBagSections, goBagTotals, goBagSize, normalizeGoBag,
     ITEM_TYPES, TYPE_RULES, typesFor, findType, guessType, addToDate, toIsoDate, describeShelfLife, estimateExpiry,
     dropAbbreviationDots, unitKey, parseUnitSize, gallonsPerUnit, WEIGHT_IN_LB, VOLUME_IN_CUPS,
     FOOD_CALORIES, MEASURES, calorieProfile, caloriesPerUnit, labelCaloriesPerUnit, estimateCalories, estimateServings,

@@ -33,9 +33,15 @@ function gearRow({ gear: g, packed }) {
 const goBagOpen = new Map();
 
 function renderGoBag() {
-  const sections = goBagSections(chosenHazards(), state.goBag.packed);
+  const mode = goBagMode(state.goBag.mode);
+  const sections = goBagSections(chosenHazards(), state.goBag.packed, mode);
   const t = goBagTotals(sections);
-  const limit = GO_BAG_LIMIT_L;
+  const limit = goBagSize(t.liters);
+
+  // Bag type: Get home, Get out, or Both.
+  for (const b of $('gobag-mode').querySelectorAll('[data-gobag-mode]')) b.setAttribute('aria-pressed', String(b.dataset.gobagMode === mode));
+  $('gobag-mode-blurb').textContent = GO_BAG_MODES[mode].blurb;
+  $('gobag-size-label').textContent = `of space packed in a ${limit} L bag, estimated`;
 
   // Space and weight meter.
   $('gobag-liters').textContent = round1(t.packedLiters);
@@ -47,9 +53,10 @@ function renderGoBag() {
   $('gobag-weight').innerHTML = t.packedCount
     ? `About <strong>${poundsText(t.packedLb)}</strong> packed so far: ${t.packedCount} of ${plural(t.count, 'thing')}.`
     : `Nothing packed yet. Tick things off below as they go in the bag.`;
+  const which = mode === 'both' ? 'The full list' : `The ${GO_BAG_MODES[mode].label} list`;
   $('gobag-plan').innerHTML = left >= 0
-    ? `The full list ${state.hazards.length ? `for your Local Hazards ` : ''}comes to about <strong>${litersText(t.liters)}</strong> and <strong>${poundsText(t.lb)}</strong>, marked on the bar. That leaves about ${litersText(left)} for the gaps between things and for personal items.`
-    : `The full list comes to about <strong>${litersText(t.liters)}</strong>, which is over the ${limit} L limit. Wear the bulkiest layer, keep walking shoes at work or in the car, or leave out what you’re least likely to need.`;
+    ? `${which} ${state.hazards.length ? `for your Local Hazards ` : ''}comes to about <strong>${litersText(t.liters)}</strong> and <strong>${poundsText(t.lb)}</strong>, marked on the bar, so a <strong>${limit} L bag</strong> is enough. That leaves about ${litersText(left)} for the gaps between things and for personal items.`
+    : `${which} comes to about <strong>${litersText(t.liters)}</strong>, which is over the ${limit} L limit. Wear the bulkiest layer, keep walking shoes at work or in the car, or leave out what you’re least likely to need.`;
   $('gobag-plan').classList.toggle('warn-text', left < 0);
 
   // The packing list, in collapsible sections.
@@ -86,6 +93,15 @@ $('gobag-list').addEventListener('change', (e) => {
   saveState();
   renderGoBag();
   [...$('gobag-list').querySelectorAll('[data-gear-pack]')].find((b) => b.dataset.gearPack === name)?.focus();
+});
+
+$('gobag-mode').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-gobag-mode]');
+  if (!btn || btn.dataset.gobagMode === state.goBag.mode) return;
+  state.goBag.mode = btn.dataset.gobagMode;
+  goBagOpen.clear(); // the sections change, so start them fresh
+  saveState();
+  renderGoBag();
 });
 
 // ---------- First visit: "Do you already have a bag set up?" ----------

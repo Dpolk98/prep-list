@@ -14,14 +14,33 @@
 // Sizes and weights are typical figures for compact gear, rounded. The core
 // list plus every Local Hazard's additions stays well under 30 L, leaving
 // room for gaps between things and for personal items.
+//
+// The page can show the list for one job only (Get home or Get out) or for
+// both. The recommended bag size follows the list shown: see goBagSize.
 
 const GO_BAG_LIMIT_L = 30;
+
+// Bag sizes the page recommends from, in liters, smallest first.
+const GO_BAG_SIZES_L = [20, 25, 30];
+// Share of the bag the list should fill. The rest is for the gaps between
+// things and for personal items.
+const GO_BAG_FILL = 0.75;
 
 const GO_BAG_USES = {
   both: { label: 'Both', long: 'Useful for getting home and getting out' },
   home: { label: 'Get home', long: 'Mainly for getting home' },
   out: { label: 'Get out', long: 'Mainly for getting out' },
 };
+
+// Which list the page shows. Each mode keeps gear tagged for its job plus
+// gear tagged Both.
+const GO_BAG_MODES = {
+  both: { label: 'Both', blurb: 'One bag for getting home and getting out. Everything on the list.' },
+  home: { label: 'Get home', blurb: 'For getting back from work, school, or the road, maybe on foot, over a day or two.' },
+  out: { label: 'Get out', blurb: 'For leaving home quickly and getting by on your own for about 72 hours.' },
+};
+const goBagMode = (mode) => (GO_BAG_MODES[mode] ? mode : 'both');
+const gearFitsMode = (g, mode) => mode === 'both' || g.use === 'both' || g.use === mode;
 
 const GO_BAG = [
   {
@@ -30,6 +49,9 @@ const GO_BAG = [
     icon: 'droplet',
     gear: [
       { name: 'Two 1-liter water bottles, filled', use: 'both', liters: 2.3, lb: 4.7, note: 'About 4.4 lb of water. Three days’ worth (about 3 gallons) weighs about 25 lb, too much for a 30 L bag' },
+      { name: 'Water filter', use: 'out', liters: 0.3, lb: 0.2, note: 'A squeeze or straw filter, so you can refill from streams and taps along the way. Most don’t remove viruses or chemicals' },
+      { name: 'Water purification tablets', use: 'out', liters: 0.05, lb: 0.05, note: 'Chlorine dioxide tablets kill viruses that most filters miss. Wait the full time on the package before drinking' },
+      { name: 'Collapsible dirty water container', use: 'out', liters: 0.2, lb: 0.15, note: 'A 1 to 2 liter pouch for collecting untreated water to filter. Keep it apart from your clean bottles' },
     ],
   },
   {
@@ -146,13 +168,14 @@ const gearLiters = (g) => (g.outside ? 0 : g.liters || 0);
 // The Go-Bag list, split into sections: your Local Hazards first (like the
 // What to buy lists), then the core sections. A name is only listed once.
 //
-// `hazards` are the chosen hazards (hazards.js), and `packed` is the names
-// of gear ticked off as packed.
+// `hazards` are the chosen hazards (hazards.js), `packed` is the names of
+// gear ticked off as packed, and `mode` is which list to show (GO_BAG_MODES).
 //
 // Every section collapses. Only the first section that still has something
 // to pack starts open, so the list reads like a to-do list.
-function goBagSections(hazards, packed) {
+function goBagSections(hazards, packed, mode = 'both') {
   const isPacked = new Set(packed);
+  const fits = (g) => gearFitsMode(g, goBagMode(mode));
   const groups = [
     ...hazards
       .filter((h) => GO_BAG_HAZARDS[h.id]?.length)
@@ -162,7 +185,7 @@ function goBagSections(hazards, packed) {
   const seen = new Set();
   const sections = [];
   for (const { gear, ...section } of groups) {
-    const list = gear.filter((g) => !seen.has(g.name));
+    const list = gear.filter((g) => fits(g) && !seen.has(g.name));
     list.forEach((g) => seen.add(g.name));
     if (!list.length) continue;
     const entries = list.map((g) => ({ gear: g, packed: isPacked.has(g.name) }));
@@ -195,10 +218,18 @@ function goBagTotals(sections) {
   };
 }
 
+// The recommended bag size for a list of this many liters: the smallest of
+// GO_BAG_SIZES_L that the list fills to GO_BAG_FILL or less. A list too big
+// for that still gets the largest size, and the page warns if it's over.
+function goBagSize(liters) {
+  return GO_BAG_SIZES_L.find((size) => liters <= size * GO_BAG_FILL) ?? GO_BAG_LIMIT_L;
+}
+
 // Only names that are still on the list are kept, in case gear is renamed.
 function normalizeGoBag(data) {
   const names = new Set([...GO_BAG.flatMap((s) => s.gear), ...Object.values(GO_BAG_HAZARDS).flat()].map((g) => g.name));
   const packed = Array.isArray(data?.packed) ? data.packed.filter((n) => names.has(n)) : [];
   // asked: the "Do you already have a bag?" popup has been answered.
-  return { packed: [...new Set(packed)], asked: data?.asked === true };
+  // mode: which list the page shows (GO_BAG_MODES).
+  return { packed: [...new Set(packed)], asked: data?.asked === true, mode: goBagMode(data?.mode) };
 }

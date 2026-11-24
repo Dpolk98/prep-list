@@ -477,6 +477,10 @@ details[open] > .gobag-fold::before { transform: translateY(-2px) rotate(45deg);
 .gear .grab-check { margin-top: 2px; }
 .gear.packed .supply-name { text-decoration: line-through; color: var(--muted); }
 
+.gobag-mode-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; }
+.gobag-mode-title { font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.gobag-mode { margin: 0; }
+.gobag-mode-blurb { margin: 8px 0 12px; }
 .gobag-tips { margin: 10px 0 4px; font-size: .9rem; }
 .gobag-tips ul { margin: 0 16px 14px; padding-left: 18px; max-width: 62ch; }
 .gobag-tips li { margin-bottom: 6px; }
