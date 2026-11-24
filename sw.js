@@ -5,6 +5,11 @@
 // saved copy is updated, so new versions show up on the next open with no
 // version number to bump. With no connection (or a very slow one), the saved
 // copy is used instead.
+//
+// The page also asks for an update check each time the app is opened or
+// brought back to the screen (see app/update.js). A home-screen app is often
+// resumed rather than reloaded, so without this it could keep running an old
+// version for days.
 
 const CACHE = 'prep-tracker-v1';
 const NETWORK_TIMEOUT_MS = 3000;
@@ -43,6 +48,7 @@ const FILES = [
   'app/backup.js',
   'app/welcome.js',
   'app/tip.js',
+  'app/update.js',
   'app/main.js',
   'barcode.js',
   'scan.js',
@@ -91,16 +97,30 @@ async function fromCache(request) {
   return undefined;
 }
 
+// Copies being saved by the fetch handler. An update check waits for them,
+// so a file that just came fresh from the site isn't mistaken for a change.
+const saving = new Set();
+
+function save(request, response) {
+  const done = caches.open(CACHE)
+    .then((cache) => cache.put(request, response))
+    .catch(() => {})
+    .finally(() => saving.delete(done));
+  saving.add(done);
+  return done;
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
 
   event.respondWith((async () => {
     try {
-      const response = await fromNetwork(request);
+      // 'no-cache' asks the site whether the browser's own copy is still
+      // current (cheap when it is), so a launch never gets a stale file.
+      const response = await fromNetwork(new Request(request, { cache: 'no-cache' }));
       if (response.ok) {
-        const copy = response.clone();
-        caches.open(CACHE).then((cache) => cache.put(request, copy));
+        event.waitUntil(save(request, response.clone()));
       }
       return response;
     } catch {
@@ -108,4 +128,40 @@ self.addEventListener('fetch', (event) => {
       return saved || Response.error();
     }
   })());
+});
+
+// ---------- Update check ----------
+// Fetches every app file straight from the site (asking it to confirm, so an
+// unchanged file costs very little) and compares each with the saved copy.
+// Changed files are only saved once all of them have arrived, so the saved
+// copy is never a mix of two versions. Answers { changed, offline }.
+
+async function checkForUpdate() {
+  await Promise.all([...saving]);
+  let fresh;
+  try {
+    fresh = await Promise.all(FILES.map(async (file) => {
+      const response = await fromNetwork(new Request(file, { cache: 'no-cache' }));
+      if (!response.ok) throw new Error(`${file}: ${response.status}`);
+      return { file, response, text: await response.clone().text() };
+    }));
+  } catch {
+    return { changed: false, offline: true };
+  }
+  const cache = await caches.open(CACHE);
+  let changed = false;
+  for (const { file, response, text } of fresh) {
+    const saved = await cache.match(file);
+    if (saved && (await saved.text()) === text) continue;
+    if (saved) changed = true;
+    await cache.put(file, response);
+  }
+  return { changed, offline: false };
+}
+
+self.addEventListener('message', (event) => {
+  if (event.data?.type !== 'check-update' || !event.ports[0]) return;
+  event.waitUntil(checkForUpdate()
+    .catch(() => ({ changed: false, offline: true }))
+    .then((result) => event.ports[0].postMessage(result)));
 });

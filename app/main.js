@@ -37,6 +37,7 @@ function registerOffline() {
   navigator.serviceWorker.register('sw.js').catch(() => {});
   // Shown once a saved copy is active, even if re-registering fails while offline.
   navigator.serviceWorker.ready.then(() => { $('offline-status').hidden = false; });
+  startUpdateChecks();
 }
 
 // ---------- Init ----------
