@@ -559,6 +559,17 @@
     </div>
   </dialog>
 
+  <!-- Shown at most once, a month after first use (see app/tip.js) -->
+  <dialog id="tip-dialog" class="tip-dialog" aria-labelledby="tip-title">
+    <h2 id="tip-title">Finding Prep Tracker useful?</h2>
+    <p class="settings-text">You’ve been using Prep Tracker for about a month. It’s free, with no ads or accounts. If it’s been helpful and you’d like to say thanks, you can leave a tip on Ko-fi.</p>
+    <p class="hint">Completely optional. You won’t see this again either way.</p>
+    <div class="actions tip-actions">
+      <button type="button" id="tip-later">No thanks</button>
+      <a class="button-link primary" id="tip-link" href="#" target="_blank" rel="noopener">Leave a tip</a>
+    </div>
+  </dialog>
+
   <script src="barcode.js"></script>
   <script src="tiers.js"></script>
   <script src="hazards.js"></script>
@@ -587,6 +598,7 @@
   <script src="app/list-actions.js"></script>
   <script src="app/backup.js"></script>
   <script src="app/welcome.js"></script>
+  <script src="app/tip.js"></script>
   <script src="app/main.js"></script>
   <script src="scan.js"></script>
 </body>

@@ -571,6 +571,13 @@ button.hazard-chip::after { content: '›'; margin-left: 2px; font-weight: 700; 
 
 .welcome-choices { grid-template-columns: 1fr; }
 .welcome-back-actions { flex-wrap: wrap; }
+/* Tip invite: a link styled like the primary button */
+.tip-actions { justify-content: flex-end; flex-wrap: wrap; }
+.button-link {
+  display: inline-block; padding: 8px 10px; font-size: .95rem; border-radius: 8px; border: 1px solid var(--border);
+  text-decoration: none; color: var(--text);
+}
+.button-link.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
 /* "Import backup" in the popup is the main action, so it's filled in. */
 .file-btn.primary-file { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 600; }
 .welcome-tour .reasons li { margin-bottom: 10px; }
