@@ -57,7 +57,7 @@ function bagSquare(bag, hazards) {
       ${useTag(bag.type)}
       <span class="gobag-bag-where ${bag.location ? '' : 'none'}">${bag.location ? escapeHtml(bag.location) : 'No location yet'}</span>
       <span class="gobag-bag-bar" aria-hidden="true"><span style="width:${pct}%"></span></span>
-      <span class="gobag-bag-status">${packedStatus(t)} · ${goBagSize(t.liters)} L</span>
+      <span class="gobag-bag-status${t.count && t.packedCount === t.count ? ' all-packed' : ''}">${packedStatus(t)} · ${goBagSize(t.liters)} L</span>
     </button>`;
 }
 
@@ -104,12 +104,13 @@ function renderGoBag() {
     '<p class="hint hazard-tip">Choose your Local Hazards, such as winter storms or wildfire, on the <a href="#/settings">Settings</a> page to add what they call for.</p>';
   $('gobag-list').innerHTML = sections.map((s) => {
     const open = goBagOpen.has(s.id) ? goBagOpen.get(s.id) : s.open;
-    const status = s.packedCount === s.entries.length ? 'All packed' : `${s.packedCount} of ${s.entries.length} packed`;
+    const done = s.packedCount === s.entries.length;
+    const status = done ? 'All packed' : `${s.packedCount} of ${s.entries.length} packed`;
     return `
       <details class="supply-section gobag-section" data-section="${s.id}"${open ? ' open' : ''}>
         <summary>
           <span class="supply-section-label">${escapeHtml(s.label)}</span>
-          <span class="supply-section-count">${status}${s.liters ? ` · ${litersText(s.liters)}` : ''}</span>
+          <span class="supply-section-count${done ? ' all-packed' : ''}">${status}${s.liters ? ` · ${litersText(s.liters)}` : ''}</span>
         </summary>
         <ul class="supplies gear-list">${s.entries.map(gearRow).join('')}</ul>
       </details>`;

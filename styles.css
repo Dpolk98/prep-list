@@ -475,6 +475,8 @@ details[open] > .gobag-fold::before { transform: translateY(-2px) rotate(45deg);
 .gobag-list-card h2 { margin-bottom: 4px; }
 .gobag-list-card > .hint { margin: 0 0 4px; }
 .gobag-section[open] > .supplies { margin-top: 4px; }
+/* A fully packed section, or bag, reads in green. */
+.gobag-section .all-packed, .gobag-bag-status.all-packed { color: var(--accent); }
 .gear-list li { align-items: flex-start; padding: 10px 0; }
 .gear-body { min-width: 0; }
 .gear-meta {
