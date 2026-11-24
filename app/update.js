@@ -99,5 +99,5 @@ function startUpdateChecks() {
 
 $('update-apply').addEventListener('click', applyUpdate);
 $('update-apply-settings').addEventListener('click', applyUpdate);
-$('update-later').addEventListener('click', () => { $('update-bar').hidden = true; });
+$('update-later').addEventListener('click', () => animateSize($('update-bar'), () => { $('update-bar').hidden = true; }));
 $('update-check-btn').addEventListener('click', () => checkForUpdate({ fromUser: true }));

@@ -139,13 +139,13 @@ function renderInvestLevel() {
 $('settings-level').addEventListener('input', (e) => {
   state.savings.investLevel = Number(e.target.value) || INVEST_LEVEL.suggested;
   saveState();
-  renderSavingsSettings();
+  animateSize($('settings-level-reset'), renderSavingsSettings);
 });
 
 $('settings-level-reset').addEventListener('click', () => {
   state.savings.investLevel = INVEST_LEVEL.suggested;
   saveState();
-  renderSavingsSettings();
+  animateSize($('settings-level-reset'), renderSavingsSettings);
   $('settings-level').focus();
 });
 
@@ -260,7 +260,7 @@ function readSetupStep() {
 function goToSetupStep(step) {
   readSetupStep();
   setup.step = step;
-  renderSetup();
+  animateSize($('setup-dialog'), renderSetup);
   focusSetup();
 }
 

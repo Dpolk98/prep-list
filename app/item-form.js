@@ -105,7 +105,7 @@ function unitValue() {
 
 $('unit-select').addEventListener('change', () => {
   const other = $('unit-select').value === OTHER_UNIT;
-  $('unit').hidden = !other;
+  animateSize($('unit'), () => { $('unit').hidden = !other; });
   if (other) $('unit').focus();
 });
 
@@ -185,13 +185,17 @@ function renderEntryMode() {
 }
 
 function openManualEntry() {
-  manualOpen = true;
-  renderEntryMode();
+  animateSize($('item-form'), () => {
+    manualOpen = true;
+    renderEntryMode();
+  });
 }
 
 $('manual-toggle').addEventListener('click', () => {
-  manualOpen = !manualOpen;
-  renderEntryMode();
+  animateSize($('item-form'), () => {
+    manualOpen = !manualOpen;
+    renderEntryMode();
+  });
   if (manualOpen) $('name').focus();
 });
 

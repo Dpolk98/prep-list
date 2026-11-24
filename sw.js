@@ -29,6 +29,7 @@ const FILES = [
   'calories.js',
   'icons.js',
   'app/core.js',
+  'app/motion.js',
   'app/hazard-info.js',
   'app/estimates.js',
   'app/nav.js',

@@ -60,7 +60,7 @@ $('nav-list').addEventListener('click', (e) => {
 function openDrawer() {
   $('drawer').inert = false;
   $('drawer').classList.add('open');
-  $('scrim').hidden = false;
+  showWithMotion($('scrim'), 'fade');
   $('menu-btn').setAttribute('aria-expanded', 'true');
   ($('drawer').querySelector('[aria-current]') || $('menu-close')).focus();
 }
@@ -69,7 +69,7 @@ function closeDrawer({ restoreFocus = true } = {}) {
   if (!$('drawer').classList.contains('open')) return;
   $('drawer').classList.remove('open');
   $('drawer').inert = true;
-  $('scrim').hidden = true;
+  hideWithMotion($('scrim'), 'fade');
   $('menu-btn').setAttribute('aria-expanded', 'false');
   if (restoreFocus) $('menu-btn').focus();
 }
