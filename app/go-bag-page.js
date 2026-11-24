@@ -114,11 +114,31 @@ function renderGoBag() {
         <ul class="supplies gear-list">${s.entries.map(gearRow).join('')}</ul>
       </details>`;
   }).join('') + hazardTip;
+  renderGoBagToggle();
 }
+
+// "Expand all" or "Collapse all", as on the inventory lists.
+function renderGoBagToggle() {
+  const all = [...$('gobag-list').querySelectorAll('.gobag-section')];
+  const allOpen = all.length > 0 && all.every((d) => d.open);
+  $('gobag-toggle-all').textContent = allOpen ? 'Collapse all' : 'Expand all';
+  $('gobag-toggle-all').dataset.open = String(!allOpen);
+}
+
+$('gobag-toggle-all').addEventListener('click', () => {
+  const open = $('gobag-toggle-all').dataset.open === 'true';
+  for (const d of $('gobag-list').querySelectorAll('.gobag-section')) {
+    d.open = open;
+    goBagOpen.set(d.dataset.section, open);
+  }
+  renderGoBagToggle();
+});
 
 $('gobag-list').addEventListener('toggle', (e) => {
   const section = e.target.closest?.('.gobag-section');
-  if (section === e.target) goBagOpen.set(section.dataset.section, section.open);
+  if (section !== e.target) return;
+  goBagOpen.set(section.dataset.section, section.open);
+  renderGoBagToggle();
 }, true);
 
 $('gobag-list').addEventListener('change', (e) => {

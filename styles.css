@@ -510,6 +510,7 @@ details[open] > .gobag-fold::before { transform: translateY(-2px) rotate(45deg);
 .gobag-type-option:has(input:checked) { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
 .gobag-mode-blurb { margin: 10px 0 12px; }
 .gobag-tips { margin: 10px 0 4px; font-size: .9rem; }
+.gobag-tools { margin: 8px 0 4px; }
 .gobag-tips ul { margin: 0 16px 14px; padding-left: 18px; max-width: 62ch; }
 .gobag-tips li { margin-bottom: 6px; }
 
