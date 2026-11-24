@@ -274,6 +274,13 @@
         <p class="settings-text">Prep Tracker was developed with the help of AI. It’s free to use, has no ads, and keeps your data on your device.</p>
         <p class="settings-text" id="offline-status" hidden>Saved on this device, so it opens without a connection.</p>
         <p class="settings-text"><a href="#/welcome">Read the welcome guide again</a></p>
+        <div class="update-check" id="update-check" hidden>
+          <p class="settings-text" id="update-status" aria-live="polite">Checks for a new version each time the app opens.</p>
+          <div class="data-tools">
+            <button type="button" id="update-check-btn">Check for updates</button>
+            <button type="button" class="primary" id="update-apply-settings" hidden>Update now</button>
+          </div>
+        </div>
       </section>
 
       <section class="card" data-settings="support">
@@ -530,6 +537,15 @@
     </div>
   </main>
 
+  <section class="card update-bar" id="update-bar" role="status" aria-labelledby="update-bar-title" hidden>
+    <h2 id="update-bar-title">A new version is ready</h2>
+    <p>Updating reloads the app. Your supplies and settings stay on this device.</p>
+    <div class="data-tools">
+      <button type="button" class="primary" id="update-apply">Update now</button>
+      <button type="button" id="update-later">Later</button>
+    </div>
+  </section>
+
   <!-- Tier picker: shown on first use and from the "Change" button -->
   <dialog id="scan-dialog" class="scan-dialog" aria-labelledby="scan-title">
     <div class="scan-head">
@@ -757,6 +773,7 @@
   <script src="app/backup.js"></script>
   <script src="app/welcome.js"></script>
   <script src="app/tip.js"></script>
+  <script src="app/update.js"></script>
   <script src="app/main.js"></script>
   <script src="scan.js"></script>
 </body>

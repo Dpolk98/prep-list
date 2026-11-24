@@ -779,6 +779,19 @@ button.hazard-chip::after { content: '›'; margin-left: 2px; font-weight: 700; 
 .backup-reminder { border-color: var(--accent); background: var(--ok-bg); }
 .backup-reminder h2 { color: var(--accent); }
 .backup-reminder p { margin: 0 0 12px; max-width: 62ch; font-size: .92rem; }
+
+/* Shown on every page when a new version is ready (app/update.js). */
+.update-bar {
+  position: fixed; z-index: 15;
+  left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom));
+  max-width: 520px; margin: 0 auto;
+  border-color: var(--accent);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .18);
+}
+.update-bar[hidden] { display: none; }
+.update-bar h2 { margin: 0 0 4px; font-size: 1rem; color: var(--accent); }
+.update-bar p { margin: 0 0 12px; font-size: .92rem; }
+.update-check .data-tools { margin-top: 8px; }
 .backup-note { border-color: var(--warn); background: var(--warn-bg); }
 .backup-note h2 { color: var(--warn); }
 .backup-note p { margin: 0 0 10px; max-width: 62ch; }
@@ -854,7 +867,7 @@ button.hazard-chip::after { content: '›'; margin-left: 2px; font-weight: 700; 
   }
   @page { margin: 0.5in; }
   body { background: #fff; font-size: 10.5pt; }
-  .top, .drawer, .scrim, .page-head, .print-controls, .backup-reminder { display: none !important; }
+  .top, .drawer, .scrim, .page-head, .print-controls, .backup-reminder, .update-bar { display: none !important; }
   main { max-width: none; padding: 0; }
   .print-doc { border: 0; border-radius: 0; padding: 0; background: none; }
   .pd-table tr, .pd-glance div { break-inside: avoid; }
