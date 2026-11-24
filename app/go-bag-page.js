@@ -1,9 +1,9 @@
 // ---------- Rendering: Go-Bag ----------
 // One bag of 30 L or less that works as both a get-home and a get-out bag.
 // The list lives in go-bag.js. Each piece of gear can be ticked off as
-// packed (saved), shows whether it's already in your inventory (with Add to
-// log it there, like What to buy), and counts toward the space and weight
-// meter at the top.
+// packed (saved), and counts toward the space and weight meter at the top.
+// The bag is tracked on its own: nothing here reads from or adds to the
+// inventory on the Preps pages.
 
 // "2.3 L", "0.3 L", "<0.1 L"
 const litersText = (n) => (n > 0 && n < 0.1 ? '<0.1' : String(round1(n))) + ' L';
@@ -15,20 +15,16 @@ function useTag(use) {
   return `<span class="use-tag ${use}" title="${u.long}">${u.label}</span>`;
 }
 
-function gearRow({ gear: g, packed, have }) {
-  const page = PAGES.find((p) => p.cat === g.cat);
+function gearRow({ gear: g, packed }) {
   const space = g.container ? 'The bag itself'
     : g.outside ? 'Clips outside'
     : litersText(g.liters);
-  const inventory = have ? '<span class="have">In inventory</span>'
-    : page ? `<button type="button" class="link-btn gear-add" data-gear-add="${escapeHtml(g.name)}" aria-label="Add ${escapeHtml(g.name)} to inventory">Add to inventory</button>`
-    : '';
   return `
     <li class="gear ${packed ? 'packed' : ''}">
       <div class="gear-body">
         <span class="supply-name">${escapeHtml(g.name)}</span>
         <span class="supply-note">${escapeHtml(g.note)}</span>
-        <span class="gear-meta">${useTag(g.use)}<span>${space}</span><span>${poundsText(g.lb)}</span>${inventory}</span>
+        <span class="gear-meta">${useTag(g.use)}<span>${space}</span><span>${poundsText(g.lb)}</span></span>
       </div>
       <input type="checkbox" class="grab-check" data-gear-pack="${escapeHtml(g.name)}" ${packed ? 'checked' : ''} aria-label="${escapeHtml(g.name)}: packed">
     </li>`;
@@ -39,7 +35,7 @@ function gearRow({ gear: g, packed, have }) {
 const goBagOpen = new Map();
 
 function renderGoBag() {
-  const sections = goBagSections(chosenHazards(), state.goBag.packed, state.items);
+  const sections = goBagSections(chosenHazards(), state.goBag.packed);
   const t = goBagTotals(sections);
   const limit = GO_BAG_LIMIT_L;
 
@@ -92,15 +88,4 @@ $('gobag-list').addEventListener('change', (e) => {
   saveState();
   renderGoBag();
   [...$('gobag-list').querySelectorAll('[data-gear-pack]')].find((b) => b.dataset.gearPack === name)?.focus();
-});
-
-// "Add to inventory" opens the gear's category page with the add-item form
-// filled in, linked to the gear the same way What to buy's Add is.
-$('gobag-list').addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-gear-add]');
-  if (!btn) return;
-  const gear = goBagSections(HAZARDS, [], []).flatMap((s) => s.entries).find((x) => x.gear.name === btn.dataset.gearAdd)?.gear;
-  const page = gear && PAGES.find((p) => p.cat === gear.cat);
-  if (!page) return;
-  goToAfter(`#/${page.slug}`, () => addSupplyToInventory(gear.name));
 });

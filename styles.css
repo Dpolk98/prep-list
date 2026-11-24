@@ -444,8 +444,6 @@ input:disabled, select:disabled { cursor: not-allowed; }
   display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px;
   margin-top: 5px; font-size: .78rem; color: var(--muted);
 }
-.gear-meta .have { font-size: .78rem; }
-.gear-add { font-size: .78rem; padding: 0; }
 .gear .grab-check { margin-top: 2px; }
 .gear.packed .supply-name { text-decoration: line-through; color: var(--muted); }
 

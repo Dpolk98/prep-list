@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { HAZARDS, ITEM_TYPES, GO_BAG, GO_BAG_HAZARDS, GO_BAG_LIMIT_L, goBagSections, goBagTotals, normalizeGoBag } = require('./load');
+const { HAZARDS, GO_BAG, GO_BAG_HAZARDS, GO_BAG_LIMIT_L, goBagSections, goBagTotals, normalizeGoBag } = require('./load');
 
 const allGear = () => [...GO_BAG.flatMap((s) => s.gear), ...Object.values(GO_BAG_HAZARDS).flat()];
 
@@ -19,14 +19,6 @@ test('every hazard key is a real hazard, and every gear has a use, size, and wei
     assert.equal(typeof g.liters, 'number', g.name);
     assert.ok(g.lb > 0, g.name);
     assert.ok(g.note, g.name);
-  }
-});
-
-test('gear types are real item types in the gear category', () => {
-  for (const g of allGear()) {
-    for (const t of g.types || []) {
-      assert.ok(ITEM_TYPES[g.cat]?.some((x) => x.id === t), `${g.name}: ${t}`);
-    }
   }
 });
 
@@ -74,10 +66,12 @@ test('packed totals count only packed gear, and outside gear takes no space', ()
   assert.equal(withHelmet.packedLb, helmet.lb);
 });
 
-test('gear already in the inventory is marked', () => {
-  const items = [{ name: 'Sawyer Squeeze', category: 'Water', type: 'filter', quantity: 1 }];
+test('the bag is separate from the inventory', () => {
+  for (const g of allGear()) assert.equal(g.cat, undefined, g.name);
+  const items = [{ name: 'Water filter', category: 'Water', type: 'filter', quantity: 1 }];
   const entry = goBagSections([], [], items).flatMap((s) => s.entries).find((e) => e.gear.name === 'Water filter');
-  assert.equal(entry.have, true);
+  assert.equal(entry.packed, false);
+  assert.equal('have' in entry, false);
 });
 
 test('saved data keeps only names still on the list, once each', () => {
