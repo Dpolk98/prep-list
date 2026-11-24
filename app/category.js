@@ -76,19 +76,24 @@ for (const id of ['supplies', 'plans-list']) {
 // "Add" on a suggestion fills the add-item form with its name.
 $('supplies').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-add]');
-  if (!btn) return;
+  if (btn) addSupplyToInventory(btn.dataset.add);
+});
+
+// Opens the add-item form filled in with a suggestion's name. Also used by
+// the Go-Bag page's "Add to inventory", once its category page is showing.
+function addSupplyToInventory(name) {
   resetForm();
   openManualEntry();
-  $('name').value = btn.dataset.add;
+  $('name').value = name;
   // Remembered on the new item, so it keeps counting toward this
   // suggestion even if it's renamed or given another type.
-  addingSupply = btn.dataset.add;
+  addingSupply = name;
   suggestType();
   updateExpiresHint();
   $('form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
   $('quantity').focus({ preventScroll: true });
   $('quantity').select();
-});
+}
 
 // The item whose actions menu is open. Kept across re-renders so "Use one"
 // and "Add one" can be tapped repeatedly without reopening the menu.

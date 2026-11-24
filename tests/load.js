@@ -7,7 +7,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const ROOT = path.join(__dirname, '..');
-const FILES = ['barcode.js', 'tiers.js', 'hazards.js', 'shelf-life.js', 'supply-match.js', 'units.js', 'calories.js'];
+const FILES = ['barcode.js', 'tiers.js', 'hazards.js', 'shelf-life.js', 'supply-match.js', 'go-bag.js', 'units.js', 'calories.js'];
 
 function load() {
   const context = vm.createContext({});
@@ -17,6 +17,7 @@ function load() {
   }
   return vm.runInContext(`({
     BARCODE, TIERS, HAZARDS, supplyNameKey, ownsSupply, addedFrom, supplySections,
+    GO_BAG, GO_BAG_HAZARDS, GO_BAG_LIMIT_L, goBagSections, goBagTotals, normalizeGoBag,
     ITEM_TYPES, TYPE_RULES, typesFor, findType, guessType, addToDate, toIsoDate, describeShelfLife, estimateExpiry,
     dropAbbreviationDots, unitKey, parseUnitSize, gallonsPerUnit, WEIGHT_IN_LB, VOLUME_IN_CUPS,
     FOOD_CALORIES, MEASURES, calorieProfile, caloriesPerUnit, labelCaloriesPerUnit, estimateCalories, estimateServings,
