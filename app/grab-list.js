@@ -34,16 +34,16 @@ function grabRow(entry, index) {
   // right to tick it off once it's grabbed. Only in edit mode does tapping
   // an entry open it, so a stray tap while checking things off can't.
   const body = `
-        <span class="grab-name">${escapeHtml(entry.name)}${badge}</span>
+        <span class="grab-name">${escapeHtml(grabName(entry))}${badge}</span>
         ${details ? `<span class="grab-where">${escapeHtml(details)}</span>` : ''}`;
   return `
     <li class="grab-entry ${entry.done ? 'done' : ''}" data-id="${entry.id}">
       <span class="grab-num">${index + 1}</span>
       ${grabEditing
-        ? `<button type="button" class="grab-body" data-grab="edit" aria-label="Edit ${escapeHtml(entry.name)}">${body}</button>
+        ? `<button type="button" class="grab-body" data-grab="edit" aria-label="Edit ${escapeHtml(grabName(entry))}">${body}</button>
            <span class="grab-edit-mark" aria-hidden="true">›</span>`
         : `<div class="grab-body">${body}</div>
-           <input type="checkbox" class="grab-check" data-grab="check" ${entry.done ? 'checked' : ''} aria-label="${escapeHtml(entry.name)}: done">`}
+           <input type="checkbox" class="grab-check" data-grab="check" ${entry.done ? 'checked' : ''} aria-label="${escapeHtml(grabName(entry))}: done">`}
     </li>`;
 }
 
@@ -53,7 +53,7 @@ let grabEditing = false;
 function renderGrab() {
   $('view-grab').classList.toggle('grab-editing', grabEditing);
   $('grab-lists').innerHTML = GRAB_LISTS.map(({ key, title, hint }) => {
-    const list = state.grab[key];
+    const list = visibleGrab(key);
     const done = list.filter((e) => e.done).length;
     return `
       <section class="card grab-card" data-list="${key}">
@@ -102,7 +102,7 @@ $('grab-lists').addEventListener('click', (e) => {
   const act = btn.dataset.grab;
   if (act === 'add') return openGrabDialog({ list: btn.closest('.grab-card').dataset.list });
   if (act === 'uncheck') {
-    state.grab[btn.closest('.grab-card').dataset.list].forEach((entry) => { entry.done = false; });
+    visibleGrab(btn.closest('.grab-card').dataset.list).forEach((entry) => { entry.done = false; });
     saveState();
     render();
     return;

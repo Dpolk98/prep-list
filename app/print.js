@@ -68,7 +68,7 @@ function renderPrint() {
   const groupBy = $('print-group').value;
   const water = waterDays();
   const food = foodCalories();
-  const people = `${state.people} ${state.people === 1 ? 'person' : 'people'}`;
+  const people = householdNow();
   const expired = state.items.filter((i) => statusOf(i) === 'expired');
   const soon = state.items.filter((i) => statusOf(i) === 'soon');
 
@@ -98,7 +98,7 @@ function renderPrint() {
   $('print-doc').innerHTML = `
     <header class="pd-head">
       <h2>Prep Tracker summary</h2>
-      <p class="pd-meta">Printed ${printDate()} · Household of ${state.people} · ${escapeHtml(tier.name).replaceAll(' ', '&nbsp;')} plan: ${escapeHtml(tier.title)}</p>
+      <p class="pd-meta">Printed ${printDate()} · Household: ${householdNow()} · ${escapeHtml(tier.name).replaceAll(' ', '&nbsp;')} plan: ${escapeHtml(tier.title)}</p>
       ${state.hazards.length ? `<p class="pd-meta">Also preparing for ${escapeHtml(hazardList())}</p>` : ''}
     </header>
 
@@ -109,17 +109,17 @@ function renderPrint() {
       </dl>
     </section>
 
-    ${FEATURES.grabList && GRAB_LISTS.some(({ key }) => state.grab[key].length) ? `
+    ${FEATURES.grabList && GRAB_LISTS.some(({ key }) => visibleGrab(key).length) ? `
     <section class="pd-section">
       <h3>Grab list</h3>
       <div class="pd-grab">
-        ${GRAB_LISTS.filter(({ key }) => state.grab[key].length).map(({ key, title }) => `
+        ${GRAB_LISTS.filter(({ key }) => visibleGrab(key).length).map(({ key, title }) => `
           <div>
             <h4>${title}</h4>
-            <ol class="pd-grab-list">${state.grab[key].map((e, i) => {
+            <ol class="pd-grab-list">${visibleGrab(key).map((e, i) => {
               // An empty box to tick by hand, then the entry and where it's kept.
               const where = grabWhere(e) || grabCategoryWhere(e);
-              return `<li><span class="pd-box" aria-hidden="true"></span><span class="pd-grab-num">${i + 1}.</span><span><strong>${escapeHtml(e.name)}</strong>${where ? `<br><span class="pd-muted">${escapeHtml(where)}</span>` : ''}</span></li>`;
+              return `<li><span class="pd-box" aria-hidden="true"></span><span class="pd-grab-num">${i + 1}.</span><span><strong>${escapeHtml(grabName(e))}</strong>${where ? `<br><span class="pd-muted">${escapeHtml(where)}</span>` : ''}</span></li>`;
             }).join('')}</ol>
           </div>`).join('')}
       </div>

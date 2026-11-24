@@ -110,8 +110,3 @@ $('settings-hazards').addEventListener('change', () => {
   render();
 });
 
-$('people').addEventListener('change', () => {
-  state.people = Math.max(1, Math.round(Number($('people').value) || 1));
-  saveState();
-  render();
-});

@@ -4,8 +4,9 @@
 // skills, and the Quick reference cards that go with it.
 
 function openHazardInfo(id) {
-  const h = HAZARDS.find((x) => x.id === id);
-  if (!h) return;
+  const found = HAZARDS.find((x) => x.id === id);
+  if (!found) return;
+  const h = withHouseholdSupplies(found);
   const supplies = h.supplies.filter((s) => CATEGORIES.includes(s.cat));
   const plans = h.supplies.filter((s) => s.cat === 'Plans and Skills');
   const cards = (h.reference || []).map((rid) => REFERENCE.find((c) => c.id === rid)).filter(Boolean);

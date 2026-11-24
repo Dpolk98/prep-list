@@ -221,12 +221,8 @@
       <div id="settings-menu" class="settings-menu"></div>
 
       <section class="card" data-settings="household">
-        <div class="household">
-          <label>People in household
-            <input type="number" id="people" min="1" step="1" value="2" inputmode="numeric" pattern="[0-9]*">
-          </label>
-        </div>
-        <p class="hint settings-hint">Used to work out how many days your stored water and food will last.</p>
+        <p class="hint settings-hint">Adults and children together set how many days your stored water and food will last. The checkboxes show or hide suggestions across the app.</p>
+        <div class="household-form" id="settings-household"></div>
       </section>
 
       <section class="card" data-settings="tier">
@@ -315,7 +311,7 @@
       </section>
 
       <section class="card" data-settings="setup">
-        <p class="settings-text">Go through the setup questions again: how long you’re preparing for, how many people, and your Local Hazards. Your current answers are filled in, and nothing changes until you tap Finish.</p>
+        <p class="settings-text">Go through the setup questions again: how long you’re preparing for, who’s in your household, and your Local Hazards. Your current answers are filled in, and nothing changes until you tap Finish.</p>
         <div class="data-tools">
           <button type="button" id="setup-again">Run setup again</button>
         </div>
@@ -656,14 +652,7 @@
 
     <div class="tier-options" id="setup-tier"></div>
 
-    <div class="people-picker" id="setup-people" hidden>
-      <button type="button" class="step-btn" id="people-minus" aria-label="One fewer person">−</button>
-      <div class="people-count">
-        <input id="setup-people-count" type="number" min="1" max="99" step="1" inputmode="numeric" pattern="[0-9]*" aria-label="People you’re preparing for">
-        <span id="setup-people-word">people</span>
-      </div>
-      <button type="button" class="step-btn" id="people-plus" aria-label="One more person">+</button>
-    </div>
+    <div class="household-form" id="setup-household" hidden></div>
 
     <div class="hazard-options" id="setup-hazards" hidden></div>
 
@@ -780,6 +769,7 @@
   <script src="reference.js"></script>
   <script src="shelf-life.js"></script>
   <script src="supply-match.js"></script>
+  <script src="household.js"></script>
   <script src="units.js"></script>
   <script src="calories.js"></script>
   <script src="icons.js"></script>

@@ -53,7 +53,7 @@ function lpSection(id, title, body, { open = false } = {}) {
 
 function renderLowPower() {
   const tier = currentTier();
-  const people = `${state.people} ${state.people === 1 ? 'person' : 'people'}`;
+  const people = householdNow();
   const water = waterDays();
   const food = foodCalories();
   const expired = state.items.filter((i) => statusOf(i) === 'expired').length;
@@ -68,10 +68,10 @@ function renderLowPower() {
   ];
 
   const sections = [];
-  if (FEATURES.grabList && state.grab.five.length) {
-    sections.push(lpSection('grab', 'If you need to leave', `<ol class="lp-grab">${state.grab.five.map((e) => {
+  if (FEATURES.grabList && visibleGrab('five').length) {
+    sections.push(lpSection('grab', 'If you need to leave', `<ol class="lp-grab">${visibleGrab('five').map((e) => {
       const where = grabWhere(e);
-      return `<li>${escapeHtml(e.name)}${where ? ` <span class="lp-qty">· ${escapeHtml(where)}</span>` : ''}</li>`;
+      return `<li>${escapeHtml(grabName(e))}${where ? ` <span class="lp-qty">· ${escapeHtml(where)}</span>` : ''}</li>`;
     }).join('')}</ol>`));
   }
   if (useFirst.length) {
@@ -93,7 +93,7 @@ function renderLowPower() {
 
   $('low-power-content').innerHTML = `
     <section class="lp-glance">
-      <p class="lp-plan">${escapeHtml(tier.name)} plan · household of ${state.people}</p>
+      <p class="lp-plan">${escapeHtml(tier.name)} plan · ${householdNow()}</p>
       <dl>${glance.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl>
     </section>
     ${sections.join('')}
