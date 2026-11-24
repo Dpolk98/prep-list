@@ -30,14 +30,14 @@ function renderSupplies(page) {
             </li>`;
         }).join('')}
       </ul>`;
-    if (!collapsible) return `<h3>${escapeHtml(label)}</h3>${list}`;
+    if (!collapsible) return `<h3>${escapeHtml(titleCase(label))}</h3>${list}`;
     const key = `${page.cat}|${label}`;
     const isOpen = sectionOpen.has(key) ? sectionOpen.get(key) : open;
     const status = !canAdd ? plural(entries.length, 'idea')
       : toBuy ? `${toBuy} to buy` : 'All in inventory';
     return `
       <details class="supply-section" data-section="${escapeHtml(key)}"${isOpen ? ' open' : ''}>
-        <summary><span class="supply-section-label">${escapeHtml(label)}</span><span class="supply-section-count">${status}</span></summary>
+        <summary><span class="supply-section-label">${escapeHtml(titleCase(label))}</span><span class="supply-section-count">${status}</span></summary>
         ${list}
       </details>`;
   }).join('');
@@ -279,7 +279,7 @@ function renderInventory(page) {
           <summary>
             <span class="group-icon">${icon(g.icon)}</span>
             <span class="group-title">
-              <span class="group-name">${escapeHtml(g.name)}</span>
+              <span class="group-name">${escapeHtml(titleCase(g.name))}</span>
               ${badges ? `<span class="group-badges">${badges}</span>` : ''}
             </span>
             <span class="group-count">${count}</span>

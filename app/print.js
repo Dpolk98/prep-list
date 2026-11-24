@@ -97,13 +97,13 @@ function renderPrint() {
 
   $('print-doc').innerHTML = `
     <header class="pd-head">
-      <h2>Prep Tracker summary</h2>
+      <h2>Prep Tracker Summary</h2>
       <p class="pd-meta">Printed ${printDate()} · Household: ${householdNow()} · ${escapeHtml(tier.name).replaceAll(' ', '&nbsp;')} plan: ${escapeHtml(tier.title)}</p>
       ${state.hazards.length ? `<p class="pd-meta">Also preparing for ${escapeHtml(hazardList())}</p>` : ''}
     </header>
 
     <section class="pd-section">
-      <h3>At a glance</h3>
+      <h3>At a Glance</h3>
       <dl class="pd-glance">
         ${glance.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}
       </dl>
@@ -111,7 +111,7 @@ function renderPrint() {
 
     ${FEATURES.grabList && GRAB_LISTS.some(({ key }) => visibleGrab(key).length) ? `
     <section class="pd-section">
-      <h3>Grab list</h3>
+      <h3>Grab List</h3>
       <div class="pd-grab">
         ${GRAB_LISTS.filter(({ key }) => visibleGrab(key).length).map(({ key, title }) => `
           <div>
@@ -127,12 +127,12 @@ function renderPrint() {
 
     ${attention.length ? `
     <section class="pd-section">
-      <h3>Use or replace soon</h3>
+      <h3>Use or Replace Soon</h3>
       ${printTable(attention, ['Category', 'Location'])}
     </section>` : ''}
 
     <section class="pd-section">
-      <h3>Inventory${groupBy === 'location' ? ' by location' : ''}</h3>
+      <h3>Inventory${groupBy === 'location' ? ' by Location' : ''}</h3>
       ${groups.length ? groups.map((g) => `
         <div class="pd-group">
           <h4><span>${escapeHtml(g.label)}</span><span class="pd-muted">${plural(g.items.length, 'item')}</span></h4>
@@ -142,7 +142,7 @@ function renderPrint() {
 
     ${$('print-reference').checked ? `
     <section class="pd-section pd-reference">
-      <h3>Quick reference</h3>
+      <h3>Quick Reference</h3>
       <div class="pd-ref-cards">
         ${REFERENCE.map((card) => `<div class="pd-ref-card"><h4>${card.title}</h4>${referenceBody(card)}</div>`).join('')}
       </div>

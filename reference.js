@@ -8,7 +8,7 @@
 const REFERENCE = [
   {
     id: 'water',
-    title: 'Purifying water',
+    title: 'Purifying Water',
     icon: 'droplet',
     points: [
       '<strong>Boiling is the most reliable method.</strong> Bring clear water to a rolling boil for 1 minute, or 3 minutes above 6,500 feet. Let it cool before drinking.',
@@ -24,7 +24,7 @@ const REFERENCE = [
   },
   {
     id: 'food',
-    title: 'Keeping food safe without power',
+    title: 'Keeping Food Safe Without Power',
     icon: 'utensils',
     points: [
       'Keep the refrigerator and freezer doors closed as much as you can.',
@@ -37,7 +37,7 @@ const REFERENCE = [
   },
   {
     id: 'co',
-    title: 'Generators, heaters, and carbon monoxide',
+    title: 'Generators, Heaters, and Carbon Monoxide',
     icon: 'fuel',
     points: [
       '<strong>Run generators outdoors only</strong>, at least 20 feet from doors, windows, and vents. Never in a garage, basement, or carport, even with the door open.',
@@ -49,7 +49,7 @@ const REFERENCE = [
   },
   {
     id: 'utilities',
-    title: 'Shutting off utilities',
+    title: 'Shutting off Utilities',
     icon: 'wrench',
     points: [
       'Know where your main water valve, gas meter, and electrical panel are before you need them.',
@@ -60,7 +60,7 @@ const REFERENCE = [
   },
   {
     id: 'outage',
-    title: 'During a power outage',
+    title: 'During a Power Outage',
     icon: 'flashlight',
     points: [
       'Use flashlights or lanterns rather than candles, which can start fires.',
@@ -72,7 +72,7 @@ const REFERENCE = [
   },
   {
     id: 'warm',
-    title: 'Staying warm',
+    title: 'Staying Warm',
     icon: 'snowflake',
     points: [
       'Dress in layers, with a hat and dry socks. Several thin layers keep you warmer than one heavy one.',
@@ -83,7 +83,7 @@ const REFERENCE = [
   },
   {
     id: 'cool',
-    title: 'Staying cool',
+    title: 'Staying Cool',
     icon: 'sun',
     points: [
       'Drink water regularly, even before you feel thirsty.',
@@ -95,7 +95,7 @@ const REFERENCE = [
   },
   {
     id: 'sanitation',
-    title: 'Toilets and sanitation',
+    title: 'Toilets and Sanitation',
     icon: 'soap',
     points: [
       'If the water is off but the sewer works, pour a bucket of water (about a gallon) into the bowl to flush.',
@@ -106,7 +106,7 @@ const REFERENCE = [
   },
   {
     id: 'firstaid',
-    title: 'Basic first aid',
+    title: 'Basic First Aid',
     icon: 'medkit',
     points: [
       'For anything serious, <strong>call 911</strong> and follow the dispatcher’s instructions.',
@@ -117,7 +117,7 @@ const REFERENCE = [
   },
   {
     id: 'contact',
-    title: 'Staying in touch',
+    title: 'Staying in Touch',
     icon: 'radio',
     points: [
       'Text rather than call when you can: texts often get through when calls don’t, and they leave the lines free for emergencies.',

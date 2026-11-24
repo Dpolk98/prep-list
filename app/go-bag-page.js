@@ -109,7 +109,7 @@ function renderGoBag() {
     return `
       <details class="supply-section gobag-section" data-section="${s.id}"${open ? ' open' : ''}>
         <summary>
-          <span class="supply-section-label">${escapeHtml(s.label)}</span>
+          <span class="supply-section-label">${escapeHtml(titleCase(s.label))}</span>
           <span class="supply-section-count">${done ? `<span class="all-packed">${status}</span>` : status}${s.liters ? ` · ${litersText(s.liters)}` : ''}</span>
         </summary>
         <ul class="supplies gear-list">${s.entries.map(gearRow).join('')}</ul>
@@ -180,7 +180,7 @@ let editingBagId = null;
 
 function openBagDialog(bag = null) {
   editingBagId = bag?.id || null;
-  $('gobag-bag-title').textContent = bag ? 'Edit bag' : 'Add a bag';
+  $('gobag-bag-title').textContent = bag ? 'Edit Bag' : 'Add a Bag';
   $('gobag-bag-save').textContent = bag ? 'Save' : 'Add';
   // A bag can be deleted as long as another one is left.
   $('gobag-bag-delete').hidden = !bag || state.goBag.bags.length < 2;
@@ -192,7 +192,7 @@ function openBagDialog(bag = null) {
   $('gobag-bag-type').innerHTML = Object.entries(GO_BAG_MODES).map(([id, m]) => `
     <label class="tier-option gobag-type-option">
       <input type="radio" name="gobag-type" value="${id}" ${id === type ? 'checked' : ''}>
-      <strong>${m.label}</strong>
+      <strong>${titleCase(m.label)}</strong>
       <span class="tier-title">${m.blurb}</span>
     </label>`).join('');
   $('gobag-bag-dialog').showModal();

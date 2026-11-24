@@ -69,20 +69,20 @@ function renderLowPower() {
 
   const sections = [];
   if (FEATURES.grabList && visibleGrab('five').length) {
-    sections.push(lpSection('grab', 'If you need to leave', `<ol class="lp-grab">${visibleGrab('five').map((e) => {
+    sections.push(lpSection('grab', 'If You Need to Leave', `<ol class="lp-grab">${visibleGrab('five').map((e) => {
       const where = grabWhere(e);
       return `<li>${escapeHtml(grabName(e))}${where ? ` <span class="lp-qty">· ${escapeHtml(where)}</span>` : ''}</li>`;
     }).join('')}</ol>`));
   }
   if (useFirst.length) {
-    sections.push(lpSection('use-first', `Use first <span class="lp-count">${useFirst.length}</span>`, `<ul class="lp-list">${useFirst.map(lpItem).join('')}</ul>`, { open: true }));
+    sections.push(lpSection('use-first', `Use First <span class="lp-count">${useFirst.length}</span>`, `<ul class="lp-list">${useFirst.map(lpItem).join('')}</ul>`, { open: true }));
   }
   const groups = printGroups('location');
-  sections.push(lpSection('where', 'Where things are', groups.length
+  sections.push(lpSection('where', 'Where Things Are', groups.length
     ? groups.map((g) => `<h3>${escapeHtml(g.label)}</h3><ul class="lp-list">${g.items.map(lpItem).join('')}</ul>`).join('')
     : '<p>Nothing in your inventory yet.</p>'));
   sections.push(...REFERENCE.map((card) => lpSection(`ref-${card.id}`, card.title, referenceBody(card))));
-  sections.push(lpSection('battery', 'Making the battery last', `<ul class="ref-points">
+  sections.push(lpSection('battery', 'Making the Battery Last', `<ul class="ref-points">
     <li>Turn on Low Power Mode (on iPhone, in Settings, then Battery) or Battery Saver on Android.</li>
     <li>Turn the screen brightness down, and lock the phone when you aren’t using it.</li>
     <li>When you don’t need a signal, turn on Airplane Mode. Searching for a weak signal drains the battery quickly.</li>

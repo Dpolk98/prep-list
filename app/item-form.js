@@ -262,7 +262,7 @@ function resetForm() {
   fillTypeOptions();
   unitsForType = null;
   syncUnitsToType();
-  $('form-title').textContent = page.cat ? `Add to ${page.cat}` : 'Add an item';
+  $('form-title').textContent = page.cat ? `Add to ${page.cat}` : 'Add an Item';
   $('submit-btn').textContent = 'Add item';
   $('cancel-edit').hidden = true;
   updateExpiresHint();
@@ -288,7 +288,7 @@ function startEdit(item) {
   // the type changed) unless the user types in the real printed date.
   if (item.expiresEstimated) $('expires').value = '';
   updateExpiresHint();
-  $('form-title').textContent = 'Edit item';
+  $('form-title').textContent = 'Edit Item';
   $('submit-btn').textContent = 'Save changes';
   $('cancel-edit').hidden = false;
   pendingScan = null;

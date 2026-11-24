@@ -133,7 +133,7 @@ function syncGrabWhere() {
 
 function openGrabDialog({ list, entry = null }) {
   editingGrabId = entry?.id || null;
-  $('grab-dialog-title').textContent = entry ? 'Edit grab list entry' : 'Add to the grab list';
+  $('grab-dialog-title').textContent = entry ? 'Edit Grab List Entry' : 'Add to the Grab List';
   $('grab-save').textContent = entry ? 'Save' : 'Add';
   $('grab-remove').hidden = !entry;
   $('grab-item').innerHTML = '<option value="">Not linked</option>' + CATEGORIES.map((cat) => {
