@@ -1,7 +1,7 @@
 // ---------- Year in review ----------
 
 const REVIEW_KEY = 'prep-tracker:review';  // { seenYears }: the last anniversary celebrated
-const YEAR_WORDS = ['', 'One year', 'Two years', 'Three years', 'Four years', 'Five years', 'Six years', 'Seven years', 'Eight years', 'Nine years', 'Ten years'];
+const YEAR_WORDS = ['', 'One Year', 'Two Years', 'Three Years', 'Four Years', 'Five Years', 'Six Years', 'Seven Years', 'Eight Years', 'Nine Years', 'Ten Years'];
 
 // Whole years since you started.
 function yearsSinceStart() {
@@ -74,9 +74,9 @@ function reviewTitle(months) {
     const [, m, d] = state.startedOn.split('-').map(Number);
     const anniversary = new Date(new Date().getFullYear(), m - 1, d);
     if (anniversary > new Date()) anniversary.setFullYear(anniversary.getFullYear() - 1);
-    if ((new Date() - anniversary) / 86400000 <= 60) return `${YEAR_WORDS[years]} of being prepared`;
+    if ((new Date() - anniversary) / 86400000 <= 60) return `${YEAR_WORDS[years]} of Being Prepared`;
   }
-  return months.length >= 12 ? 'Your last 12 months' : 'Your year so far';
+  return months.length >= 12 ? 'Your Last 12 Months' : 'Your Year So Far';
 }
 
 function reviewChart(months) {
@@ -152,7 +152,7 @@ function renderReview() {
     covered && (covered === CATEGORIES.length
       ? `Every one of your <strong>${CATEGORIES.length} categories</strong> has supplies in it.`
       : `<strong>${covered} of ${CATEGORIES.length}</strong> categories have supplies in them.`),
-    have && `<strong>${plural(have, 'item')}</strong> in your inventory came straight from the What to buy suggestions.`,
+    have && `<strong>${plural(have, 'item')}</strong> in your inventory came straight from the What to Buy suggestions.`,
     movedUp && `You moved up from the ${escapeHtml(TIERS.find((t) => t.id === earliestTier).name)} tier to ${escapeHtml(tier.name)}.`,
     state.items.length && !state.items.some((i) => statusOf(i) === 'expired') && 'Nothing in your inventory has expired.',
   ].filter(Boolean);
@@ -181,7 +181,7 @@ function renderReview() {
     <section class="review-stats">${stats}</section>
 
     <section class="card">
-      <h2>Month by month</h2>
+      <h2>Month by Month</h2>
       <div class="metric-tabs" role="group" aria-label="Show in the chart">
         ${REVIEW_METRICS.map((m) => `<button type="button" data-metric="${m.key}" aria-pressed="${m.key === reviewMetric}">${m.label}</button>`).join('')}
       </div>
@@ -195,7 +195,7 @@ function renderReview() {
     </section>` : ''}
 
     <section class="card">
-      <h2>Looking ahead</h2>
+      <h2>Looking Ahead</h2>
       <p class="hint">Where you stand on your ${escapeHtml(tier.name)} goals.</p>
       ${ahead}
     </section>
@@ -240,7 +240,7 @@ function renderCelebration() {
   $('celebrate-card').hidden = !show;
   if (!show) return;
   const years = yearsSinceStart();
-  $('celebrate-title').textContent = `${YEAR_WORDS[years] || `${years} years`} of being prepared`;
+  $('celebrate-title').textContent = `${YEAR_WORDS[years] || `${years} Years`} of Being Prepared`;
   $('celebrate-text').textContent = years === 1
     ? 'It’s been a year since you started tracking your supplies. Take a moment to look back at what you’ve built.'
     : `It’s been ${years} years since you started tracking your supplies. Take a moment to look back at this past year.`;

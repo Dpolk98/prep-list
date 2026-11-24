@@ -21,7 +21,7 @@ function hazardOptions(chosen = state.hazards) {
   return HAZARDS.map((h) => `
     <label class="hazard-option">
       <input type="checkbox" value="${h.id}" ${chosen.includes(h.id) ? 'checked' : ''}>
-      ${icon(h.icon)}<span>${escapeHtml(h.name)}</span>
+      ${icon(h.icon)}<span>${escapeHtml(titleCase(h.name))}</span>
     </label>`).join('');
 }
 
@@ -112,10 +112,10 @@ bindHouseholdForm($('settings-household'), () => state, (change) => {
 const THEME_KEY = 'prep-tracker:theme';
 const THEMES = [
   { id: 'default', name: 'Default', note: 'Calm greens on a warm, plain background.', status: ['#f6f5f1', '#141715'] },
-  { id: 'aero', name: 'Aero glass', note: 'Glossy, see-through panels over a bright sky, like desktops of the late 2000s.', status: ['#bfe3fa', '#0b2233'] },
-  { id: 'contrast', name: 'High contrast', note: 'Black and white, bigger text, and heavy outlines. Easiest to read in bright sun.', status: ['#ffffff', '#000000'] },
-  { id: 'night', name: 'Night red', note: 'Dim red on black, which is gentler on your night vision in the dark.', status: ['#000000', '#000000'] },
-  { id: 'field', name: 'Field manual', note: 'Bold, plain type on grid paper, like a field notebook.', status: ['#4b5320', '#363c1a'] },
+  { id: 'aero', name: 'Aero Glass', note: 'Glossy, see-through panels over a bright sky, like desktops of the late 2000s.', status: ['#bfe3fa', '#0b2233'] },
+  { id: 'contrast', name: 'High Contrast', note: 'Black and white, bigger text, and heavy outlines. Easiest to read in bright sun.', status: ['#ffffff', '#000000'] },
+  { id: 'night', name: 'Night Red', note: 'Dim red on black, which is gentler on your night vision in the dark.', status: ['#000000', '#000000'] },
+  { id: 'field', name: 'Field Manual', note: 'Bold, plain type on grid paper, like a field notebook.', status: ['#4b5320', '#363c1a'] },
   { id: 'terminal', name: 'Terminal', note: 'Glowing green type on a black screen, like an old computer.', status: ['#020a04', '#020a04'] },
   { id: 'paper', name: 'Paper', note: 'Handwritten headings on lined notebook paper.', status: ['#f3eee2', '#1b1a1f'] },
   { id: 'pastel', name: 'Pastel', note: 'Soft colors and rounded shapes.', status: ['#f6f1fa', '#1f1b30'] },
@@ -241,7 +241,7 @@ for (const [id, key] of [['settings-age', 'ageRange'], ['settings-income', 'inco
 // ---------- Tier picker ----------
 
 // ---------- First-use setup ----------
-// Four short questions, answered once: how long you're preparing for, who's
+// Four short questions, answered once: your prep duration, who's
 // in your household, your Local Hazards, and age and income ranges for the
 // investment goal. Nothing is saved until Finish, so if
 // the app is closed partway through, setup simply starts again next time.
@@ -249,19 +249,19 @@ for (const [id, key] of [['settings-age', 'ageRange'], ['settings-income', 'inco
 let setup = null; // { step, tier, household, hazards, ageRange, incomeBracket } while setup is open
 const SETUP_STEPS = [
   {
-    title: 'How long are you preparing for?',
+    title: 'How Long Are You Preparing For?',
     hint: 'Each tier builds on the ones before it. You can change this any time in Settings.',
   },
   {
-    title: 'Who are you preparing for?',
+    title: 'Who Are You Preparing For?',
     hint: 'Count everyone in your household, including yourself. It sets how much water and food you’ll need.',
   },
   {
     title: 'Local Hazards',
-    hint: 'Choose any that apply where you live. Each one adds a few suggestions to the What to buy lists. It’s fine to leave these blank, and you can change them any time in Settings.',
+    hint: 'Choose any that apply where you live. Each one adds a few suggestions to the What to Buy lists. It’s fine to leave these blank, and you can change them any time in Settings.',
   },
   {
-    title: 'Your savings goal',
+    title: 'Your Savings Goal',
     hint: 'Your age and income ranges suggest a goal for your investments. Your answers stay on this device and are never shared. You can skip this, and change it any time in Settings.',
   },
 ];

@@ -12,11 +12,11 @@ function renderOverview(wd) {
   renderCelebration();
   renderBackupReminder();
 
-  $('plan-title').textContent = `${tier.name} plan: ${tier.title}`;
+  $('plan-title').textContent = `${tier.name} Plan: ${tier.title}`;
   $('plan-mindset').textContent = tier.mindset;
   $('plan-hazards').hidden = !state.hazards.length;
   $('plan-hazards').innerHTML = state.hazards.length
-    ? `<span class="plan-hazards-label">Also preparing for</span>${chosenHazards().map((h) => `<button type="button" class="hazard-chip" data-hazard="${h.id}" aria-label="${escapeHtml(h.name)}: see what it adds">${icon(h.icon)}${escapeHtml(h.name)}</button>`).join('')}`
+    ? `<span class="plan-hazards-label">Also preparing for</span>${chosenHazards().map((h) => `<button type="button" class="hazard-chip" data-hazard="${h.id}" aria-label="${escapeHtml(h.name)}: see what it adds">${icon(h.icon)}${escapeHtml(titleCase(h.name))}</button>`).join('')}`
     : '';
 
   // Savings first, then one card per category page.

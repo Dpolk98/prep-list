@@ -26,7 +26,7 @@ function openHazardInfo(id) {
   const have = supplies.filter((s) => ownsSupply(s, state.items)).length;
 
   $('hazard-info-icon').innerHTML = icon(h.icon);
-  $('hazard-info-title').textContent = h.name;
+  $('hazard-info-title').textContent = titleCase(h.name);
   $('hazard-info-intro').textContent =
     `Preparing for ${h.name.toLowerCase()} adds these to your plan, whatever your tier.` +
     (!supplies.length ? ''
@@ -36,18 +36,18 @@ function openHazardInfo(id) {
   // the pop-up opens, only the first section starts open.
   const sections = [
     supplies.length && {
-      label: 'Supplies added to What to buy',
+      label: 'Supplies Added to What to Buy',
       count: have ? `${have} of ${supplies.length} in inventory` : plural(supplies.length, 'item'),
       body: byCategory,
     },
     plans.length && {
-      label: 'Plans and skills',
+      label: 'Plans and Skills',
       count: plural(plans.length, 'item'),
       body: `<ul class="supplies">${plans.map((s) => item(s, false)).join('')}</ul>
         <button type="button" class="link-btn hazard-info-cat" data-page="plans">${icon('clipboard')}Open Plans and Skills<span aria-hidden="true">›</span></button>`,
     },
     cards.length && {
-      label: 'Quick reference',
+      label: 'Quick Reference',
       count: plural(cards.length, 'card'),
       body: `<div class="hazard-info-refs">${cards.map((c) =>
         `<button type="button" class="hazard-info-ref" data-ref="${c.id}">${icon(c.icon)}<span>${escapeHtml(c.title)}</span><span aria-hidden="true">›</span></button>`).join('')}</div>`,

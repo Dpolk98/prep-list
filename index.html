@@ -55,13 +55,13 @@
     <div id="view-overview" class="view">
       <section class="summary" aria-label="Summary">
         <div class="stat"><span class="num" id="stat-items">0</span><span class="label">Items</span></div>
-        <a class="stat warn stat-link" href="#/expiring"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 days</span></a>
+        <a class="stat warn stat-link" href="#/expiring"><span class="num" id="stat-soon">0</span><span class="label">Expiring ≤ 60 Days</span></a>
         <a class="stat bad stat-link" href="#/expired"><span class="num" id="stat-expired">0</span><span class="label">Expired</span></a>
-        <a class="stat stat-link" href="#/water"><span class="num" id="stat-water">0</span><span class="label">Days of water stored</span></a>
+        <a class="stat stat-link" href="#/water"><span class="num" id="stat-water">0</span><span class="label">Days of Water Stored</span></a>
       </section>
 
       <section class="card battery-card" id="battery-card" aria-labelledby="battery-title" hidden>
-        <h2 id="battery-title">Battery running low</h2>
+        <h2 id="battery-title">Battery Running Low</h2>
         <p id="battery-text"></p>
         <div class="data-tools">
           <button type="button" class="primary" id="battery-switch">Switch to low-battery mode</button>
@@ -70,8 +70,8 @@
       </section>
 
       <section class="card celebrate-card" id="celebrate-card" aria-labelledby="celebrate-title" hidden>
-        <span class="review-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4M5 3v4M3 5h4"/></svg>Year in review</span>
-        <h2 id="celebrate-title">One year of being prepared</h2>
+        <span class="review-kicker"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 15v4M17 17h4M5 3v4M3 5h4"/></svg>Year in Review</span>
+        <h2 id="celebrate-title">One Year of Being Prepared</h2>
         <p id="celebrate-text"></p>
         <div class="data-tools">
           <button type="button" class="primary" id="celebrate-open">See your year</button>
@@ -81,7 +81,7 @@
       </section>
 
       <section class="card backup-reminder" id="backup-reminder" aria-labelledby="backup-reminder-title" hidden>
-        <h2 id="backup-reminder-title">Time for a backup</h2>
+        <h2 id="backup-reminder-title">Time for a Backup</h2>
         <p id="backup-reminder-text"></p>
         <div class="data-tools">
           <button type="button" class="primary" id="backup-reminder-export">Export backup</button>
@@ -129,7 +129,7 @@
       <section class="card supplies-card" id="supplies-card">
         <details id="supplies-details">
           <summary>
-            <span class="supplies-title" id="supplies-title">What to buy</span>
+            <span class="supplies-title" id="supplies-title">What to Buy</span>
             <span class="count" id="supplies-count"></span>
           </summary>
           <p class="hint" id="supplies-intro"></p>
@@ -139,7 +139,7 @@
 
       <!-- Plans and Skills: the same suggestions, always shown (no inventory) -->
       <section class="card plans-card" id="plans-card" hidden>
-        <h2>Things to set up</h2>
+        <h2>Things to Set Up</h2>
         <p class="hint" id="plans-intro"></p>
         <div id="plans-list"></div>
       </section>
@@ -165,7 +165,7 @@
       </section>
 
       <section class="card" id="form-card">
-        <h2 id="form-title">Add an item</h2>
+        <h2 id="form-title">Add an Item</h2>
         <div class="scan-row" id="scan-row" hidden>
           <button type="button" class="scan-btn" id="scan-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 7v10"/><path d="M12 7v10"/><path d="M17 7v10"/></svg><span class="btn-label">Scan a barcode</span></button>
           <button type="button" class="scan-btn manual-toggle" id="manual-toggle" aria-expanded="false" aria-controls="item-form"><span class="toggle-icon" id="manual-toggle-icon" aria-hidden="true"></span><span class="btn-label"><span id="manual-toggle-text">Enter manually</span><span class="chevron" aria-hidden="true"></span></span></button>
@@ -231,7 +231,7 @@
       </section>
 
       <section class="card" data-settings="hazards">
-        <p class="hint settings-hint">Choose any that apply. Each one adds a few suggestions to the What to buy lists and to Plans and Skills. It’s fine to leave these blank.</p>
+        <p class="hint settings-hint">Choose any that apply. Each one adds a few suggestions to the What to Buy lists and to Plans and Skills. It’s fine to leave these blank.</p>
         <div class="hazard-options" id="settings-hazards"></div>
       </section>
 
@@ -253,7 +253,7 @@
           <button type="button" id="settings-level-reset" hidden>Back to suggested (100%)</button>
         </div>
         <p class="settings-text" id="settings-invest-goal"></p>
-        <h3 class="settings-subhead">How the goal is worked out</h3>
+        <h3 class="settings-subhead">How the Goal Is Worked Out</h3>
         <p class="settings-text">It starts from <a href="https://www.fidelity.com/viewpoints/retirement/how-much-do-i-need" target="_blank" rel="noopener">Fidelity’s savings guideline</a>: save at least 1× your yearly income by age 30, 3× by 40, 6× by 50, 8× by 60, and 10× by 67.</p>
         <p class="settings-text">The app aims a little lower, at 80% of those amounts: 8× your income by 67. That’s the amount Fidelity gives for someone who plans to live on a bit less in retirement, or to retire at 70 instead of 67.</p>
         <p class="settings-text">Each age range uses the middle of the range, and each income range uses its middle amount. So the goal is only a rough guide, not financial advice.</p>
@@ -311,7 +311,7 @@
       </section>
 
       <section class="card" data-settings="setup">
-        <p class="settings-text">Go through the setup questions again: how long you’re preparing for, who’s in your household, and your Local Hazards. Your current answers are filled in, and nothing changes until you tap Finish.</p>
+        <p class="settings-text">Go through the setup questions again: your prep duration, who’s in your household, and your Local Hazards. Your current answers are filled in, and nothing changes until you tap Finish.</p>
         <div class="data-tools">
           <button type="button" id="setup-again">Run setup again</button>
         </div>
@@ -327,7 +327,7 @@
     <!-- ===== Go-Bags (go-bag.js, app/go-bag-page.js) ===== -->
     <div id="view-gobag" class="view" hidden>
       <details class="card gobag-bags" id="gobag-bags" open>
-        <summary class="gobag-fold"><h2>Your bags</h2><span class="more" id="gobag-bags-count"></span></summary>
+        <summary class="gobag-fold"><h2>Your Bags</h2><span class="more" id="gobag-bags-count"></span></summary>
         <p class="hint gobag-bags-intro">Keep one bag that does both jobs, or several, like one at work to get home and one by the door to get out. Each bag has its own packing list. Tap a bag to pack it.</p>
         <div class="gobag-grid" id="gobag-grid"></div>
       </details>
@@ -357,10 +357,10 @@
       </section>
 
       <section class="card gobag-list-card">
-        <h2>Packing list</h2>
+        <h2>Packing List</h2>
         <p class="hint">Tick things off as they go in the bag. Your Local Hazards come first. The bag is tracked on its own, so nothing here changes your inventory on the Preps pages.</p>
         <details class="estimate-note gobag-tips">
-          <summary><strong>Packing tips</strong></summary>
+          <summary><strong>Packing Tips</strong></summary>
           <ul>
             <li>Put heavy things, like water and food, in the middle of the bag and close to your back.</li>
             <li>Keep what you’ll reach for often, like the headlamp, first aid kit, map, and rain jacket, near the top or in outside pockets.</li>
@@ -376,12 +376,12 @@
       </section>
 
       <details class="card gobag-choose" id="gobag-choose">
-        <summary class="gobag-fold"><h2>Choosing a bag</h2><span class="more">Features, budget, and the two jobs</span></summary>
+        <summary class="gobag-fold"><h2>Choosing a Bag</h2><span class="more">Features, budget, and the two jobs</span></summary>
         <div id="gobag-choose-body">
           <p class="settings-text">Any sturdy backpack of 30 liters or less can do the job. What matters most is that it fits you and carries comfortably for hours.</p>
           <div class="gobag-feature-grid">
             <div>
-              <h3>Worth having</h3>
+              <h3>Worth Having</h3>
               <ul class="reasons">
                 <li><strong>Padded shoulder straps</strong> and a padded back panel.</li>
                 <li><strong>A hip belt and chest strap</strong>, which move weight off your shoulders.</li>
@@ -391,7 +391,7 @@
               </ul>
             </div>
             <div>
-              <h3>Nice to have</h3>
+              <h3>Nice to Have</h3>
               <ul class="reasons">
                 <li>Outside pockets for things you reach for often.</li>
                 <li>Compression straps to keep a part-full bag from shifting.</li>
@@ -405,7 +405,7 @@
             <p>Each added feature tends to raise the price, and often the weight, while adding less and less to what the bag can do. A basic daypack that fits well and holds up is enough. If a feature would push a bag outside your budget, skip it and put the money toward what goes inside.</p>
           </div>
           <details class="gobag-uses">
-            <summary class="gobag-fold"><h3>One bag, two jobs</h3><span class="more">Get home and get out</span></summary>
+            <summary class="gobag-fold"><h3>One Bag, Two Jobs</h3><span class="more">Get home and get out</span></summary>
             <div class="gobag-use-grid">
               <div>
                 <span class="use-tag home">Get home</span>
@@ -426,7 +426,7 @@
     <div id="view-low-power" class="view" hidden>
       <div class="lp-head">
         <div>
-          <h1>Low-battery mode</h1>
+          <h1>Low-Battery Mode</h1>
           <p class="lp-sub">Just the essentials, on a black screen that uses less power.</p>
         </div>
         <button type="button" id="low-power-off">Leave</button>
@@ -474,19 +474,19 @@
     <!-- ===== Welcome guide (new users, and from Settings) ===== -->
     <div id="view-welcome" class="view" hidden>
       <section class="card welcome-tour">
-        <h2>What Prep Tracker does</h2>
+        <h2>What Prep Tracker Does</h2>
         <ul class="reasons">
           <li><strong>Keeps track of your supplies.</strong> Water, Food, Medical, and the other categories each have their own page in the ☰ menu. Add what you have, with how much, where it’s stored, and when it expires. On the Food page, you can scan a barcode to fill in the details.</li>
           <li><strong>Watches expiration dates for you.</strong> Leave the date blank and the app estimates one from the type of item. The Overview shows anything expired or expiring within 60 days, so you can use it and replace it in time.</li>
           <li><strong>Suggests what to get next.</strong> Choose how long you’re preparing for: a week, a month, a year, or beyond. Each page then lists supplies that fit that goal, and you can add them to your inventory as you get them. You can also choose Local Hazards, like winter storms or wildfire, for a few more suggestions.</li>
           <li><strong>Helps you build savings.</strong> The Savings page tracks your emergency cash, with a goal sized to how long you’re preparing for, and your investments, with a rough goal based on your age and income ranges.</li>
           <li><strong>Celebrates your progress.</strong> Once a year, on the anniversary of when you started, the Overview offers a look back at how your supplies and savings have grown. You can open it any time from the Settings page.</li>
-          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. The Grab list keeps an ordered list of what to take if you ever need to leave in a hurry, with boxes to tick off. Quick reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection. During an outage, low-battery mode (in the ☰ menu) shows just the essentials on a black screen that uses less power.</li>
+          <li><strong>Lists plans and skills.</strong> The Plans and Skills page covers things to set up that you can’t buy, like a family communication plan. The Grab List keeps an ordered list of what to take if you ever need to leave in a hurry, with boxes to tick off. Quick Reference has short how-tos, like purifying water or keeping food safe without power, that work with no connection. During an outage, low-battery mode (in the ☰ menu) shows just the essentials on a black screen that uses less power.</li>
         </ul>
       </section>
 
       <section class="card backup-note" aria-labelledby="backup-note-title">
-        <h2 id="backup-note-title">Important: export your data regularly</h2>
+        <h2 id="backup-note-title">Important: Export Your Data Regularly</h2>
         <p>Prep Tracker stores everything <strong>only in this browser, on this device</strong>. Nothing is saved online.</p>
         <p>If your browser data is cleared, your browser is reset or reinstalled, or you move to a new phone or computer, <strong>everything you’ve entered will be gone unless you have a backup.</strong></p>
         <p>To keep it safe, open <a href="#/settings/backup">Backup</a> in Settings and tap <strong>Export backup</strong> every so often, for example once a month or after adding a batch of items. Keep the file somewhere you won’t lose it, such as your email, cloud storage, or another computer. If you ever need it, tap <strong>Import backup</strong> in Settings to bring everything back.</p>
@@ -500,7 +500,7 @@
     <!-- ===== Savings ===== -->
     <div id="view-savings" class="view" hidden>
       <section class="card fund" id="savings" aria-labelledby="cash-title">
-        <h2 id="cash-title">Emergency cash</h2>
+        <h2 id="cash-title">Emergency Cash</h2>
         <p class="mindset" id="savings-note"></p>
         <div class="savings-goal">
           <span class="num" id="savings-current-display">$0</span>
@@ -536,7 +536,7 @@
       </section>
 
       <section class="card savings-why">
-        <h2>Why savings matter most</h2>
+        <h2>Why Savings Matter Most</h2>
         <p>Stored supplies get you through the first days of a disruption. The longer it lasts, the more your savings matter. Most long disruptions are financial ones: a job loss, an illness, rising prices, or a slow local economy. Money is what carries a household through them.</p>
         <ul class="reasons">
           <li><strong>It fits any situation.</strong> Supplies cover the needs you planned for. Money also covers the ones you didn’t: a hotel during an evacuation, a car repair, a replacement for something that broke.</li>
@@ -544,7 +544,7 @@
           <li><strong>It keeps working after the stores reopen.</strong> Most disruptions end with shelves restocked but bills still due. Savings cover the weeks or months it takes to get back on your feet.</li>
           <li><strong>It gives you time.</strong> With a cushion, you can make decisions calmly instead of in a hurry.</li>
         </ul>
-        <h3>Building it steadily</h3>
+        <h3>Building It Steadily</h3>
         <ul class="reasons">
           <li>Small, regular amounts add up. A steady weekly habit matters more than a big start.</li>
           <li>Keep some cash at home in small bills for when card readers are down.</li>
@@ -556,7 +556,7 @@
   </main>
 
   <section class="card update-bar" id="update-bar" role="status" aria-labelledby="update-bar-title" hidden>
-    <h2 id="update-bar-title">A new version is ready</h2>
+    <h2 id="update-bar-title">A New Version Is Ready</h2>
     <p>Updating reloads the app. Your supplies and settings stay on this device.</p>
     <div class="data-tools">
       <button type="button" class="primary" id="update-apply">Update now</button>
@@ -574,7 +574,7 @@
       </div>
       <div class="update-done" id="update-done" hidden>
         <span class="update-done-mark" aria-hidden="true">✓</span>
-        <h2 id="update-done-title">Update complete</h2>
+        <h2 id="update-done-title">Update Complete</h2>
         <p class="settings-text">You’re on the newest version. Your supplies and settings are just as you left them.</p>
         <div class="actions update-done-actions">
           <button type="button" class="primary" id="update-done-close">Close</button>
@@ -586,7 +586,7 @@
   <!-- Tier picker: shown on first use and from the "Change" button -->
   <dialog id="scan-dialog" class="scan-dialog" aria-labelledby="scan-title">
     <div class="scan-head">
-      <h2 id="scan-title">Scan a barcode</h2>
+      <h2 id="scan-title">Scan a Barcode</h2>
       <button type="button" class="icon-btn" id="scan-close" aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
       </button>
@@ -611,7 +611,7 @@
 
   <dialog id="grab-dialog" aria-labelledby="grab-dialog-title">
     <form id="grab-form" autocomplete="off">
-      <h2 id="grab-dialog-title">Add to the grab list</h2>
+      <h2 id="grab-dialog-title">Add to the Grab List</h2>
       <div class="grid grab-grid">
         <label class="wide">From your inventory (optional)
           <select id="grab-item"></select>
@@ -629,8 +629,8 @@
         </label>
         <label class="wide">List
           <select id="grab-list">
-            <option value="five">If you have 5 minutes</option>
-            <option value="fifteen">If you have 15 minutes</option>
+            <option value="five">If You Have 5 Minutes</option>
+            <option value="fifteen">If You Have 15 Minutes</option>
           </select>
         </label>
       </div>
@@ -697,17 +697,17 @@
       <p class="hint">Have you used Prep Tracker before?</p>
       <div class="tier-options welcome-choices">
         <button type="button" class="tier-option" id="welcome-new">
-          <strong>I’m new here</strong>
+          <strong>I’m New Here</strong>
           <span class="tier-title">Take a quick look at how it works.</span>
         </button>
         <button type="button" class="tier-option" id="welcome-returning">
-          <strong>I’ve used it before</strong>
+          <strong>I’ve Used It Before</strong>
           <span class="tier-title">Bring back your data from a backup.</span>
         </button>
       </div>
     </div>
     <div id="welcome-back" hidden>
-      <h2>Welcome back</h2>
+      <h2>Welcome Back</h2>
       <p class="settings-text">There’s no saved data in this browser. Prep Tracker keeps your data only in the browser where you entered it, so it may have been cleared, or you may be on a different device or browser.</p>
       <p class="settings-text">If you exported a backup, import it now to pick up where you left off.</p>
       <div class="actions welcome-back-actions">
@@ -722,7 +722,7 @@
   <!-- Go-Bags: add or edit a bag (app/go-bag-page.js) -->
   <dialog id="gobag-bag-dialog" aria-labelledby="gobag-bag-title">
     <form id="gobag-bag-form" autocomplete="off">
-      <h2 id="gobag-bag-title">Add a bag</h2>
+      <h2 id="gobag-bag-title">Add a Bag</h2>
       <div class="grid grab-grid">
         <label class="wide">Name
           <input id="gobag-bag-name" required maxlength="40" enterkeyhint="done" placeholder="e.g. Work bag">
@@ -746,15 +746,15 @@
   <!-- Go-Bags: asked once, the first time the page is opened (app/go-bag-page.js) -->
   <dialog id="gobag-ask-dialog" aria-labelledby="gobag-ask-title">
     <p class="setup-step">Go-Bags</p>
-    <h2 id="gobag-ask-title">Do you already have a bag set up?</h2>
+    <h2 id="gobag-ask-title">Do You Already Have a Bag Set Up?</h2>
     <p class="hint">A backpack of 30 liters or less that you use as your go-bag.</p>
     <div class="tier-options welcome-choices">
       <button type="button" class="tier-option" id="gobag-ask-yes">
-        <strong>Yes, I have a bag</strong>
+        <strong>Yes, I Have a Bag</strong>
         <span class="tier-title">Go straight to the packing list.</span>
       </button>
       <button type="button" class="tier-option" id="gobag-ask-no">
-        <strong>Not yet</strong>
+        <strong>Not Yet</strong>
         <span class="tier-title">See what to look for in a bag first.</span>
       </button>
     </div>
@@ -762,7 +762,7 @@
 
   <!-- Go-Bags: the Choosing a bag section, shown as a popup -->
   <dialog id="gobag-choose-dialog" class="gobag-choose-dialog" aria-labelledby="gobag-choose-dialog-title">
-    <h2 id="gobag-choose-dialog-title">Choosing a bag</h2>
+    <h2 id="gobag-choose-dialog-title">Choosing a Bag</h2>
     <div id="gobag-choose-dialog-body"></div>
     <p class="hint gobag-choose-later">You can find this again at the bottom of the Go-Bags page.</p>
     <div class="actions">
@@ -772,9 +772,9 @@
 
   <!-- Shown at most once, a month after first use (see app/tip.js) -->
   <dialog id="tip-dialog" class="tip-dialog" aria-labelledby="tip-title">
-    <h2 id="tip-title">Finding Prep Tracker useful?</h2>
+    <h2 id="tip-title">Finding Prep Tracker Useful?</h2>
     <p class="settings-text">If it’s been helpful and you’d like to say thanks, you can leave a tip on Ko-fi. Even if you choose not to, this app will remain completely free, forever.</p>
-    <p class="hint">Completely optional, and this won’t pop up again. If you change your mind later, there’s a Ko-fi link in Settings, under Support the app.</p>
+    <p class="hint">Completely optional, and this won’t pop up again. If you change your mind later, there’s a Ko-fi link in Settings, under Support the App.</p>
     <div class="actions tip-actions">
       <button type="button" id="tip-later">No thanks</button>
       <a class="button-link primary" id="tip-link" href="#" target="_blank" rel="noopener">Leave a tip</a>

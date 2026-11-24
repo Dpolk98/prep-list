@@ -19,7 +19,7 @@ const TIERS = [
     id: 'week',
     name: '1 Week',
     days: 7,
-    title: 'Shelter in place',
+    title: 'Shelter in Place',
     mindset:
       'Ride out a short disruption (a storm, a power outage, a boil-water notice) with what you already have. ' +
       'Focus on stored supplies that need no power, no running water, and no trip to the store.',
@@ -73,7 +73,7 @@ const TIERS = [
     id: 'month',
     name: '1 Month',
     days: 30,
-    title: 'Extended disruption',
+    title: 'Extended Disruption',
     mindset:
       'Utilities or supply chains could be down for weeks. Stockpiles alone get heavy and run out, ' +
       'so add the ability to cook without power, treat your own water, and handle sanitation yourself.',
@@ -131,7 +131,7 @@ const TIERS = [
     id: 'year',
     name: '1 Year',
     days: 365,
-    title: 'Long-term self-reliance',
+    title: 'Long-Term Self-Reliance',
     mindset:
       'You can’t store a year of everything. Shift from stockpiling to producing and renewing: ' +
       'a water source you can treat indefinitely, bulk staples, power you generate yourself, ' +
@@ -187,7 +187,7 @@ const TIERS = [
     id: 'beyond',
     name: 'Beyond',
     days: null,
-    title: 'Sustainable living',
+    title: 'Sustainable Living',
     mindset:
       'Indefinite self-sufficiency. Supplies become a buffer; what keeps you going is production, skills ' +
       'and community. Build systems that renew themselves, with a backup for each one.',

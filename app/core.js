@@ -36,11 +36,11 @@ const PAGES = [
   { slug: 'documents', group: 'preps', name: 'Documents', cat: 'Documents', icon: 'file', blurb: 'Important papers, copies, and records.' },
   { slug: 'other', group: 'preps', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets, and anything else.' },
   { slug: 'plans', group: 'resources', name: 'Plans and Skills', cat: 'Plans and Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training, and community.' },
-  ...(FEATURES.grabList ? [{ slug: 'grab', group: 'resources', name: 'Grab list', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
+  ...(FEATURES.grabList ? [{ slug: 'grab', group: 'resources', name: 'Grab List', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
   { slug: 'go-bag', group: 'resources', name: 'Go-Bags', icon: 'rucksack', blurb: 'Bags of 30 liters or less, packed to get you home, get you out, or both.' },
-  { slug: 'reference', group: 'resources', name: 'Quick reference', icon: 'book', blurb: 'Short how-tos for when the power or water is out. Saved on this device, so they work offline.' },
-  { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, the app’s look, and backups.' },
-  { slug: 'print', name: 'Print summary', icon: 'printer', blurb: 'Your supplies on paper, for when a phone is dead or the power is out.' },
+  { slug: 'reference', group: 'resources', name: 'Quick Reference', icon: 'book', blurb: 'Short how-tos for when the power or water is out. Saved on this device, so they work offline.' },
+  { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, prep duration, the app’s look, and backups.' },
+  { slug: 'print', name: 'Print Summary', icon: 'printer', blurb: 'Your supplies on paper, for when a phone is dead or the power is out.' },
 ];
 
 // Inventory categories, in menu order.
@@ -48,7 +48,7 @@ const PAGES = [
 // Each lists items with that status across every category.
 const STATUS_PAGES = [
   { slug: 'expired', name: 'Expired', status: 'expired', icon: 'alert', blurb: 'Items past their expiration date. Use, replace, or throw them out.' },
-  { slug: 'expiring', name: 'Expiring soon', status: 'soon', icon: 'clock', blurb: 'Items that expire within the next 60 days. Use these first.' },
+  { slug: 'expiring', name: 'Expiring Soon', status: 'soon', icon: 'clock', blurb: 'Items that expire within the next 60 days. Use these first.' },
 ];
 
 // The welcome guide: shown to new users, and linked from Settings (not in the menu).
@@ -56,23 +56,23 @@ const WELCOME_PAGE = { slug: 'welcome', name: 'Welcome', icon: 'info', blurb: 'A
 
 // The Year in review: celebrated on the Overview once a year, and opened any
 // time from Settings (not in the menu).
-const REVIEW_PAGE = { slug: 'review', name: 'Year in review', icon: 'sparkles', blurb: 'A look back at how your supplies and savings have grown.' };
+const REVIEW_PAGE = { slug: 'review', name: 'Year in Review', icon: 'sparkles', blurb: 'A look back at how your supplies and savings have grown.' };
 
 // Settings is a short list of titles, each opening its own page with a back
 // button to the list. `section` matches a data-settings section in index.html;
 // `group` splits the list into a few cards.
 const SETTINGS_PAGES = [
   { section: 'household', group: 1, name: 'Household', icon: 'users' },
-  { section: 'tier', group: 1, name: 'How long you’re preparing for', icon: 'calendar' },
+  { section: 'tier', group: 1, name: 'Prep Duration', icon: 'calendar' },
   { section: 'hazards', group: 1, name: 'Local Hazards', icon: 'alert' },
-  { section: 'savings', group: 1, name: 'Savings goal', icon: 'dollar' },
+  { section: 'savings', group: 1, name: 'Savings Goal', icon: 'dollar' },
   { section: 'theme', group: 2, name: 'Theme', icon: 'palette' },
-  { section: 'review', group: 3, name: 'Year in review', icon: 'sparkles' },
+  { section: 'review', group: 3, name: 'Year in Review', icon: 'sparkles' },
   { section: 'backup', group: 3, name: 'Backup', icon: 'save' },
-  { section: 'low-power', group: 3, name: 'Low-battery mode', icon: 'battery' },
+  { section: 'low-power', group: 3, name: 'Low-Battery Mode', icon: 'battery' },
   { section: 'setup', group: 4, name: 'Setup', icon: 'refresh' },
-  { section: 'about', group: 4, name: 'About the app', icon: 'info' },
-  { section: 'support', group: 5, name: 'Support the app', icon: 'heart' },
+  { section: 'about', group: 4, name: 'About the App', icon: 'info' },
+  { section: 'support', group: 5, name: 'Support the App', icon: 'heart' },
 ].map((p) => ({ ...p, slug: `settings/${p.section}`, parent: 'settings', blurb: '' }));
 
 const CATEGORIES = PAGES.filter((p) => p.cat && !p.noInventory).map((p) => p.cat);
@@ -141,8 +141,8 @@ function migrateItem(item) {
 // ticked off when it's been grabbed.
 
 const GRAB_LISTS = [
-  { key: 'five', title: 'If you have 5 minutes', short: '5 minutes', hint: 'The essentials, in the order you’d grab them.' },
-  { key: 'fifteen', title: 'If you have 15 minutes', short: '15 minutes', hint: 'Everything above first, then these.' },
+  { key: 'five', title: 'If You Have 5 Minutes', short: '5 minutes', hint: 'The essentials, in the order you’d grab them.' },
+  { key: 'fifteen', title: 'If You Have 15 Minutes', short: '15 minutes', hint: 'Everything above first, then these.' },
 ];
 
 // A starting point built on the "5 Ps": people and pets, papers,
@@ -356,6 +356,25 @@ savedItemsJson = JSON.stringify(state.items);
 // ---------- Helpers ----------
 
 const $ = (id) => document.getElementById(id);
+
+// Titles of every element (page, section, card and pop-up headings, menu and
+// settings entries, tile labels) use title case: each word capitalized, except
+// articles, short conjunctions and short prepositions in the middle, like
+// "Year in Review". Literal titles are written that way; titleCase() is for
+// titles built from data whose wording is also used in sentences or as keys.
+// Words that already have a capital, digit or symbol (N95, MREs, IDs) are kept.
+const TITLE_SMALL_WORDS = new Set(['a', 'an', 'the', 'and', 'but', 'or', 'nor', 'for', 'so', 'yet',
+  'as', 'at', 'by', 'in', 'of', 'off', 'on', 'per', 'to', 'up', 'via', 'vs']);
+function titleCase(text) {
+  const words = String(text).split(' ');
+  const last = words.length - 1;
+  return words.map((word, i) => {
+    const bare = word.toLowerCase().replace(/[^a-z]/g, '');
+    const afterColon = i > 0 && /[:—]$/.test(words[i - 1]);
+    if (i > 0 && i < last && !afterColon && TITLE_SMALL_WORDS.has(bare) && word === word.toLowerCase()) return word;
+    return word.split('-').map((part) => part.replace(/^([^\p{L}]*)(\p{Ll})/u, (m, pre, c) => pre + c.toUpperCase())).join('-');
+  }).join(' ');
+}
 
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 
