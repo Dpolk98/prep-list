@@ -103,7 +103,7 @@ const GO_BAG = [
     name: 'Navigation, documents, and cash',
     icon: 'map',
     gear: [
-      { name: 'Paper map with routes marked', use: 'both', liters: 0.1, lb: 0.1, note: 'Mark two routes home from work and two ways out of town. Phones and GPS can fail' },
+      { name: 'Paper map with routes marked', use: 'both', liters: 0.1, lb: 0.1, note: 'Mark two routes home from work and two ways out of town. Phones and GPS can fail', mapTip: true },
       { name: 'Copies of IDs and insurance', use: 'out', liters: 0.2, lb: 0.2, note: 'In a zip bag or waterproof pouch' },
       { name: 'Printed contact list', use: 'both', liters: 0.01, lb: 0.01, note: 'Your phone may be dead' },
       { name: 'Cash in small bills', use: 'both', liters: 0.05, lb: 0.05, note: 'Card readers and ATMs often stop working in outages' },

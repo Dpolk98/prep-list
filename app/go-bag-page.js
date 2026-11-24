@@ -22,6 +22,7 @@ function gearRow({ gear: g, packed }) {
       <div class="gear-body">
         <span class="supply-name">${escapeHtml(g.name)}</span>
         <span class="supply-note">${escapeHtml(g.note)}</span>
+        ${g.mapTip ? offlineMapsTip() : ''}
         <span class="gear-meta">${useTag(g.use)}<span>${space}</span><span>${poundsText(g.lb)}</span></span>
       </div>
       <input type="checkbox" class="grab-check" data-gear-pack="${escapeHtml(g.name)}" ${packed ? 'checked' : ''} aria-label="${escapeHtml(g.name)}: packed">

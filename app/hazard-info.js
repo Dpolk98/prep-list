@@ -13,7 +13,7 @@ function openHazardInfo(id) {
 
   const item = (s, canHave) => `
     <li>
-      <div><span class="supply-name">${escapeHtml(s.name)}</span><span class="supply-note">${escapeHtml(s.note)}</span></div>
+      <div><span class="supply-name">${escapeHtml(s.name)}</span><span class="supply-note">${escapeHtml(s.note)}</span>${s.mapTip ? offlineMapsTip() : ''}</div>
       ${canHave && ownsSupply(s, state.items) ? '<span class="have">In inventory</span>' : ''}
     </li>`;
   const byCategory = PAGES.filter((p) => CATEGORIES.includes(p.cat)).map((p) => {

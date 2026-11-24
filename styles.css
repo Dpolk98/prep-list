@@ -1719,3 +1719,8 @@ dialog.is-closing { pointer-events: none; }
 @media (prefers-reduced-motion: reduce) {
   body { --motion-ms: 0; --motion-ms-close: 0; }
 }
+
+/* Offline phone maps tip, under a map suggestion */
+.map-tip { margin: 8px 0 2px; }
+.map-tip p strong { color: var(--text); }
+.supplies li:has(.map-tip) { align-items: flex-start; }

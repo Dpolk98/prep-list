@@ -113,7 +113,7 @@ const TIERS = [
       { cat: 'Light and Power', name: 'Lanterns', note: 'Light a whole room, not just a spot' },
 
       { cat: 'Documents', name: 'Encrypted USB drive', types: ['digital'], note: 'Scans of important documents and photos' },
-      { cat: 'Documents', name: 'Paper maps', types: ['maps'], note: 'Your area and evacuation routes' },
+      { cat: 'Documents', name: 'Paper maps', types: ['maps'], note: 'Your area and evacuation routes', mapTip: true },
 
       { cat: 'Plans and Skills', name: 'Communication plan', note: 'How to reach each other without cell service' },
       { cat: 'Plans and Skills', name: 'First aid and CPR class', note: 'At least one person in the household' },

@@ -25,6 +25,7 @@ function renderSupplies(page) {
               <div>
                 <span class="supply-name">${escapeHtml(s.name)}</span>
                 <span class="supply-note">${escapeHtml(s.note)}</span>
+                ${s.mapTip ? offlineMapsTip() : ''}
               </div>
               ${action}
             </li>`;

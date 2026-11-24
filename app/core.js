@@ -395,3 +395,19 @@ function grabNeeded(entry) {
 const GRAB_EVERYONE = 'Everyone in the household, and pets';
 const grabName = (entry) => (!state.pets && entry.name === GRAB_EVERYONE ? 'Everyone in the household' : entry.name);
 const visibleGrab = (key) => state.grab[key].filter(grabNeeded);
+
+// ---------- Offline phone maps tip ----------
+// The app can't download maps itself: free map tile services don't allow
+// saving areas for offline use. Wherever a map is suggested, this tip shows
+// how to save one in Google Maps or Apple Maps instead. Steps follow
+// support.google.com/maps/answer/6291838 and support.apple.com/105084.
+function offlineMapsTip() {
+  return `
+    <details class="estimate-note map-tip">
+      <summary><strong>Tip: save maps on your phone too</strong><span class="more">How</span></summary>
+      <p>Phone maps can work with no signal if you download your area first. Keep the paper map as well, since a phone can run out of battery.</p>
+      <p><strong>Google Maps</strong> (Android or iPhone): tap your profile picture, then Offline maps, then Select your own map. Fit your area in the box and tap Download. Offline, Google Maps gives driving directions only, and downloaded maps expire unless they update, which happens on Wi-Fi.</p>
+      <p><strong>Apple Maps</strong> (iPhone with iOS 17 or later): tap your picture or initials next to the search field, then Offline Maps. Tap Add, choose your area or Current Location, adjust its size, and tap Download. Offline, Apple Maps still gives driving, walking, cycling, and transit directions.</p>
+      <p>Offline maps take storage space and aren’t available in every country or region.</p>
+    </details>`;
+}
