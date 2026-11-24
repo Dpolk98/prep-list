@@ -788,17 +788,54 @@ button.hazard-chip::after { content: '›'; margin-left: 2px; font-weight: 700; 
 .backup-reminder p { margin: 0 0 12px; max-width: 62ch; font-size: .92rem; }
 
 /* Shown on every page when a new version is ready (app/update.js). */
+/* Its middle sits in the middle of the screen's lower third (5/6 of the
+   way down), clear of the home bar and of thumbs resting at the bottom edge.
+   `translate` is separate from `transform`, so the pop animation still works. */
 .update-bar {
   position: fixed; z-index: 15;
-  left: 12px; right: 12px; bottom: calc(12px + env(safe-area-inset-bottom));
+  left: 12px; right: 12px;
+  bottom: calc(100vh / 6); bottom: calc(100dvh / 6);
+  translate: 0 50%;
   max-width: 520px; margin: 0 auto;
   border-color: var(--accent);
   box-shadow: 0 6px 24px rgba(0, 0, 0, .18);
+}
+/* Short screens (a phone on its side): there's no room to lift it, so it
+   sits at the bottom as before. */
+@media (max-height: 520px) {
+  .update-bar { bottom: calc(12px + env(safe-area-inset-bottom)); translate: none; }
 }
 .update-bar[hidden] { display: none; }
 .update-bar h2 { margin: 0 0 4px; font-size: 1rem; color: var(--accent); }
 .update-bar p { margin: 0 0 12px; font-size: .92rem; }
 .update-check .data-tools { margin-top: 8px; }
+/* "Updating…" then "Update complete" (app/update.js). */
+.update-dialog { width: min(360px, calc(100vw - 32px)); text-align: center; }
+/* It has nothing to press while updating, so the pop-up itself takes focus;
+   no ring around the whole card for that. */
+.update-dialog:focus { outline: none; }
+.update-progress, .update-done { display: flex; flex-direction: column; align-items: center; }
+.update-progress[hidden], .update-done[hidden] { display: none; }
+.update-dialog h2 { margin: 12px 0 4px; }
+.update-dialog .settings-text { margin: 0; }
+.update-spinner {
+  width: 44px; height: 44px; border-radius: 50%;
+  border: 4px solid var(--border); border-top-color: var(--accent);
+  animation: update-spin .8s linear infinite;
+}
+@keyframes update-spin { to { transform: rotate(360deg); } }
+/* Reduced motion and low-power mode: a still ring that gently dims instead. */
+@media (prefers-reduced-motion: reduce) {
+  .update-spinner { animation: update-dim 1.6s ease-in-out infinite; border-color: var(--accent); }
+}
+body.low-power .update-spinner { animation: none; border-color: var(--accent); }
+@keyframes update-dim { 50% { opacity: .45; } }
+.update-done-mark {
+  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  background: var(--accent); color: var(--accent-text); font-size: 1.4rem; font-weight: 700;
+}
+.update-done-actions { align-self: stretch; margin-top: 18px; }
+.update-done-actions button { flex: 1; }
 .backup-note { border-color: var(--warn); background: var(--warn-bg); }
 .backup-note h2 { color: var(--warn); }
 .backup-note p { margin: 0 0 10px; max-width: 62ch; }

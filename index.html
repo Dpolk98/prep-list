@@ -564,6 +564,25 @@
     </div>
   </section>
 
+  <!-- Shown while the app reloads into a new version, and after (app/update.js) -->
+  <dialog id="update-dialog" class="update-dialog" aria-labelledby="update-dialog-title">
+    <div class="update-dialog-body" id="update-dialog-body">
+      <div class="update-progress" id="update-progress" role="status">
+        <span class="update-spinner" aria-hidden="true"></span>
+        <h2 id="update-dialog-title">Updating…</h2>
+        <p class="settings-text">This only takes a moment.</p>
+      </div>
+      <div class="update-done" id="update-done" hidden>
+        <span class="update-done-mark" aria-hidden="true">✓</span>
+        <h2 id="update-done-title">Update complete</h2>
+        <p class="settings-text">You’re on the newest version. Your supplies and settings are just as you left them.</p>
+        <div class="actions update-done-actions">
+          <button type="button" class="primary" id="update-done-close">Close</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Tier picker: shown on first use and from the "Change" button -->
   <dialog id="scan-dialog" class="scan-dialog" aria-labelledby="scan-title">
     <div class="scan-head">
