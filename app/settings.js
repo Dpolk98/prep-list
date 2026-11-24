@@ -25,15 +25,85 @@ function hazardOptions(chosen = state.hazards) {
     </label>`).join('');
 }
 
-function renderSettings() {
-  if (document.activeElement !== $('people')) $('people').value = state.people;
-  $('settings-tiers').innerHTML = tierOptions();
-  $('settings-hazards').innerHTML = hazardOptions();
+// ---------- Themes ----------
+// How the app looks, kept per device (in this browser only, not in backups).
+// The page's <head> applies the saved theme before anything is drawn, so
+// there's no flash of the default look. `status` colours the phone's status
+// bar in light and dark mode.
+const THEME_KEY = 'prep-tracker:theme';
+const THEMES = [
+  { id: 'default', name: 'Default', note: 'Calm greens on a warm, plain background.', status: ['#f6f5f1', '#141715'] },
+  { id: 'aero', name: 'Aero glass', note: 'Glossy, see-through panels over a bright sky, like desktops of the late 2000s.', status: ['#bfe3fa', '#0b2233'] },
+  { id: 'contrast', name: 'High contrast', note: 'Black and white, bigger text, and heavy outlines. Easiest to read in bright sun.', status: ['#ffffff', '#000000'] },
+  { id: 'night', name: 'Night red', note: 'Dim red on black, which is gentler on your night vision in the dark.', status: ['#000000', '#000000'] },
+  { id: 'field', name: 'Field manual', note: 'Bold, plain type on grid paper, like a field notebook.', status: ['#3d4425', '#3d4425'] },
+  { id: 'terminal', name: 'Terminal', note: 'Glowing green type on a black screen, like an old computer.', status: ['#020a04', '#020a04'] },
+  { id: 'paper', name: 'Paper', note: 'Handwritten headings on lined notebook paper.', status: ['#f3eee2', '#f3eee2'] },
+  { id: 'pastel', name: 'Pastel', note: 'Soft colors and rounded shapes.', status: ['#f6f1fa', '#f6f1fa'] },
+];
 
-  const info = backupInfo();
-  $('backup-last').textContent = info.last
-    ? `Last backup exported from this device: ${formatLongDate(info.last)} (${daysAgo(info.last)}).${info.changedSince ? ` You’ve made ${changesSinceText(info)} since then.` : ''}`
-    : 'No backup exported from this device yet.';
+function currentTheme() {
+  let id = null;
+  try { id = localStorage.getItem(THEME_KEY); } catch { /* no storage */ }
+  return THEMES.find((t) => t.id === id) || THEMES[0];
+}
+
+function setTheme(id) {
+  try {
+    if (id === THEMES[0].id) localStorage.removeItem(THEME_KEY);
+    else localStorage.setItem(THEME_KEY, id);
+  } catch { /* stays for this visit only */ }
+  if (id === THEMES[0].id) delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = id;
+  render();
+}
+
+function themeOptions() {
+  const chosen = currentTheme().id;
+  return THEMES.map((t) => `
+    <button type="button" class="theme-option ${t.id === chosen ? 'selected' : ''}" data-theme-id="${t.id}" aria-pressed="${t.id === chosen}">
+      <span class="theme-swatch theme-swatch-${t.id}" aria-hidden="true"><span></span><span></span><span></span></span>
+      <strong>${escapeHtml(t.name)}</strong>
+      <span class="theme-note">${escapeHtml(t.note)}</span>
+    </button>`).join('');
+}
+
+$('settings-themes').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-theme-id]');
+  if (!btn || btn.dataset.themeId === currentTheme().id) return;
+  setTheme(btn.dataset.themeId);
+  $('settings-themes').querySelector(`[data-theme-id="${btn.dataset.themeId}"]`)?.focus();
+});
+
+// ---------- Settings list and pages ----------
+
+function settingsMenu() {
+  const groups = [...new Set(SETTINGS_PAGES.map((p) => p.group))];
+  return groups.map((g) => `
+    <ul class="card settings-list">
+      ${SETTINGS_PAGES.filter((p) => p.group === g).map((p) => `
+        <li><a href="#/${p.slug}">${icon(p.icon)}<span>${escapeHtml(p.name)}</span>${icon('chevronRight')}</a></li>`).join('')}
+    </ul>`).join('');
+}
+
+// The list of titles on Settings itself, or one setting's page.
+function renderSettings(page) {
+  const section = page.parent === 'settings' ? page.section : null;
+  $('settings-menu').hidden = Boolean(section);
+  if (!section) $('settings-menu').innerHTML = settingsMenu();
+  $('view-settings').querySelectorAll('[data-settings]').forEach((el) => { el.hidden = el.dataset.settings !== section; });
+
+  if (section === 'household' && document.activeElement !== $('people')) $('people').value = state.people;
+  if (section === 'tier') $('settings-tiers').innerHTML = tierOptions();
+  if (section === 'hazards') $('settings-hazards').innerHTML = hazardOptions();
+  if (section === 'theme') $('settings-themes').innerHTML = themeOptions();
+
+  if (section === 'backup') {
+    const info = backupInfo();
+    $('backup-last').textContent = info.last
+      ? `Last backup exported from this device: ${formatLongDate(info.last)} (${daysAgo(info.last)}).${info.changedSince ? ` You’ve made ${changesSinceText(info)} since then.` : ''}`
+      : 'No backup exported from this device yet.';
+  }
 }
 
 $('settings-tiers').addEventListener('click', (e) => {

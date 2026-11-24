@@ -17,12 +17,17 @@ function render() {
 
   document.title = page.slug ? `${page.name} · Prep Tracker` : 'Prep Tracker';
   $('page-icon').innerHTML = icon(page.icon);
+  // A settings page has a back button to the Settings list in place of its icon.
+  $('page-icon').hidden = Boolean(page.parent);
+  $('page-back').hidden = !page.parent;
+  $('page-sub').hidden = !page.blurb;
   $('page-title').textContent = page.name;
   $('page-sub').textContent = page.blurb;
 
   renderNav(page);
 
   const view = page.slug === '' ? 'overview'
+    : page.parent ? page.parent
     : ['savings', 'settings', 'welcome', 'print', 'grab', 'reference', 'review'].includes(page.slug) ? page.slug
     : page.slug === 'go-bag' ? 'gobag'
     : page.status ? 'status' : 'category';
@@ -32,7 +37,7 @@ function render() {
   if (view === 'category') renderCategory(page, wd);
   if (view === 'savings') renderSavings();
   if (view === 'status') renderStatus(page);
-  if (view === 'settings') renderSettings();
+  if (view === 'settings') renderSettings(page);
   if (view === 'print') renderPrint();
   if (view === 'grab') renderGrab();
   if (view === 'gobag') { renderGoBag(); askAboutBagIfNeeded(); }
