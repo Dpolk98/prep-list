@@ -1,4 +1,4 @@
-// ---------- Rendering: Go-Bag ----------
+// ---------- Rendering: Go-Bags ----------
 // One bag of 30 L or less that works as both a get-home and a get-out bag.
 // The list lives in go-bag.js. Each piece of gear can be ticked off as
 // packed (saved), and counts toward the space and weight meter at the top.
