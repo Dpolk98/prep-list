@@ -54,6 +54,7 @@ if (hadSavedData) {
 recordFirstOpened();
 resetForm();
 render();
+finishUpdateIfPending();
 if (!hadSavedData) openWelcome();
 else askForTierIfNeeded();
 inviteTipIfDue();
