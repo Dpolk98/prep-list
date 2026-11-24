@@ -8,7 +8,7 @@
 // Kept apart from the inventory (and out of backups), like the backup
 // reminder: { firstOpened: 'YYYY-MM-DD', done: null | 'tipped' | 'declined' }.
 
-// Also linked from Settings, under About the app.
+// Also linked from Settings, under Support the app.
 const KOFI_URL = 'https://ko-fi.com/DanielPolk';
 
 const TIP_KEY = 'prep-tracker:tip';
@@ -60,10 +60,12 @@ function finishTip(done) {
 // The link opens Ko-fi in a new tab on its own; this only records it.
 $('tip-link').addEventListener('click', () => finishTip('tipped'));
 // Tipping from Settings first counts too, so the popup never asks.
-$('settings-tip-link').href = KOFI_URL;
-$('settings-tip-link').addEventListener('click', () => {
-  if (!tipInfo().done) saveTipInfo({ ...tipInfo(), done: 'tipped' });
-});
+for (const id of ['settings-tip-link', 'kofi-link']) {
+  $(id).href = KOFI_URL;
+  $(id).addEventListener('click', () => {
+    if (!tipInfo().done) saveTipInfo({ ...tipInfo(), done: 'tipped' });
+  });
+}
 $('tip-later').addEventListener('click', () => finishTip('declined'));
 // Escape, or the browser closing it, counts as "No thanks".
 $('tip-dialog').addEventListener('close', () => {
