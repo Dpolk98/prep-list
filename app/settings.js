@@ -36,10 +36,10 @@ const THEMES = [
   { id: 'aero', name: 'Aero glass', note: 'Glossy, see-through panels over a bright sky, like desktops of the late 2000s.', status: ['#bfe3fa', '#0b2233'] },
   { id: 'contrast', name: 'High contrast', note: 'Black and white, bigger text, and heavy outlines. Easiest to read in bright sun.', status: ['#ffffff', '#000000'] },
   { id: 'night', name: 'Night red', note: 'Dim red on black, which is gentler on your night vision in the dark.', status: ['#000000', '#000000'] },
-  { id: 'field', name: 'Field manual', note: 'Bold, plain type on grid paper, like a field notebook.', status: ['#3d4425', '#3d4425'] },
+  { id: 'field', name: 'Field manual', note: 'Bold, plain type on grid paper, like a field notebook.', status: ['#4b5320', '#363c1a'] },
   { id: 'terminal', name: 'Terminal', note: 'Glowing green type on a black screen, like an old computer.', status: ['#020a04', '#020a04'] },
-  { id: 'paper', name: 'Paper', note: 'Handwritten headings on lined notebook paper.', status: ['#f3eee2', '#f3eee2'] },
-  { id: 'pastel', name: 'Pastel', note: 'Soft colors and rounded shapes.', status: ['#f6f1fa', '#f6f1fa'] },
+  { id: 'paper', name: 'Paper', note: 'Handwritten headings on lined notebook paper.', status: ['#f3eee2', '#1b1a1f'] },
+  { id: 'pastel', name: 'Pastel', note: 'Soft colors and rounded shapes.', status: ['#f6f1fa', '#1f1b30'] },
 ];
 
 function currentTheme() {

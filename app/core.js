@@ -71,6 +71,7 @@ const SETTINGS_PAGES = [
   { section: 'low-power', group: 3, name: 'Low-battery mode', icon: 'battery' },
   { section: 'setup', group: 4, name: 'Setup', icon: 'refresh' },
   { section: 'about', group: 4, name: 'About the app', icon: 'info' },
+  { section: 'support', group: 5, name: 'Support the app', icon: 'heart' },
 ].map((p) => ({ ...p, slug: `settings/${p.section}`, parent: 'settings', blurb: '' }));
 
 const CATEGORIES = PAGES.filter((p) => p.cat && !p.noInventory).map((p) => p.cat);
