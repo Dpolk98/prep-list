@@ -91,12 +91,17 @@ function bindHouseholdForm(box, get, set) {
   });
 }
 
-// Settings saves each change straight away.
+// Settings saves each change straight away. The form already shows the
+// change (and may be animating the infant box in or out), so this render
+// leaves it alone. Checking focus isn't enough: on iPhone, tapping a
+// button doesn't focus it, so the form was rebuilt mid-animation.
+let householdFromForm = false;
 bindHouseholdForm($('settings-household'), () => state, (change) => {
   Object.assign(state, change);
   state.people = state.adults + state.children;
   saveState();
-  render();
+  householdFromForm = true;
+  try { render(); } finally { householdFromForm = false; }
 });
 
 // ---------- Themes ----------
@@ -167,7 +172,9 @@ function renderSettings(page) {
   if (!section) $('settings-menu').innerHTML = settingsMenu();
   $('view-settings').querySelectorAll('[data-settings]').forEach((el) => { el.hidden = el.dataset.settings !== section; });
 
-  if (section === 'household' && !$('settings-household').contains(document.activeElement)) $('settings-household').innerHTML = householdForm(state);
+  if (section === 'household' && !householdFromForm && !$('settings-household').contains(document.activeElement)) {
+    $('settings-household').innerHTML = householdForm(state);
+  }
   if (section === 'tier') $('settings-tiers').innerHTML = tierOptions();
   if (section === 'hazards') $('settings-hazards').innerHTML = hazardOptions();
   if (section === 'theme') $('settings-themes').innerHTML = themeOptions();
