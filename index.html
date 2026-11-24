@@ -290,6 +290,104 @@
       <div id="grab-lists"></div>
     </div>
 
+    <!-- ===== Go-Bag (go-bag.js, app/go-bag-page.js) ===== -->
+    <div id="view-gobag" class="view" hidden>
+      <details class="card gobag-bags" id="gobag-bags" open>
+        <summary class="gobag-fold"><h2>Your bags</h2><span class="more" id="gobag-bags-count"></span></summary>
+        <p class="hint gobag-bags-intro">Keep one bag that does both jobs, or several, like one at work to get home and one by the door to get out. Each bag has its own packing list. Tap a bag to pack it.</p>
+        <div class="gobag-grid" id="gobag-grid"></div>
+      </details>
+
+      <section class="card gobag-panel">
+        <div class="gobag-current">
+          <div class="gobag-current-text">
+            <p class="setup-step">Packing</p>
+            <h2 id="gobag-current-name"></h2>
+            <p class="gobag-current-meta" id="gobag-current-meta"></p>
+          </div>
+          <button type="button" id="gobag-edit">Edit</button>
+        </div>
+        <p class="hint gobag-mode-blurb" id="gobag-mode-blurb"></p>
+        <div class="water-big"><span id="gobag-liters">0</span><span class="goal" id="gobag-limit"></span></div>
+        <span class="label" id="gobag-size-label">of space packed, estimated</span>
+        <div class="bar gobag-bar"><div class="fill" id="gobag-bar"></div><span class="plan-mark" id="gobag-plan-mark" aria-hidden="true"></span></div>
+        <p class="hint" id="gobag-weight"></p>
+        <p class="hint" id="gobag-plan"></p>
+        <details class="estimate-note">
+          <summary><strong>Sizes and weights are estimates.</strong><span class="more">Keeping it light</span></summary>
+          <p>Each figure is typical for compact gear, rounded. Real packing leaves gaps, so leave a few liters free.</p>
+          <p>The bag size is the smallest of 20, 25, or 30 L that the list fills no more than three quarters of, leaving the rest for gaps and personal items. It depends on the bag’s type and your Local Hazards.</p>
+          <p>A common hiking guideline is to keep a loaded pack under about 20% of your body weight. Water is the heaviest thing in the bag, at about 2.2 lb per liter.</p>
+          <p>A 30 L pack is a large daypack: small enough to carry all day, to keep under a desk or in a car, and to grab on the way out the door.</p>
+        </details>
+      </section>
+
+      <section class="card gobag-list-card">
+        <h2>Packing list</h2>
+        <p class="hint">Tick things off as they go in the bag. Your Local Hazards come first. The bag is tracked on its own, so nothing here changes your inventory on the Preps pages.</p>
+        <details class="estimate-note gobag-tips">
+          <summary><strong>Packing tips</strong></summary>
+          <ul>
+            <li>Put heavy things, like water and food, in the middle of the bag and close to your back.</li>
+            <li>Keep what you’ll reach for often, like the headlamp, first aid kit, map, and rain jacket, near the top or in outside pockets.</li>
+            <li>Keep the bag where you spend your days: at work or in the car for getting home, and by the door when you’re home. Moving it between them is part of the plan.</li>
+            <li>Check it every 6 months. Replace food, water, medications, and batteries before they expire, and swap clothing for the season.</li>
+            <li>Walk part of your route home with the bag on once, to check that it’s comfortable and how long it takes.</li>
+          </ul>
+        </details>
+        <div class="group-tools gobag-tools">
+          <button type="button" class="link-btn" id="gobag-toggle-all">Expand all</button>
+        </div>
+        <div id="gobag-list"></div>
+      </section>
+
+      <details class="card gobag-choose" id="gobag-choose">
+        <summary class="gobag-fold"><h2>Choosing a bag</h2><span class="more">Features, budget, and the two jobs</span></summary>
+        <div id="gobag-choose-body">
+          <p class="settings-text">Any sturdy backpack of 30 liters or less can do the job. What matters most is that it fits you and carries comfortably for hours.</p>
+          <div class="gobag-feature-grid">
+            <div>
+              <h3>Worth having</h3>
+              <ul class="reasons">
+                <li><strong>Padded shoulder straps</strong> and a padded back panel.</li>
+                <li><strong>A hip belt and chest strap</strong>, which move weight off your shoulders.</li>
+                <li><strong>Durable fabric and sturdy zippers</strong>, the parts most likely to fail.</li>
+                <li><strong>Water resistance</strong>, from the fabric or a rain cover.</li>
+                <li><strong>A fit that suits your torso length.</strong> Try it on loaded if you can.</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Nice to have</h3>
+              <ul class="reasons">
+                <li>Outside pockets for things you reach for often.</li>
+                <li>Compression straps to keep a part-full bag from shifting.</li>
+                <li>A hydration sleeve, attachment loops, or webbing.</li>
+                <li>Lighter or tougher specialty materials, and a long warranty.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="gobag-budget">
+            <strong>Don’t chase features past your budget.</strong>
+            <p>Each added feature tends to raise the price, and often the weight, while adding less and less to what the bag can do. A basic daypack that fits well and holds up is enough. If a feature would push a bag outside your budget, skip it and put the money toward what goes inside.</p>
+          </div>
+          <details class="gobag-uses">
+            <summary class="gobag-fold"><h3>One bag, two jobs</h3><span class="more">Get home and get out</span></summary>
+            <div class="gobag-use-grid">
+              <div>
+                <span class="use-tag home">Get home</span>
+                <p>You’re at work, school, or on the road when something happens, and need to make it back, maybe on foot, over a day or two.</p>
+              </div>
+              <div>
+                <span class="use-tag out">Get out</span>
+                <p>You need to leave home quickly and get by on your own until you reach shelter or more supplies. The Red Cross suggests 3 days of supplies for an evacuation kit, but a 30 L bag can’t carry 3 days of water, so treat 72 hours as an absolute maximum, not what to expect.</p>
+              </div>
+            </div>
+            <p class="hint">Most of the list does both jobs, marked <span class="use-tag both">Both</span>. The rest is tagged with the job it’s mainly for. One bag means one set of gear to buy, pack, and keep up to date.</p>
+          </details>
+        </div>
+      </details>
+    </div>
+
     <!-- ===== Low-battery mode (replaces every page while it's on) ===== -->
     <div id="view-low-power" class="view" hidden>
       <div class="lp-head">
@@ -559,6 +657,57 @@
     </div>
   </dialog>
 
+  <!-- Go-Bag: add or edit a bag (app/go-bag-page.js) -->
+  <dialog id="gobag-bag-dialog" aria-labelledby="gobag-bag-title">
+    <form id="gobag-bag-form" autocomplete="off">
+      <h2 id="gobag-bag-title">Add a bag</h2>
+      <div class="grid grab-grid">
+        <label class="wide">Name
+          <input id="gobag-bag-name" required maxlength="40" enterkeyhint="done" placeholder="e.g. Work bag">
+        </label>
+        <fieldset class="wide gobag-type-field">
+          <legend>Type</legend>
+          <div class="tier-options gobag-type-options" id="gobag-bag-type"></div>
+        </fieldset>
+        <label class="wide">Where it’s kept
+          <input id="gobag-bag-location" maxlength="60" enterkeyhint="done" placeholder="e.g. Under my desk at work">
+        </label>
+      </div>
+      <div class="actions grab-actions">
+        <button type="button" class="danger-btn" id="gobag-bag-delete" hidden>Delete bag</button>
+        <button type="button" id="gobag-bag-cancel">Cancel</button>
+        <button type="submit" class="primary" id="gobag-bag-save">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Go-Bag: asked once, the first time the page is opened (app/go-bag-page.js) -->
+  <dialog id="gobag-ask-dialog" aria-labelledby="gobag-ask-title">
+    <p class="setup-step">Go-Bag</p>
+    <h2 id="gobag-ask-title">Do you already have a bag set up?</h2>
+    <p class="hint">A backpack of 30 liters or less that you use as your go-bag.</p>
+    <div class="tier-options welcome-choices">
+      <button type="button" class="tier-option" id="gobag-ask-yes">
+        <strong>Yes, I have a bag</strong>
+        <span class="tier-title">Go straight to the packing list.</span>
+      </button>
+      <button type="button" class="tier-option" id="gobag-ask-no">
+        <strong>Not yet</strong>
+        <span class="tier-title">See what to look for in a bag first.</span>
+      </button>
+    </div>
+  </dialog>
+
+  <!-- Go-Bag: the Choosing a bag section, shown as a popup -->
+  <dialog id="gobag-choose-dialog" class="gobag-choose-dialog" aria-labelledby="gobag-choose-dialog-title">
+    <h2 id="gobag-choose-dialog-title">Choosing a bag</h2>
+    <div id="gobag-choose-dialog-body"></div>
+    <p class="hint gobag-choose-later">You can find this again at the bottom of the Go-Bag page.</p>
+    <div class="actions">
+      <button type="button" class="primary" id="gobag-choose-done">Got it</button>
+    </div>
+  </dialog>
+
   <!-- Shown at most once, a month after first use (see app/tip.js) -->
   <dialog id="tip-dialog" class="tip-dialog" aria-labelledby="tip-title">
     <h2 id="tip-title">Finding Prep Tracker useful?</h2>
@@ -573,6 +722,7 @@
   <script src="barcode.js"></script>
   <script src="tiers.js"></script>
   <script src="hazards.js"></script>
+  <script src="go-bag.js"></script>
   <script src="reference.js"></script>
   <script src="shelf-life.js"></script>
   <script src="supply-match.js"></script>
@@ -592,6 +742,7 @@
   <script src="app/review.js"></script>
   <script src="app/quick-reference.js"></script>
   <script src="app/grab-list.js"></script>
+  <script src="app/go-bag-page.js"></script>
   <script src="app/print.js"></script>
   <script src="app/settings.js"></script>
   <script src="app/item-form.js"></script>

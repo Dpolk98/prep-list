@@ -79,9 +79,9 @@ function renderToggleLabel() {
   const all = [...document.querySelectorAll('#items .item-group')];
   // Read after the browser has toggled the group.
   requestAnimationFrame(() => {
-    const allOpen = all.every((d) => d.open);
-    $('toggle-groups').textContent = allOpen ? 'Collapse all' : 'Expand all';
-    $('toggle-groups').dataset.open = String(!allOpen);
+    const anyOpen = all.some((d) => d.open);
+    $('toggle-groups').textContent = anyOpen ? 'Collapse all' : 'Expand all';
+    $('toggle-groups').dataset.open = String(!anyOpen);
   });
 }
 

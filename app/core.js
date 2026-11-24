@@ -37,6 +37,7 @@ const PAGES = [
   { slug: 'other', group: 'preps', name: 'Other', cat: 'Other', icon: 'package', blurb: 'Tools, shelter, pets, and anything else.' },
   { slug: 'plans', group: 'resources', name: 'Plans and Skills', cat: 'Plans and Skills', icon: 'clipboard', noInventory: true, blurb: 'Household plans, training, and community.' },
   ...(FEATURES.grabList ? [{ slug: 'grab', group: 'resources', name: 'Grab list', icon: 'backpack', blurb: 'What to take if you ever need to leave in a hurry, in order.' }] : []),
+  { slug: 'go-bag', group: 'resources', name: 'Go-Bag', icon: 'rucksack', blurb: 'Bags of 30 liters or less, packed to get you home, get you out, or both.' },
   { slug: 'reference', group: 'resources', name: 'Quick reference', icon: 'book', blurb: 'Short how-tos for when the power or water is out. Saved on this device, so they work offline.' },
   { slug: 'settings', name: 'Settings', icon: 'sliders', blurb: 'Household size, how long you’re preparing for, and backups.' },
   { slug: 'print', name: 'Print summary', icon: 'printer', blurb: 'Your supplies on paper, for when a phone is dead or the power is out.' },
@@ -197,6 +198,8 @@ function normalize(data = {}) {
     savings: { ...DEFAULT_SAVINGS, ...(data.savings || {}) },
     grab: normalizeGrab(data.grab),
     // Hazard ids from hazards.js, kept in that file's order.
+    // Gear ticked off as packed on the Go-Bag page (go-bag.js).
+    goBag: normalizeGoBag(data.goBag),
     hazards: Array.isArray(data.hazards) ? HAZARDS.map((h) => h.id).filter((id) => data.hazards.includes(id)) : [],
   };
 }
