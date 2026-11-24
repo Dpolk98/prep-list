@@ -200,6 +200,14 @@ $('gobag-bag-form').addEventListener('submit', (e) => {
   renderGoBag();
 });
 
+// The keyboard's Enter (or Done) key just closes the keyboard, so the
+// popup only saves from its Add or Save button.
+$('gobag-bag-form').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+  e.preventDefault();
+  e.target.blur();
+});
+
 $('gobag-bag-cancel').addEventListener('click', () => $('gobag-bag-dialog').close());
 
 // Deleting takes a second tap, since the bag's packing list goes with it.

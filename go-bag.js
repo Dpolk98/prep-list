@@ -1,7 +1,9 @@
 // Go-Bag: one bag of 30 liters or less that works both as a "get home" bag
 // (you're away from home and need to make it back, maybe on foot, over a day
 // or two) and a "get out" bag (you need to leave home quickly and get by for
-// about 72 hours, the Red Cross's evacuation guideline).
+// up to about 72 hours, the Red Cross's evacuation guideline). A 30 L bag
+// can't hold 3 days of water, so 72 hours is an absolute maximum, not a
+// promise: the page says so.
 //
 // gear: { name, use, liters, lb, note, outside? }
 //   use:       'home' (get home), 'out' (get out), or 'both'
@@ -39,7 +41,7 @@ const GO_BAG_USES = {
 const GO_BAG_MODES = {
   both: { label: 'Both', blurb: 'One bag for getting home and getting out. Everything on the list.' },
   home: { label: 'Get home', blurb: 'For getting back from work, school, or the road, maybe on foot, over a day or two.' },
-  out: { label: 'Get out', blurb: 'For leaving home quickly and getting by on your own for about 72 hours.' },
+  out: { label: 'Get out', blurb: 'For leaving home quickly. Stretched to the limit, it might last 72 hours, but plan to reach shelter or more supplies well before then.' },
 };
 const goBagMode = (mode) => (GO_BAG_MODES[mode] ? mode : 'both');
 const gearFitsMode = (g, mode) => mode === 'both' || g.use === 'both' || g.use === mode;
