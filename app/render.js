@@ -1,5 +1,15 @@
 // ---------- Rendering: page shell ----------
 
+// Where a page's back button goes, or null for a page without one. A settings
+// page goes back to the Settings list; a prep category page (Water, Food…)
+// and the Expired / Expiring Soon pages go back to the Overview. The button
+// is the same size as the page icon it replaces, so nothing changes size.
+function pageBack(page) {
+  if (page.parent === 'settings') return { href: '#/settings', label: 'Back to Settings' };
+  if (page.group === 'preps' || page.status) return { href: '#/', label: 'Back to Overview' };
+  return null;
+}
+
 function render() {
   // Low-battery mode replaces every page with one plain screen.
   const low = lowPowerOn();
@@ -17,9 +27,14 @@ function render() {
 
   document.title = page.slug ? `${page.name} · Prep Tracker` : 'Prep Tracker';
   $('page-icon').innerHTML = icon(page.icon);
-  // A settings page has a back button to the Settings list in place of its icon.
-  $('page-icon').hidden = Boolean(page.parent);
-  $('page-back').hidden = !page.parent;
+  // Some pages have a back button in place of their icon (see pageBack).
+  const back = pageBack(page);
+  $('page-icon').hidden = Boolean(back);
+  $('page-back').hidden = !back;
+  if (back) {
+    $('page-back').href = back.href;
+    $('page-back').setAttribute('aria-label', back.label);
+  }
   $('page-sub').hidden = !page.blurb;
   $('page-title').textContent = page.name;
   $('page-sub').textContent = page.blurb;
